@@ -29,6 +29,8 @@ Follow this sequence. Skipping steps is how dashboards end up hollow.
 
 Before writing a single line of code, read **`references/preflight-and-verification.md`** and answer the questions in it. The pre-flight establishes: what the dashboard is *for*, who uses it, what the stack is, what the data source is, what auth model exists, what already exists vs. what must be built, and what "done" looks like. You cannot build a connected dashboard without this — you'd be guessing at every fork.
 
+Once you've identified the domain (question #1), read the matching section in **`references/domain-considerations.md`**. It covers 26 verticals with domain-specific data model traps, compliance requirements, and UX patterns that generic CRUD misses. Skipping this is how dashboards end up with float-based currency, single-entry accounting, or missing HIPAA audit logs.
+
 If the user's request is vague ("build me a dashboard"), do not invent a domain. Pick the single most plausible interpretation, state your assumptions in one short paragraph, and proceed. Do not pepper the user with twenty questions. One pass of stated assumptions is enough; they'll redirect if needed.
 
 ### 2. Decide the architecture in writing
@@ -192,6 +194,7 @@ The body above is enough to start building. For depth on a specific domain, load
 | `references/analytics-and-telemetry.md` | Adding event tracking, audit logs, in-app metrics, usage dashboards |
 | `references/testing-and-quality.md` | Writing tests for auth, CRUD, permissions, accessibility, visual regression |
 | `references/performance-and-security.md` | Optimizing bundle size, queries, caching; hardening CSP, CORS, rate limiting, input sanitization |
+| `references/domain-considerations.md` | **During pre-flight**, after identifying the domain. Covers 26 verticals with domain-specific gotchas, compliance, and data model traps |
 
 ## How to interpret a vague request
 
@@ -203,8 +206,23 @@ The user rarely says "build me an admin panel with RBAC, audit logs, settings, u
 - "Operational dashboard" / "control panel" → real-time data, health indicators, action buttons (restart, deploy, ack), audit
 - "Customer portal" → end-user-facing: their data only, billing/subscription, support, settings
 - "Reporting dashboard" → tables-heavy, scheduled reports, exports to CSV/PDF, filters, drill-down
+- "CMS" / "blog admin" → content types, draft/publish workflow, media management, SEO, versioning
+- "E-commerce admin" / "store manager" → products/variants, orders, inventory, fulfillment, returns
+- "AI dashboard" / "LLM admin" → models, prompts, conversations, token/cost tracking, evaluation pipelines
+- "Helpdesk" / "support dashboard" → tickets, SLAs, queues, canned responses, customer context
+- "CRM" / "sales dashboard" → contacts, deals, pipeline stages, campaigns, forecasting
+- "HR dashboard" / "people admin" → employees, payroll, leave, benefits, performance reviews
+- "Medical" / "healthcare admin" → patients, encounters, prescriptions, claims, HIPAA compliance
+- "Marketplace admin" → two-sided (buyers + sellers), disputes, commissions, trust/safety
+- "Gaming admin" / "esports" → players, matches, virtual economy, anti-cheat, seasons
+- "Restaurant" / "POS admin" → menus with modifiers, orders, table management, kitchen display
+- "Property management" → units, leases, tenants, maintenance, owner reporting
+- "Logistics" / "fleet management" → shipments, vehicles, routes, drivers, real-time tracking
+- "Legal" / "law firm" → matters, time billing (0.1-hour increments), trust accounting, conflicts
+- "Construction" / "field services" → jobs, crews, permits, inspections, offline-first mobile
+- "Education" / "LMS" → courses, enrollments, gradebook, assessments, student progress
 
-Pick the closest archetype, build the foundation slice the same way regardless, then specialize the feature slices to the archetype.
+Pick the closest archetype (or combine if the dashboard spans domains), then read the matching section in `references/domain-considerations.md` during pre-flight. Build the foundation slice the same way regardless, then specialize the feature slices to the archetype.
 
 ## Keep going until it's actually done
 
