@@ -27,6 +27,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Tenant switcher in nav, plan comparison/upgrade flow inline, usage dashboards with limits as gauges, "impersonating [tenant]" banner for support staff.
 
+**Seed data shape:** 3 orgs (1 on free, 1 on pro, 1 on enterprise trial expiring in 3 days). 8-12 users across them with all roles represented. 1 org approaching its seat limit. Usage data spanning 90 days with realistic daily variation. 2 pending invoices, 1 past-due. Feature flags with at least 1 beta feature enabled for only 1 org.
+
 ---
 
 ## 2. E-commerce / Retail
@@ -48,6 +50,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Drag-to-reorder product images, bulk inventory update via spreadsheet, order timeline with every state transition, SKU matrix editor (size x color grid), real-time inventory badges.
 
+**Seed data shape:** 25 products with 2-4 variants each (size/color), realistic pricing ($9.99-$299.99 in integer cents). 2 inventory locations. 50 orders spanning 90 days in mixed states (3 pending, 5 shipped, 2 partially_returned, 1 refunded, rest completed). 5 customers with multiple orders, 15 with one. 2 active promotions (one percentage, one free-shipping). 1 product out of stock at one location but available at the other.
+
 ---
 
 ## 3. CMS / Content / Blog
@@ -67,6 +71,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** WCAG 2.1 AA for published content, GDPR (comment forms, cookies), copyright/licensing metadata for media, DMCA takedown process.
 
 **UX users expect:** WYSIWYG with structured blocks (Notion-style), side-by-side preview, version diff view, drag-to-reorder blocks, inline media upload, SEO score indicator, editorial calendar view.
+
+**Seed data shape:** 3 content types (Post, Page, Case Study). 20 posts across 4 categories and 10 tags — 12 published, 3 drafts, 2 scheduled (one for tomorrow, one for next week), 2 in review, 1 archived. 3 authors with different roles (editor, writer, admin). 30 media assets (images with alt text, 2 PDFs). 1 post with 5 revisions showing meaningful diffs. Realistic slugs, SEO metadata, and featured images.
 
 ---
 
@@ -89,6 +95,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** T-account visualization, trial balance report, aged receivables/payables, bank reconciliation matching interface, chart of accounts tree, journal entry form with auto-balancing, fiscal period lock indicators.
 
+**Seed data shape:** Chart of accounts with 20-30 accounts across all 5 types (asset/liability/equity/revenue/expense). 200 journal entries spanning 6 months — all balanced (debits = credits). 1 closed fiscal period (last quarter), 1 open. 15 invoices (10 paid, 3 outstanding, 2 overdue). 50 bank statement lines with 40 reconciled and 10 unreconciled. All amounts in integer cents. 1 multi-currency transaction with stored exchange rate. 1 reversing entry linked to its original.
+
 ---
 
 ## 5. Healthcare / Medical
@@ -108,6 +116,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** HIPAA, HITECH Act, 21st Century Cures Act (information blocking), GDPR (EU health data is "special category"), FDA for clinical software, state-specific consent laws.
 
 **UX users expect:** Problem/medication/allergy list always visible, clinical note templates (SOAP format), encounter timeline, medication reconciliation workflow, e-prescribing integration, patient portal with role-restricted views.
+
+**Seed data shape:** 50 patients (diverse demographics, 3 with no encounters, 1 with revoked consent for a specific provider). 15 providers across 3 departments. 200 encounters spanning 6 months with ICD-10 and CPT codes. 10 active prescriptions with 2 known drug interactions seeded. 5 insurance claims (3 approved, 1 denied, 1 pending). Audit log with 500+ PHI access entries. 1 patient with a merged duplicate record.
 
 ---
 
@@ -129,6 +139,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Gradebook grid (students x assignments), progress tracker (completion %), assignment submission workflow with rubric, discussion forum threading, attendance tracker, certificate builder, student/parent/teacher portal views.
 
+**Seed data shape:** 5 courses (2 active, 1 completed, 1 upcoming, 1 archived). 30 students and 4 instructors. 60 enrollments across courses. 8 assignments per active course with weighted grading categories. Grades for 80% of student-assignment pairs (leave some unsubmitted). 1 student with an "incomplete" grade. Prerequisites between 2 courses. 3 modules per course with sequential unlock. 1 certificate template with 5 issued certificates.
+
 ---
 
 ## 7. Travel / Hospitality / Booking
@@ -148,6 +160,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** PCI DSS for payment, local tourism/lodging taxes and reporting, ADA for US properties, anti-discrimination laws, data retention for tax.
 
 **UX users expect:** Calendar grid for availability (green/yellow/red), drag-to-block dates, rate calendar (price heatmap), reservation timeline (Gantt-style), channel distribution status, guest communication timeline, dynamic pricing suggestions.
+
+**Seed data shape:** 3 properties (hotel with 10 rooms, vacation rental with 1 unit, tour operator with 3 daily slots). 40 reservations spanning next 90 days in mixed states (confirmed, checked-in, checked-out, cancelled, no-show). Rates that vary by day-of-week and season. 2 channel sources (direct + Booking.com). 5 calendar blocks (owner stays, maintenance). 1 reservation with a pending cancellation inside the refund window. Guest communications at various stages.
 
 ---
 
@@ -169,6 +183,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Weekly schedule grid, class capacity indicators, member check-in kiosk mode, workout builder (sets x reps x weight), progress charts, leaderboards, trainer schedule calendar.
 
+**Seed data shape:** 80 members (60 active, 10 frozen, 5 expired, 5 on trial). 4 membership plans (monthly, annual, family, drop-in). 6 class types with recurring weekly schedules. 200 bookings over 30 days — 3 classes at capacity with waitlists, 5 no-shows, 2 late cancellations. 4 trainers with schedules. 1 family account with 3 members. 10 members with body metric histories (weight/measurements over 6 months).
+
 ---
 
 ## 9. Real Estate / Property Management
@@ -188,6 +204,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** Fair Housing Act, state-specific landlord-tenant laws (vary wildly), security deposit laws, lead paint disclosure (pre-1978), habitability requirements, eviction process requirements, 1099-MISC for owner payments.
 
 **UX users expect:** Portfolio overview with vacancy rates, unit-level P&L, lease expiration timeline, maintenance request kanban, tenant ledger, inspection checklist with photo capture, comparative market analysis.
+
+**Seed data shape:** 3 properties with 20 total units (15 occupied, 3 vacant, 2 in turnover). 15 active leases with varied terms (1 expiring this month, 1 month-to-month, 1 with rent escalation). 30 maintenance requests (20 completed, 5 open, 3 urgent/habitability, 2 scheduled). 6 months of rent payments with 2 late payments and 1 partial. 2 property owners with separate financials. Security deposits in trust. 1 unit in make-ready workflow.
 
 ---
 
@@ -209,6 +227,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Real-time map with vehicle positions, route visualization, driver HOS status bars, shipment tracking timeline, warehouse slot grid, vehicle maintenance dashboard with red/yellow/green, geofence alerts.
 
+**Seed data shape:** 15 vehicles (12 active, 2 in maintenance, 1 decommissioned). 8 drivers with varied HOS states (2 near daily limit, 1 on mandatory rest). 50 shipments (30 delivered with proof-of-delivery, 10 in transit with GPS breadcrumbs, 5 pending pickup, 3 delayed, 2 with exceptions). 2 warehouses with slot occupancy. 100,000 GPS data points across the fleet. 5 geofences. 3 vehicles with upcoming maintenance based on mileage.
+
 ---
 
 ## 11. HR / People / Payroll
@@ -228,6 +248,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** FLSA (overtime, exempt vs. non-exempt), FMLA (leave), ADA (accommodations), ACA (benefits), EEOC, W-2/W-4/I-9/1099 forms, COBRA, ERISA (retirement).
 
 **UX users expect:** Org chart, payroll run preview with exceptions highlighted, PTO calendar (team view), benefits enrollment wizard, performance review workflow, compensation band visualization, headcount reporting.
+
+**Seed data shape:** 40 employees across 4 departments and 3 levels (IC, manager, director). 2 pay periods of completed payroll with realistic deductions. 5 employees in different states (for multi-state tax). PTO balances with varied accrual rates by tenure. 1 employee on FMLA leave, 1 recently terminated (with final paycheck record). Benefits enrollment data for 2 plan types. 3 pending performance reviews. Salary history with effective dates showing 1 mid-period raise.
 
 ---
 
@@ -249,6 +271,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Kanban board with drag-and-drop, Gantt chart with dependency arrows, sprint backlog with story points, inline time tracking, @-mentions with notifications, customizable views (list/board/calendar/timeline).
 
+**Seed data shape:** 3 projects (1 active sprint, 1 planning, 1 completed). 60 tasks across all statuses with 10 dependency relationships (no circular). 2 custom workflows (3-status Kanban, 5-status with approvals). 8 team members with varied project-level roles. 100 time entries (70 billable, 30 non-billable). 200 activity feed events. 1 overdue milestone. Story point estimates on 80% of tasks. 5 tasks with file attachments.
+
 ---
 
 ## 13. Customer Support / Helpdesk
@@ -268,6 +292,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** GDPR (right to delete, but ticket history may be needed for disputes), PCI DSS (mask card numbers in messages), data retention policies.
 
 **UX users expect:** Queue with SLA countdown timers (red when breaching), split-pane (list + detail), customer context sidebar, canned response insertion, internal notes vs. public replies, collision indicators, satisfaction trends.
+
+**Seed data shape:** 100 tickets spanning 30 days — 15 open (3 breaching SLA, 2 escalated), 80 resolved, 5 pending customer response. 6 agents across 2 tiers. 3 SLA policies (enterprise 1hr, pro 4hr, free 24hr). 20 canned responses. 10 knowledge base articles. 500 messages (mix of public replies and internal notes). CSAT scores on 60% of resolved tickets. 2 merged tickets. 1 VIP customer with priority routing.
 
 ---
 
@@ -289,6 +315,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Pipeline board (Kanban by stage with deal values), contact timeline, email template builder with merge fields, campaign performance dashboard, forecast table (reps x months), lead scoring indicators.
 
+**Seed data shape:** 200 contacts across 50 companies — 30% leads, 50% customers, 20% churned. 25 open deals across 5 pipeline stages ($5K-$500K range, realistic distribution skewed toward early stages). 5 sales reps with varied performance. 500 activity records (emails, calls, meetings). 3 campaigns with engagement metrics. 10 deals closed-won and 8 closed-lost in the last quarter. Lead scores from 1-100. 2 duplicate contacts ready for merge.
+
 ---
 
 ## 15. IoT / Device Management
@@ -308,6 +336,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** FDA (medical devices), FCC (RF devices), GDPR (if devices collect personal data), IEC 62443 (industrial IoT), data sovereignty for cross-border deployments.
 
 **UX users expect:** Real-time device map, telemetry time-series charts with zoom/pan, alert list with severity and acknowledgment, live device metrics, fleet health scores, firmware rollout tracker, threshold configuration.
+
+**Seed data shape:** 50 devices across 3 device groups (20 sensors, 20 actuators, 10 gateways). 35 online, 10 offline (last seen varied), 5 in error state. 7 days of telemetry data (temperature, humidity, battery) at 30-second intervals — downsampled to hourly for older data. 200 alerts (150 acknowledged, 30 open, 20 auto-resolved). 3 firmware versions with 1 staged rollout in progress (40% complete). 5 alert threshold configurations.
 
 ---
 
@@ -329,6 +359,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Visual menu builder with modifier groups, table map with status colors, KDS ticket display with timers, 86 board, daily sales summary with prior period comparison, labor cost gauge, delivery aggregation view.
 
+**Seed data shape:** 40 menu items across 6 categories with 3 modifier groups (proteins, toppings, sizes). 15 tables in a floor plan. 100 orders from today (60 dine-in, 25 takeout, 15 delivery from 2 platforms). 5 orders in active preparation with KDS timestamps. 2 items 86'd. 8 staff with shift schedules. 30 days of daily sales history. Allergen flags on 10 items. Tip data across 50 completed checks. 3 split-check examples.
+
 ---
 
 ## 17. Legal / Law Firm
@@ -348,6 +380,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** Bar association rules (vary by state), ABA Model Rules, IOLTA trust rules, client confidentiality, e-discovery requirements, LEDES billing standards.
 
 **UX users expect:** Conflict check search, trust ledger with per-client sub-ledgers, time entry with timer and 0.1-hour increments, pre-bill editing workflow, matter-centric document management, court deadline calendar with countdown.
+
+**Seed data shape:** 20 clients with 35 matters (25 active, 5 closed, 5 archived). 500 time entries in 0.1-hour increments across 6 attorneys with varied hourly rates ($250-$750). 10 trust account deposits and 8 disbursements — balances reconcile to the penny. 50 documents across matters (drafts, executed, court-filed). 8 upcoming court deadlines (2 within 7 days). 3 pre-bills in draft. 1 conflict check result showing a flagged relationship. 200 audit log entries.
 
 ---
 
@@ -369,6 +403,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Donor giving history timeline, acknowledgment letter generator, fund balance dashboard (restricted vs. unrestricted), grant deadline tracker, campaign thermometer, recurring giving dashboard with failed payment alerts, volunteer hours logging.
 
+**Seed data shape:** 150 donors (100 one-time, 30 recurring monthly, 15 major donors, 5 lapsed). 500 donations spanning 2 years across 3 funds (unrestricted, scholarship restricted, building capital). 3 active grants with spending against budget and upcoming reporting deadlines. 2 campaigns (1 active at 65% of goal, 1 completed). 5 recurring gifts with 2 failed payment (expired card). 20 volunteers with 200 hours logged. 10 in-kind donations with valuations. Year-end tax receipts for prior year.
+
 ---
 
 ## 19. Media / Streaming
@@ -389,6 +425,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Catalog browser with territory/rights filters, rights availability calendar heatmap, ingestion pipeline status, viewing analytics with engagement curves, subscriber cohorts, content performance rankings, editorial curation tools.
 
+**Seed data shape:** 200 titles (120 movies, 60 series with 3-10 episodes each, 20 documentaries). Rights windows for 3 territories (US, UK, Germany) — 150 titles available in US, 90 in UK, 60 in Germany, with 5 expiring within 30 days. Per-territory content ratings. 10 titles in ingestion pipeline (3 transcoding, 2 QA, 5 complete). 3 subscription tiers. 50,000 viewing session records with completion rates. 5 curated editorial rows.
+
 ---
 
 ## 20. Agriculture / Farm Management
@@ -408,6 +446,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** EPA pesticide reporting, USDA organic certification (3-year transition), FSMA Produce Safety Rule, animal welfare regulations, water use permits, nutrient management plans, country-of-origin labeling, traceability (EU Farm to Fork).
 
 **UX users expect:** Map-centric interface with field polygons, field activity timeline, input application form with regulatory fields, yield comparison (this year vs. 5-year average), livestock cards, weather dashboard with GDD accumulation, grain bin tracker.
+
+**Seed data shape:** 8 fields as GeoJSON polygons with varied acreage (40-320 acres). 5 years of crop rotation history per field. 20 input application records with full regulatory fields (product, EPA number, rate, weather conditions, applicator cert). 3 years of harvest data with yields in bushels/acre. 50 livestock with individual records (ear tag, breed, vaccinations, weight history). 90 days of weather station data (temp, precip, wind). 4 grain bins with capacity and current fill levels. 2 equipment items with maintenance schedules.
 
 ---
 
@@ -431,6 +471,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Chat interface with streaming responses, conversation history with search, prompt playground/testing sandbox, usage/cost dashboard with per-model breakdown, model performance comparison charts, knowledge base/document management for RAG, evaluation results dashboard, system prompt editor with version history.
 
+**Seed data shape:** 3 model deployments (GPT-4o, Claude Sonnet, a fine-tuned model). 5 system prompts with 3 versions each — linked to evaluation scores showing version-over-version improvement. 200 conversations (1,500 messages) spanning 30 days across 20 users. Token usage records with cost breakdown per model per day. 1 RAG knowledge base with 50 ingested documents and chunking metadata. 30 evaluation runs with domain-specific metrics. 5 flagged conversations (content moderation triggers). Rate limit events for 2 users.
+
 ---
 
 ## 22. Entertainment / Events
@@ -451,6 +493,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** ADA accessibility for venues, local fire code capacity limits, sales tax on tickets (varies by jurisdiction), age restrictions for certain events, anti-scalping laws (jurisdiction-specific), payment card industry compliance.
 
 **UX users expect:** Visual seating map editor, drag-and-drop event scheduling, ticket sales dashboard with real-time counters, check-in scanner interface (mobile-optimized), settlement/payout breakdown per event, marketing campaign tracking (promo code performance), attendee demographics.
+
+**Seed data shape:** 10 events (3 upcoming, 5 past, 2 recurring weekly). 1 venue with a 500-seat map (sections, rows, accessibility seats, 2 obstructed-view). 800 tickets sold across events with 3 price tiers. 5 promo codes (2 active, 2 expired, 1 maxed out). 2 past events with completed settlements showing revenue splits. 300 check-in records for past events (including 5 duplicate scan attempts). 1 upcoming event with 60% sold and dynamic pricing active. 3 refunded tickets and 2 transfers.
 
 ---
 
@@ -474,6 +518,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Player lookup with match history, ban/moderation queue with evidence viewer, leaderboard browser by season/region/mode, virtual economy dashboard (currency in circulation, inflation metrics), tournament bracket editor, season pass progression analytics, report/appeal workflow, real-time concurrent player counts.
 
+**Seed data shape:** 500 player accounts (400 active, 50 inactive, 30 banned — 5 permanent, 25 temporary). 2,000 match records across 2 game modes with Elo/MMR ratings. 3 seasons (1 current, 2 archived) with battle pass progression data. Virtual economy: 10 item types, 5,000 transactions (purchases, trades, drops), currency balances per player. 1 active tournament bracket (16 players, quarterfinal stage). 20 player reports with evidence (screenshots, replay IDs). 3 ban appeals pending review. Leaderboards for current season by region (NA, EU, APAC).
+
 ---
 
 ## 24. Cybersecurity / SOC
@@ -494,6 +540,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** SOC 2, ISO 27001, NIST CSF, PCI DSS, HIPAA (if healthcare data), GDPR (incident notification within 72 hours), industry-specific regulations, breach notification laws (vary by state/country).
 
 **UX users expect:** Alert queue with severity/priority, incident timeline with event correlation, threat map (geographic), MITRE ATT&CK matrix heatmap, vulnerability scanner results with CVSS scores, asset inventory with risk scores, compliance control matrix with evidence status, runbook/playbook execution tracker.
+
+**Seed data shape:** 200 assets (servers, endpoints, network devices) across 3 network segments. 5,000 security events spanning 7 days. 15 incidents (10 resolved, 3 investigating, 2 new) mapped to MITRE ATT&CK TTPs. 100 vulnerabilities from scan results with CVSS scores (20 critical, 30 high, 50 medium). 3 threat intel feeds with 500 IOCs. 1 active investigation with a 5-hop pivot chain (IP > host > user > file hash > second host). 40 compliance controls with evidence status (30 met, 5 partially met, 5 not assessed). MTTD and MTTR metrics for last 90 days.
 
 ---
 
@@ -516,6 +564,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 
 **UX users expect:** Mobile-first daily log entry, photo capture with GPS tagging, punch list with completion tracking, Gantt chart with critical path, equipment utilization calendar, safety incident dashboard, budget tracker with change order waterfall, drawing viewer with revision indicator.
 
+**Seed data shape:** 3 projects (1 active at 40% complete, 1 in pre-construction, 1 recently completed). 15 crew members across 4 trades. 30 daily logs with weather, crew counts, and work descriptions. 5 change orders on the active project ($5K-$50K impact each) — 3 approved, 1 pending, 1 rejected. 10 permits in varied states. 3 drawing sets with 2 revisions each (Rev A superseded by Rev B). 20 punch list items (12 complete, 8 open). 2 safety incidents (1 near-miss, 1 recordable). 8 equipment items with utilization logs. Budget with original contract + change order waterfall.
+
 ---
 
 ## 26. Marketplace / Platform
@@ -537,6 +587,8 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 **Compliance:** Marketplace facilitator tax laws (US, state-by-state), consumer protection (EU Consumer Rights Directive, right of withdrawal), payment services regulations (PSD2 in EU), KYC/AML for seller onboarding, digital services act (EU, content moderation obligations), platform liability laws.
 
 **UX users expect:** Seller dashboard with earnings/payouts/performance, buyer order tracking, admin moderation queue, dispute resolution workflow with evidence viewer, marketplace health dashboard (GMV, take rate, seller churn, buyer satisfaction), category management, search analytics (top queries, zero-result queries), promoted listing management.
+
+**Seed data shape:** 30 sellers (20 active, 5 new/unverified, 3 suspended, 2 churned) across 3 tiers with different commission rates. 100 listings across 8 categories with varied pricing. 200 orders spanning 60 days (160 completed, 15 in transit, 10 pending, 5 disputed, 5 refunded, 5 cancelled). 500 reviews with ratings (4 flagged for moderation — 2 suspected fake). 3 active disputes at different stages. 10 payouts completed, 2 pending. Search analytics: top 20 queries with click-through rates, 5 zero-result queries. 5 promoted listings with spend and impression data. GMV and take-rate metrics for 6 months.
 
 ---
 
