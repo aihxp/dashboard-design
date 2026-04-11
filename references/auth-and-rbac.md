@@ -281,7 +281,38 @@ Shows the user's profile, role, last login, audit trail of recent actions. Admin
 
 ### `/settings/profile` — self-service
 
-The currently logged-in user editing their own info: name, email, avatar, password, MFA enrollment.
+The currently logged-in user editing their own info. This page looks simple but has more depth than most builders expect. Build it as a sectioned form, not a single flat list of fields.
+
+**Identity section:**
+- **Display name** — text input, saved on blur or explicit save.
+- **Email** — changing email requires verification of the new address before the switch takes effect. Send a confirmation link to the new email; only swap on click. Show "pending verification: newemail@..." until confirmed. Never change email without verification — it's an account takeover vector.
+- **Avatar** — upload with client-side crop/resize (circle preview at the size it'll appear in the UI). Serve at the display size, not the original 4MB upload. Show initials as fallback when no avatar is set.
+- **Timezone** — dropdown of IANA timezone names. Default to browser-detected. Used for displaying dates throughout the dashboard. Store as `timezone` on the user record, apply server-side when rendering timestamps.
+- **Language / locale** — if the dashboard supports i18n. Affects date formats, number formats, and UI language.
+
+**Security section:**
+- **Change password** — require the current password before setting a new one. Never let a session token alone authorize a password change. Show strength indicator. Validate against breached password lists (HaveIBeenPwned API) if the dashboard handles sensitive data.
+- **Active sessions** — list all active sessions with: device/browser, IP address (or rough location), last active time, and "this device" indicator. A "Sign out all other devices" button that revokes every session except the current one. This is the first thing a user does when they suspect compromise.
+- **MFA / two-factor** — enrollment flow: show QR code for TOTP app, verify with a 6-digit code, show backup codes (one-time, store hashed). Unenrollment requires the current password or a backup code. Show MFA status prominently.
+- **Login history** — last 10-20 logins with timestamp, IP, device, and success/failure. Helps users spot suspicious access.
+
+**Preferences section:**
+- **Theme** — light / dark / system. Apply immediately on toggle (optimistic). Persist to the user record so it follows across devices.
+- **Notification preferences** — a matrix of notification types x channels (email, in-app, push if applicable). Each row is a notification type ("New comment on my task," "Weekly digest," "Security alert"), each column is a channel. Users toggle individually. Security notifications (login from new device, password changed) should be non-disableable.
+- **Density** — comfortable / compact for tables and lists, if the dashboard supports it.
+
+**Connected accounts section (if applicable):**
+- **OAuth / SSO links** — show connected providers (Google, GitHub, Microsoft) with "Connect" / "Disconnect" buttons. Prevent disconnecting the last auth method (if they have no password and disconnect their only OAuth provider, they're locked out).
+- **API keys** — generate, name, copy (shown once), revoke. Show last-used date per key. Never show the full key after creation — only the last 4 characters.
+
+**Danger zone:**
+- **Export my data** — GDPR right of access. Generate a zip of the user's data (profile, activity, content they created). Background job with email notification when ready.
+- **Delete my account** — requires typing a confirmation word, requires the current password, and shows the consequences in concrete terms ("This will delete your profile and remove you from 3 organizations. Your content will be reassigned to the org admin."). Implement as soft-delete with a 30-day grace period before hard deletion. Send a confirmation email with an "undo" link.
+
+**What NOT to put on the profile page:**
+- Org settings, billing, team management — those belong on separate org-level settings pages. The profile page is personal.
+- Other users' information — the profile page is about "me," not about managing others.
+- Feature flags or developer settings — those go in a separate admin/developer page.
 
 ### Disable vs. delete
 

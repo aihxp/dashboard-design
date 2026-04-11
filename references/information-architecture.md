@@ -43,16 +43,228 @@ Adopt this layout unless the domain demands otherwise. It is the convention used
 - Page padding: 24–32px on desktop, 16px on mobile
 - Section spacing: 24–32px between major sections, 12–16px between rows
 
-## When to deviate
+## Layout patterns
 
-Some dashboards have legitimate reasons to use a different layout. Recognize them so you don't reinvent for no reason.
+The canonical layout (sidebar + content) is the default, but it's not the only valid layout. Different workflows demand different spatial arrangements. Pick the layout that matches the user's primary task, not the one that looks most impressive.
 
-- **Operational / NOC dashboards** — large screens, no nav at all, all real-time tiles. The user doesn't navigate; they monitor. Skip the sidebar, fill the screen with widgets.
-- **Single-screen analytics** — one page with filter bar on top and charts below. Nav is unnecessary if there's only one view.
-- **Wizard / onboarding flows** — linear progression with a step indicator instead of a sidebar.
-- **Embedded dashboards** — when the dashboard lives inside another app (e.g., a customer-facing report inside a CRM), the host already has nav. Don't duplicate.
+### 1. Sidebar + Content (the default)
 
-For everything else — admin panels, internal tools, SaaS back-offices, customer portals — use the canonical layout.
+```
+┌──────────┬───────────────────────────────────────────┐
+│          │                                           │
+│ Sidebar  │  Content area                             │
+│  nav     │                                           │
+│          │                                           │
+│  240px   │  Fills remaining width                    │
+│          │                                           │
+└──────────┴───────────────────────────────────────────┘
+```
+
+**When:** The dashboard has 5+ pages, persistent navigation matters, and the user's job is "go to a page, do work, go to another page." This is ~70% of dashboards: admin panels, SaaS back-offices, internal tools, settings-heavy apps.
+
+**Why it works:** Vertical nav scales to 12+ items. The sidebar is always visible so the user never loses orientation. Content gets the majority of screen real estate.
+
+### 2. Sidebar + Content + Right panel (three-pane / master-detail)
+
+```
+┌──────────┬──────────────────────────┬───────────────┐
+│          │                          │               │
+│ Sidebar  │  Main content            │  Context      │
+│  nav     │  (list, conversation,    │  panel        │
+│          │   document)              │  (details,    │
+│  240px   │                          │   properties, │
+│          │  Fills middle            │   activity)   │
+│          │                          │  280-360px    │
+└──────────┴──────────────────────────┴───────────────┘
+```
+
+**When:** The user's job is "scan a list, select an item, see details about it without leaving the list." This is the natural layout for:
+- **Email / messaging** — inbox left, message center, conversation details right
+- **Helpdesk / ticketing** — ticket queue left, ticket content center, customer context right
+- **CRM** — contact list left, contact detail center, activity/notes right
+- **Chat / AI conversations** — conversation list left, chat center, context/settings right
+- **IDE-style builders** — file tree left, editor center, properties/preview right
+- **Document management** — folder tree left, document center, metadata right
+
+**Rules:**
+- The right panel is **contextual** — it shows information about whatever is selected in the main content. When nothing is selected, it either hides or shows a "select an item" prompt.
+- The right panel is **collapsible** — a toggle button (or keyboard shortcut) hides it so the main content gets full width. Power users toggle constantly.
+- On **tablet** (~1024px), collapse the right panel by default and show it as an overlay when triggered.
+- On **mobile** (<768px), the three panes become a stack: the list is page 1, selecting an item navigates to page 2 (content), and the context panel is a slide-up sheet or a tab within the content.
+- The right panel should be **resizable** when the content varies in density (wide for CRM contact timelines, narrow for simple metadata). A drag handle on the left edge of the panel. Persist the width in localStorage.
+- **Don't put navigation in the right panel.** The right panel is context, not nav. Navigation lives in the sidebar (left) only.
+
+**Common mistake:** Making all three panes equal width. The main content should always get the most space. A 240/flex/320 split is a good starting point.
+
+### 3. Content only (no sidebar)
+
+```
+┌─────────────────────────────────────────────────────┐
+│ [Logo]  optional tabs/breadcrumbs     [user menu]   │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  Content area (full width or centered max-width)    │
+│                                                     │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+**When:** The dashboard has 1-3 pages, or the user is in a focused flow where navigation is a distraction:
+- **Single-screen analytics** — one page with filter bar and charts. Nav is unnecessary.
+- **Wizard / onboarding flows** — linear progression with a step indicator, not a sidebar.
+- **Checkout / payment flows** — focused, distraction-free, no sidebar.
+- **Embedded dashboards** — the host app already has nav. Don't duplicate.
+- **Public-facing dashboards** — status pages, analytics portals, read-only reports.
+- **Settings pages** (when standalone) — the settings page itself has internal nav (vertical tabs on the left of the content area, not a full sidebar).
+
+**Rules:**
+- If there are 2-3 pages, use **tabs or a minimal top nav** inside the header instead of a sidebar.
+- Center the content at a max-width of 800-1200px for readability. Full-bleed content is harder to scan.
+- Always keep the header with logo + user menu for orientation.
+
+### 4. Top nav + Content
+
+```
+┌─────────────────────────────────────────────────────┐
+│ [Logo]  Dashboard  Reports  Settings     [user ▾]   │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  Content area                                       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+**When:** The dashboard has 3-6 pages with short labels and no sub-navigation. Works for:
+- **Simple dashboards** — a landing page, a reports page, a settings page. Three items fit comfortably in a top bar.
+- **Customer portals** — end-user-facing, lighter UI, fewer features than an admin panel.
+- **Marketing / analytics dashboards** — overview, campaigns, audience, reports.
+
+**Rules:**
+- **Maximum 6 items** in the top nav. Beyond that, the horizontal space runs out and the nav wraps or truncates. Switch to a sidebar.
+- Top nav items don't support sub-menus well — dropdowns in horizontal nav are clunky. If any item has children, use a sidebar instead.
+- On mobile, the top nav collapses into a hamburger menu (same as sidebar-to-drawer).
+- Active state is a bottom border or background fill on the active item.
+
+**When NOT:** If the dashboard will grow beyond 6 pages, start with a sidebar. Migrating from top nav to sidebar later is a layout rewrite that touches every page.
+
+### 5. Full-bleed / no chrome
+
+```
+┌─────────────────────────────────────────────────────┐
+│                                                     │
+│  Widgets, tiles, charts fill the entire screen      │
+│  No header, no sidebar, no padding                  │
+│                                                     │
+│  Optimized for large screens / TV displays          │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+**When:** The user monitors, not navigates:
+- **NOC / operations dashboards** — on a wall-mounted TV showing server health, uptime, alerts. No one clicks anything; they watch.
+- **Kiosk mode** — retail displays, restaurant order status boards, airport departure boards.
+- **Presentation / projection** — a dashboard projected during a standup or all-hands meeting.
+- **TV dashboards** — Grafana-style boards for engineering teams.
+
+**Rules:**
+- No header, no sidebar, no user menu. The entire viewport is content.
+- Design for **distance readability** — larger fonts (18-24px minimum), high contrast, minimal text, big numbers.
+- Auto-refresh or stream data. The user can't interact.
+- If the user also needs a navigable version (they usually do), build full-bleed as a **mode toggle** or a separate `/tv` route on top of the standard layout. Don't build two separate dashboards.
+- Include a subtle "last updated" timestamp somewhere so watchers know the data is fresh.
+
+### 6. Split pane (resizable)
+
+```
+┌──────────────────────────┬──────────────────────────┐
+│                          │                          │
+│  Left pane               │  Right pane              │
+│                          │                          │
+│  (source, before,        │  (target, after,         │
+│   editor, original)      │   preview, translated)   │
+│                          │                          │
+│          ←  drag handle  →                          │
+└──────────────────────────┴──────────────────────────┘
+```
+
+**When:** The user's job is side-by-side comparison or synchronized editing:
+- **Diff / version comparison** — old version left, new version right, with synchronized scrolling.
+- **Code editors** — source left, preview right (or editor + terminal).
+- **Translation workflows** — source language left, target language right.
+- **Content preview** — editor left, rendered preview right (CMS, email builder, markdown).
+- **Reconciliation** — bank statement left, ledger entries right, drag to match.
+- **Before/after** — original data left, transformed data right.
+
+**Rules:**
+- The divider between panes is **draggable**. Persist the position in localStorage.
+- Support a **keyboard shortcut to equalize** the split (50/50) or maximize one pane.
+- **Synchronized scrolling** is expected when the content in both panes corresponds line-by-line (diffs, translations). Make it toggleable.
+- On mobile, split panes don't work. Stack them vertically or use tabs ("Source" / "Preview").
+- The split can be **horizontal** (top/bottom) for some workflows — terminal output below editor, for example. Offer orientation toggle if both make sense.
+
+### 7. Sidebar + Tabs in content
+
+```
+┌──────────┬───────────────────────────────────────────┐
+│          │  Entity name              [Edit] [⋯]      │
+│ Sidebar  │  Overview · Orders · Billing · Activity   │
+│  nav     │  ┌───────────────────────────────────────┐│
+│          │  │  Tab content                          ││
+│          │  │                                       ││
+│          │  └───────────────────────────────────────┘│
+└──────────┴───────────────────────────────────────────┘
+```
+
+**When:** A detail page has 3-7 facets that the user switches between. This is the standard detail page layout, not really a separate layout pattern — but it's worth calling out because it's often implemented badly.
+
+**Rules:**
+- Tabs are **inside the content area**, not in the sidebar. The sidebar still shows the global nav with the parent page highlighted.
+- **Tabs route to URLs** — `/customers/123/orders`, `/customers/123/billing`. Not client-side-only tab state. This makes tabs shareable and reload-safe.
+- The active tab is **visually distinct** (bottom border is the convention).
+- On mobile, tabs become a **scrollable horizontal strip** or a **dropdown select**. Don't wrap tabs to multiple lines.
+- **Don't use tabs for more than 7 items.** Beyond that, use a secondary sidebar inside the content area (the settings pattern) or group tabs into sections.
+
+### Choosing the right layout
+
+```
+How many pages does the dashboard have?
+│
+├── 1 page
+│   └── Content only (no sidebar)
+│
+├── 2-5 pages, flat (no sub-pages)
+│   ├── Labels are short → Top nav + Content
+│   └── Labels are long or will grow → Sidebar + Content
+│
+├── 5+ pages or pages with sub-pages
+│   └── Sidebar + Content (the default)
+│
+├── User's job is "select from list, see details"
+│   └── Sidebar + Content + Right panel (three-pane)
+│
+├── User's job is side-by-side comparison
+│   └── Split pane
+│
+├── User monitors, doesn't navigate
+│   └── Full-bleed / no chrome
+│
+└── Detail pages with 3-7 facets
+    └── Sidebar + Tabs in content
+```
+
+**When in doubt, use sidebar + content.** It's the safest default and the easiest to extend later. Every other layout is a specialization that solves a specific problem — use them when that problem exists, not preemptively.
+
+### Combining layouts
+
+Real dashboards combine layouts. A single app might use:
+- **Sidebar + Content** for the main pages (dashboard home, user list, settings)
+- **Sidebar + Content + Right panel** on the helpdesk ticket page
+- **Sidebar + Tabs in content** on the customer detail page
+- **Content only** for the onboarding wizard
+- **Full-bleed** for a `/tv` monitoring view
+- **Split pane** for the content diff/preview feature
+
+This is fine. The sidebar stays consistent across layouts; only the content area's internal structure changes. The user always knows where they are because the sidebar is the anchor.
 
 ## The header
 
