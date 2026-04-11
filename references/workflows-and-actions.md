@@ -1,0 +1,382 @@
+# Workflows & Actions
+
+A dashboard's value is the actions you can take in it: creating things, editing things, deleting things, running operations, completing multi-step processes, exporting reports. This file is the rules for building these flows so they actually work end-to-end and feel competent.
+
+## Forms
+
+Forms are the most common interaction in a dashboard and the easiest to do badly. Every CRUD operation is a form. Settings are forms. Account changes are forms. Get them right and the dashboard feels solid.
+
+### Form layout
+
+- **One column.** Multi-column forms scatter the eye. The only exception is short paired fields (first name + last name on one row).
+- **Labels above fields, not beside them.** Easier to scan, works on mobile, accommodates long labels.
+- **Group related fields into sections** with subtle headings. "Basics," "Plan & billing," "Notification preferences." Even a 10-field form benefits from 2–3 sections.
+- **Generous spacing between fields** — 16–24px. Cramped forms feel hostile.
+- **Sticky footer with primary action** for forms that scroll. The Save button must always be reachable without scrolling.
+- **Cancel + Save** in the footer. Cancel on the left, primary action on the right (or per your locale convention).
+- **Width** — forms read best at 480–640px. Don't stretch to fill the page.
+
+### Field anatomy
+
+```
+Label *                              ← required marker if applicable
+Help text in subtle color            ← optional, above the field
+[__________________________]         ← the input
+Validation error in red              ← only when invalid
+```
+
+- **Label** — short, descriptive, sentence case. "Email address," not "EMAIL_ADDRESS" or "Your Email Address Here:"
+- **Required marker** — a small `*` after the label. Or, conversely, mark optional fields with "(optional)" — pick one and stay consistent. The "(optional)" approach is friendlier when most fields are required.
+- **Help text** — when the field needs explanation, show it above the field, not as a tooltip. Tooltips hide critical info.
+- **Placeholder** — only for format hints, never as a substitute for label. "you@example.com" is fine; "Enter your email" instead of a label is not.
+- **Validation error** — below the field, in the danger color, with an icon. Replaces help text temporarily.
+
+### Input types — use the right one
+
+The HTML standard has many input types. Most dashboards use ~3. Use them all:
+
+| Use | Type / control |
+|---|---|
+| Email | `type="email"` |
+| Password | `type="password"` (with "show password" toggle) |
+| Phone | `type="tel"` |
+| Number | `type="number"` (with `min`, `max`, `step`) |
+| Date | A date picker library, not the native control |
+| Time | Same — use a library |
+| Date range | A range picker |
+| URL | `type="url"` |
+| Long text | `<textarea>` with auto-resize |
+| Single choice from few options | Radio group (for ≤5) or select |
+| Single choice from many options | Searchable select (combobox) |
+| Multiple choices | Checkbox group (for ≤5) or multi-select |
+| Boolean | Toggle (for settings) or checkbox (for "I agree") |
+| Tags / chips | Tag input |
+| File upload | Drag-and-drop area + click-to-browse |
+| Rich text | An RTE library (Tiptap, Lexical, ProseMirror, Slate, Quill) |
+| Code | A code editor (Monaco, CodeMirror) |
+| Color | Color picker library |
+
+Native date/time pickers are inconsistent across browsers and locales — use a library (react-day-picker, react-aria, vaul, melt-ui, etc.).
+
+### Validation timing
+
+Three moments to validate:
+
+1. **On blur** — when the user leaves a field. Shows errors as the user moves through the form.
+2. **On submit** — final check, also catches fields they skipped.
+3. **On server response** — the server is the source of truth. Display field-level errors next to the relevant fields.
+
+Don't validate on every keystroke (annoying). Don't only validate on submit (the user fills the whole form before learning the first field was wrong).
+
+Use a schema validation library:
+- **TypeScript** — Zod (recommended), Valibot, ArkType, Yup, Joi
+- **Python** — Pydantic
+- **Ruby** — dry-validation, ActiveModel
+- **PHP** — Laravel validators, Symfony Validator
+- **Java** — Bean Validation (JSR 380)
+
+Schema validation gives you one source of truth that runs on both client and server (in TS) or on the server only (otherwise). Don't write validation logic twice.
+
+### Submit button states
+
+```
+[Save Changes]              ← idle, enabled
+[Save Changes] (gray)       ← idle but form invalid
+[Saving...] (disabled)      ← in flight
+[✓ Saved] (briefly)         ← success
+[Save Changes]              ← back to idle
+```
+
+Disable the button while in-flight to prevent double submits. Disable until the form is valid (or always enable but show errors on click — pick one and stay consistent). Show a spinner inside the button, not somewhere else.
+
+### Auto-save patterns
+
+For long forms or settings the user is exploring, auto-save reduces anxiety:
+
+- Debounce 500–1000ms after the last change
+- Show a small indicator: "Saved" / "Saving..." / "Failed to save — retry"
+- Never auto-save invalid data — wait until validation passes
+- For complex forms, save as a draft (not the live record) and require explicit "Publish" to commit
+
+## Multi-step flows (wizards)
+
+Some operations are too big for one form: onboarding, multi-page checkout, complex setup, data imports. Use a wizard.
+
+### Wizard rules
+
+- **Show progress** — a step indicator at the top. "Step 2 of 4: Plan selection." A linear progress bar or a numbered tab strip.
+- **Each step is self-contained** — the user can complete the current step without thinking about future steps.
+- **Allow going back** without losing data from earlier steps.
+- **Validate per step** before allowing "Next."
+- **Persist state across reloads** — save partial state to the server (preferred) or localStorage. The user expects to come back tomorrow and continue.
+- **Allow saving as a draft and resuming.**
+- **The last step is a confirmation** — show the summary of what's about to happen before the final commit.
+- **After commit, redirect to the result** — never leave the user staring at the wizard's final step.
+
+### When *not* to use a wizard
+
+- The user only does this once. (A linear page works.)
+- The user does this often. (A wizard is friction; a single power form is faster.)
+- The steps could be reordered or skipped. (A non-linear form is more honest.)
+
+## Tables, bulk actions, and inline editing
+
+### Bulk actions
+
+When the user needs to do something to many rows at once:
+
+```
+☑ 12 of 1,247 selected   [Assign...] [Tag...] [Export] [Delete]
+```
+
+Rules:
+- **A toolbar appears above (or replaces) the filter bar** when 1+ rows are selected.
+- **Show the count** of selected items.
+- **Show the actions** as buttons or a "Bulk actions" menu for many actions.
+- **"Select all" inside the toolbar** with two modes: "All on this page" (default) and "All matching filter (1,247)" — both are useful.
+- **Destructive bulk actions** require confirmation with the affected count: "Delete 12 customers?"
+- **For destructive actions on many rows**, require typing a confirmation word: "Type DELETE to confirm."
+- **Provide undo** when feasible — even bulk delete can soft-delete with a 30-second undo window.
+
+### Inline editing
+
+Some tables benefit from editing in place — settings tables, simple data grids, spreadsheet-like surfaces.
+
+- **Click to edit** (single click for power users, double click for safer). Make the editable affordance visible — pencil icon on hover, or always-visible cell border.
+- **Save on blur or Enter.** Cancel on Esc.
+- **Show pending state** while saving — a small spinner in the cell or row.
+- **Field-level errors** displayed below the cell.
+- **Undo via Ctrl+Z** is too much for most apps; offer "undo" toast after each save.
+
+Inline editing is great for power tables but bad for primary data entry. Most CRUD should still use a dedicated form page or drawer.
+
+## Side drawers (sheets)
+
+A side drawer slides in from the right (or left) and overlays the page without leaving it. Excellent for:
+
+- Editing a row from a list without losing the list context
+- Detail views that don't justify a full page
+- Filter panels with many filters
+- Activity / history panels
+
+Rules:
+- **Slide in from the side** (right is conventional)
+- **Overlay covers the page** but the page underneath is dimmed but visible
+- **Esc closes** the drawer
+- **Click outside closes** (with confirmation if dirty)
+- **Width** — 400–600px for forms, 720+ for detail views
+- **Sticky header with title and close button**
+- **Sticky footer with actions**
+- **Don't open a drawer over another drawer.** One layer max.
+
+Drawers are better than modals for forms with > 4 fields. Modals trap the user in a small box; drawers feel like an extension of the page.
+
+## Modals
+
+Modals are an interruption. Use them for:
+
+- Confirmations (delete, irreversible actions)
+- Quick choices ("Pick a project to copy this to")
+- Brief announcements that block ("Your trial ends tomorrow")
+- Short forms (≤4 fields)
+
+Don't use modals for:
+- Long forms — use a drawer or a page
+- Multi-step flows — use a wizard page
+- Anything the user might want to refer to while interacting with the page below
+- Notifications that don't block — use a toast
+
+### Modal rules
+
+- **Centered, with a backdrop**
+- **Esc closes**
+- **Click outside closes** (or doesn't, if there's a confirmation button — be consistent)
+- **Tab focus is trapped** inside the modal
+- **First focusable element receives focus** on open (usually the cancel button for destructive modals, the input for form modals)
+- **Focus returns** to the trigger element on close
+- **Close button (X) in the top-right corner**
+- **Title in the top-left**
+- **Content in the body**
+- **Action buttons in the footer**, primary on the right
+- **Don't open modals from modals.** Two layers max, and only when necessary.
+
+## Search
+
+Three kinds of search live in dashboards:
+
+1. **Global search** — `⌘K` command palette across everything
+2. **Page search** — search inside a single list/table
+3. **Filter search** — typeahead inside a select dropdown
+
+### Global search (command palette)
+
+The pattern from Linear, Notion, Slack, Vercel, Stripe. Open with `⌘K` (Mac) / `Ctrl+K` (other). Shows recent items and lets you type to search across everything: pages, records, settings, actions.
+
+Build it when the dashboard has > 50 navigable destinations or > 100 records the user might look up.
+
+Rules:
+- **Fuzzy match** — match words out of order, ignore minor typos
+- **Group results by type** — Pages, Customers, Orders, Actions
+- **Show recent items when empty** — recently visited pages and records
+- **Keyboard-only navigation** — arrows to move, Enter to select, Esc to close
+- **Action mode** — `>` prefix shows actions ("> Export," "> Invite user") not just navigation. The Linear pattern.
+
+### Page search
+
+A search input above a table, narrows the rows shown. Debounce 250–400ms. Use server-side search for tables > 500 rows; client-side filtering is fine below.
+
+### Filter typeaheads
+
+Inside a select with > 10 options, add a search input at the top. Esc closes. Arrow keys navigate. Enter selects.
+
+## Filtering and saved views
+
+Filter bars belong above the table. The pattern:
+
+```
+[Search]  [Status ▾]  [Owner ▾]  [Date ▾]  [+ Filter]    [Reset]  [Save view ▾]
+```
+
+Each dropdown shows the available filter options. Active filters appear as removable chips below or as colored dropdown buttons.
+
+### Saved views
+
+Power users with consistent workflows ("show me overdue invoices for my accounts") want to save filter combinations as named views. The pattern from Linear, Asana, GitHub Issues:
+
+- After applying filters, "Save view" prompts for a name
+- Saved views appear in a dropdown next to the filter bar
+- Each user has their own; some can be shared with the org
+- The current view is reflected in the URL
+- "Default" view is built-in and can't be deleted
+
+Saved views are a 10x quality-of-life improvement for power-user dashboards. Build them once you have basic filtering working.
+
+## Imports
+
+Many dashboards need to import CSV/XLSX files. Build the import flow as a first-class feature, not an afterthought.
+
+### The import flow
+
+1. **Upload step** — drag-and-drop area + browse button. Accept CSV, XLSX. Show file size limits up front.
+2. **Preview step** — parse the first 50 rows and show a table. The user confirms the data looks right.
+3. **Mapping step** — map source columns to target fields. Auto-detect by header names. Let the user override.
+4. **Validation step** — server-side validation of all rows. Show a summary: "1,247 rows valid. 12 have errors." For errored rows, show the row number, the column, and the error. Let the user download the error report or fix it inline.
+5. **Confirm step** — "Import 1,235 customers? 12 will be skipped." Accept.
+6. **Background job** — for imports > 100 rows, kick off a background job. Show a progress page that polls the job status. Don't make the user wait on a request thread.
+7. **Result page** — "Imported 1,235 customers. 12 skipped." Link to the new records.
+
+Key rules:
+- **Validate everything before committing.** Don't import 800 rows successfully and then fail on row 801, leaving the database in a half-state. Use a transaction.
+- **Provide a sample file** the user can download to see the expected format.
+- **Match columns by header name**, not by position. Be tolerant of column order.
+- **Skip empty rows.**
+- **Trim whitespace.** Be lenient with input.
+- **Preserve the original file** for audit until the import is committed.
+
+## Exports
+
+Almost every dashboard needs export. Build them right:
+
+- **Match the on-screen view.** Export reflects the user's current filters. Not "all data ever."
+- **CSV is the default.** Excel (XLSX) is a feature flag, not the default.
+- **For < 10k rows** — generate on demand, stream the response. The browser's download manager handles it.
+- **For larger** — kick off a background job, email a download link or show a notification when ready.
+- **Format properly** — currency as numbers (not strings), dates in ISO or a documented format, no smart quotes, BOM for UTF-8 if Excel users will open it on Windows.
+- **Include a header row** with field names.
+- **Include a metadata row** at the top, optional: "Exported by alice@acme.com on 2026-04-11 at 14:32 UTC. Filters: status=active, owner=Alice."
+- **Document the limit** if there is one. "Export limited to 50,000 rows."
+
+### Scheduled / recurring exports
+
+Some dashboards need "email me this report every Monday." The pattern:
+
+- A "Schedule export" button next to the export button
+- Set frequency (daily, weekly, monthly), time, day, recipients, format
+- Manage scheduled exports from a settings page
+- Each scheduled run logs to the audit trail
+
+This is a full feature with its own backend. Don't fake it.
+
+## Background jobs and long-running operations
+
+Any operation longer than ~5 seconds should be a background job:
+
+- Imports
+- Exports beyond a few thousand rows
+- Email blasts
+- Data migrations
+- Report generation
+- Bulk operations on > 100 records
+
+### Job UI patterns
+
+- **Initiate**: the user clicks the action. The server creates a job, returns a job ID, and the UI navigates to a status page or shows a status panel.
+- **Status**: the UI polls the job (or subscribes via WebSocket). Show progress: "Processing 247 of 1,247 records (20%)." Show ETA when possible.
+- **Cancel**: a cancel button when feasible. Server marks the job for cancellation; the worker checks periodically and stops gracefully.
+- **Result**: when complete, show what happened, what failed, and what to do next. Link to the affected resources.
+- **Notification**: send a notification (in-app and/or email) when long jobs complete so the user doesn't have to babysit.
+
+The "fire and forget" pattern (kick off a job, navigate away, never see results) is hostile. Always close the loop.
+
+## Confirmations and undo
+
+For destructive actions, prefer **undo over confirm** when possible.
+
+- **Confirm** asks the user "are you sure?" before they act. They must decide twice. Slow.
+- **Undo** lets the action happen instantly and provides a brief window to reverse it. Fast and forgiving.
+
+The Gmail / Linear pattern: delete an email, see a toast "Deleted. Undo." for ~6 seconds. Click "Undo" to restore.
+
+Undo works when:
+- The action is reversible (soft-delete, archive, status changes)
+- The reversal is fast (no async cascading effects)
+- The user is likely to notice within the undo window
+
+Use confirm when:
+- The action is irreversible (hard delete, key revocation, payment)
+- The action has cascading consequences the user must understand
+- The user is likely to be on autopilot
+
+Combining both is fine: undo for the common path, confirm for the bulk path. "Delete 1 customer" → undo. "Delete 47 customers" → confirm with type-to-delete.
+
+## Keyboard shortcuts
+
+Power users live in dashboards. Keyboard shortcuts make them faster.
+
+The conventional set:
+
+| Shortcut | Action |
+|---|---|
+| `⌘K` / `Ctrl+K` | Open command palette |
+| `⌘/` / `Ctrl+/` | Show keyboard shortcuts cheat sheet |
+| `g` then `d` | Go to Dashboard |
+| `g` then `c` | Go to Customers |
+| `c` | Create new (context-aware) |
+| `e` | Edit current item |
+| `/` | Focus search |
+| `?` | Show shortcuts |
+| `Esc` | Close modal/drawer/menu |
+| `j` / `k` | Move down / up in list |
+| `Enter` | Open selected item |
+| `Shift+Enter` | Open selected item in new tab |
+
+Provide a shortcuts cheat sheet (`?` opens it) so users can discover them. Don't hide shortcuts; expose them.
+
+## Don'ts
+
+- **Don't use placeholder text as a label.** The placeholder vanishes when the user types and they forget what the field is for.
+- **Don't validate only on submit.** Tell the user the email is wrong before they click Save.
+- **Don't show validation errors before the user has touched the field.** Initial empty state isn't an error.
+- **Don't reset the form on submission failure.** The user wants to correct, not retype.
+- **Don't open a modal from another modal.** One layer.
+- **Don't use modals for forms longer than ~4 fields.** Use a drawer or a page.
+- **Don't put the primary action on the left.** Right side, primary on the right.
+- **Don't make destructive actions look the same as safe actions.** Red for destructive, distinct from primary.
+- **Don't use the browser `confirm()` or `alert()`.** Real dialogs.
+- **Don't autoplay focus into the first input on a form** if it's a settings page (the user wants to scan first). Do autofocus on a "Sign in" form.
+- **Don't trigger destructive actions on Enter** in confirmation dialogs. The default focus must be on Cancel, or the destructive button must be tabbed to.
+- **Don't lose user data on validation error.** Preserve every field.
+- **Don't lose draft data on accidental navigation.** Save drafts.
+- **Don't ship a dashboard without keyboard shortcuts** if users will be in it daily.
+- **Don't ship a dashboard without bulk actions** if users will manage > 50 records.
+- **Don't make the user wait on requests > 5 seconds.** Background job, show progress.
