@@ -624,6 +624,139 @@ Increase opacity from 10% to 25-40%. Or skip shadows entirely in dark mode and r
 
 ---
 
+## Color pairing and contrast
+
+### Every background needs a tested foreground
+
+Never use `bg-primary text-white`. Use `bg-primary text-primary-foreground`. The `-foreground` token pattern (from shadcn/ui) pairs every background with a tested, accessible text color. When the primary color changes or dark mode activates, the foreground adjusts automatically.
+
+The auto-foreground algorithm: compute relative luminance of the background. If luminance > ~0.18, use dark text. Otherwise, use light text. Mid-tone backgrounds (grays ~50%, muted pastels) may fail with BOTH pure black and white — use off-black/off-white or avoid these as text backgrounds.
+
+### Contrast requirements
+
+| Element | Minimum ratio | Standard |
+|---|---|---|
+| Normal text | 4.5:1 | WCAG AA (the baseline) |
+| Large text (18pt+ or 14pt+ bold) | 3:1 | WCAG AA |
+| UI components (borders, icons, controls) | 3:1 | WCAG AA |
+| Enhanced (aim for this) | 7:1 | WCAG AAA |
+
+Check with: Chrome DevTools color picker (inline contrast ratio), axe DevTools (automated audit), WebAIM Contrast Checker.
+
+### Buttons need three contrast checks
+
+Not just text-vs-button, but three relationships simultaneously:
+1. **Button text vs. button background** — 4.5:1
+2. **Button background vs. page surface** — 3:1 (so the button is visually distinct)
+3. **Focus state vs. default state** — 3:1 change in the focus indicator
+
+### Status colors: the inversion pattern
+
+Every status color needs three variants: foreground (text/icon), background (badges/alerts), and muted (large areas/row highlights).
+
+The Tailwind inversion pattern for badges that work in both modes:
+
+```
+Light mode:  bg-green-100 text-green-800
+Dark mode:   bg-green-900 text-green-200
+
+Light mode:  bg-red-100 text-red-800
+Dark mode:   bg-red-900 text-red-200
+```
+
+Backgrounds use the 100/900 ends of the scale, text uses the 800/200 ends. This guarantees high contrast in both modes.
+
+For alerts, add a left border in the full-strength color:
+```
+Error:   bg-red-50 border-l-4 border-red-500 text-red-800
+Warning: bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800
+```
+
+### Sidebar and header with colored backgrounds
+
+When the sidebar or header has a dark or colored background, ALL elements inside must use separate tokens:
+
+- **Sidebar tokens:** `sidebar-background`, `sidebar-foreground`, `sidebar-primary`, `sidebar-accent`, `sidebar-border` — separate from the main content tokens
+- **Why:** if the sidebar is dark navy and the content area is white, they need independent foreground colors. Using the main `foreground` token inside a dark sidebar produces invisible text.
+- **Active nav item:** needs EXTRA contrast against the sidebar background — lighter/darker background strip + bold text or left border indicator
+- **Hover:** subtle background change (white at 5-10% opacity on dark sidebars)
+
+### Brand color problems
+
+**Too light (yellow, lime):** white text fails contrast. Solutions: use dark text (auto-foreground), darken for interactive use, or relegate to decorative role and create a darker "accessible primary."
+
+**Too dark (navy, near-black):** disappears in dark mode, loses brand identity against dark surfaces. Solutions: lighten for dark mode (use mid-tone 400-500), add saturation.
+
+**Dark mode adaptation:** reduce saturation ~10-20% and increase lightness ~10-15%. Vibrant colors cause eye strain on dark backgrounds. The Radix Colors approach: a 12-step scale with step 9 as the pure brand color, steps 1-8 for backgrounds/borders, steps 10-12 for text — all with guaranteed accessible pairings.
+
+### Color accessibility
+
+**Color blindness-safe palette:** blue + orange is the universally safest combination. Avoid red-green as the primary distinction. The Wong palette (from Nature Methods) is specifically designed for all common color vision deficiencies.
+
+**Simulation tools:** Chrome DevTools Rendering tab > Emulate vision deficiencies (protanopia, deuteranopia, tritanopia). Sim Daltonism (macOS) for real-time overlay.
+
+**The triple-indicator rule:** every status uses icon (distinct shape) + label (text) + color. A checkmark and an X are recognizable regardless of color. Use: checkmark circle for success, X circle for error, triangle for warning, info circle for info — distinct shapes, not just colors.
+
+### Focus ring that works on ALL backgrounds
+
+The two-color technique: a white inner ring + black outer ring (or vice versa). As long as the two colors have 9:1 contrast with each other, at least ONE will always have 3:1 contrast against any background. Mathematically guaranteed.
+
+```css
+*:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #000000;
+}
+```
+
+Do NOT use `outline: none` and rely on `box-shadow` alone — Windows High Contrast Mode suppresses box-shadow.
+
+---
+
+## UI consistency
+
+### Visual consistency rules
+
+Same component, same appearance, everywhere. No exceptions.
+
+- **Sizes:** if buttons are 36px tall, they're 36px tall on EVERY page. Inputs match button height.
+- **Spacing:** if cards have 16px padding, they have 16px padding everywhere. Form field gaps are identical across all forms.
+- **Typography:** h1 is h1 everywhere — same size, weight, line-height. Don't use a different heading scale on Settings vs Dashboard.
+- **Border radius:** one radius for everything — buttons, cards, inputs, modals, dropdowns. 6px or 8px. Don't mix 4px buttons with 12px cards.
+- **Shadows:** same shadow for the same elevation level across all pages.
+
+**Design tokens are the enforcement mechanism.** `rounded-md` is easier than `rounded-[7px]`. `text-foreground` is easier than `text-[#1a1a1a]`. When someone reaches for an arbitrary value, that's a violation. Catch it in code review.
+
+### Interaction consistency
+
+- **Same action = same pattern:** if "Delete User" shows a confirmation dialog with red button, then "Delete Project" shows the exact same dialog structure, colors, and button order.
+- **Same feedback:** success toast for create, success toast for edit. Not toast for one and inline for another.
+- **Same loading pattern per component type:** tables use skeleton rows (not spinners), cards use skeleton cards, buttons show inline spinner when pending. Choose once, apply everywhere.
+- **Same empty state structure:** title + description + CTA on every empty page. Not varied formats.
+- **Same error handling:** inline field errors on ALL forms. Not inline on login but banner on settings.
+- **Same hover/focus:** every clickable element at the same level gets the same hover treatment.
+
+### Layout consistency
+
+- **Page header:** same structure on every page — title left, actions right, same height, same spacing.
+- **Content width:** same max-width or same full-width behavior across pages of the same type.
+- **Table alignment:** numbers right-aligned in ALL tables. Dates in the same format everywhere. Actions always the rightmost column.
+- **Form layout:** labels above inputs on ALL forms. Not above on some and beside on others.
+- **Action placement:** primary action always top-right of page header. Form submit always bottom-right. Never inconsistent.
+
+### Consistency audit
+
+How to catch drift:
+
+1. **Component inventory:** search for duplicate implementations (`StatusBadge` in two files with different styling).
+2. **Hardcoded value scan:** `grep` for hex codes, `rgb(`, arbitrary Tailwind values (`text-[#...]`, `p-[...]`) in component files. These bypass the token system.
+3. **Cross-page comparison:** render the same data type (dates, currency, status badges) on different pages. They must look identical.
+4. **Storybook:** see all component variants in one place. Every button state, every badge color, every form input state — side by side.
+5. **Visual regression in CI:** Chromatic or Playwright screenshots catch unintended changes before merge.
+6. **ESLint/Stylelint rules:** flag hardcoded colors, arbitrary spacing values, raw Tailwind scale usage when semantic tokens exist.
+
+---
+
 ## Don'ts
 
 - **Don't use more than 2 font families.** One sans-serif for UI, one monospace for data/code. A third is clutter.
