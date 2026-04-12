@@ -1,54 +1,67 @@
-# Dashboard Design Skill
+# Dashboard Design
 
-A comprehensive AI skill for building production-grade dashboards — admin panels, analytics consoles, internal tools, SaaS back-offices, CRM systems, AI product interfaces, and any multi-page application with navigation, auth, and CRUD.
+Build dashboards that actually work.
 
-**The problem this solves:** AI-generated dashboards that *look* finished but are hollow. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. This skill enforces a no-scaffold rule — every feature shipped must be wired end-to-end to real data.
+AI-generated dashboards have a specific failure mode: they *look* finished but fall apart the moment you try to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. A museum piece, not a tool.
 
-## What's inside
+This skill fixes that. It's an AI instruction set that ensures every feature is wired end-to-end — real auth, real data, real permissions, real states, real feedback — across any stack and any industry.
 
-**22 reference files, ~10,000+ lines of implementation guidance, 33 domain verticals — all research-validated.**
+## Quick start
 
-### Core skill
+**With Claude Code:**
+```bash
+git clone https://github.com/aihxp/dashboard-design.git
+# Add the repo as a skill in your Claude Code configuration
+# Then just ask Claude to build a dashboard — the skill activates automatically
+```
 
-| File | What it covers |
+**With Claude Chat:**
+Upload `SKILL.md` and the relevant reference files to your project context.
+
+**As a standalone reference:**
+Read `SKILL.md` for the workflow, then load reference files as you build each layer.
+
+## How it works
+
+The skill enforces a **vertical-slice discipline**: build one feature completely (schema > API > permissions > UI > states > tests) before starting the next. No layer is left half-done.
+
+When you ask Claude to build a dashboard, the skill:
+
+1. **Runs a pre-flight** — 12 questions that prevent incompatible decisions across layers
+2. **Identifies your domain** — loads domain-specific gotchas from 33 industry verticals
+3. **Builds the foundation** — auth, RBAC, shell layout, seed data, one working protected page
+4. **Builds feature slices** — each feature wired end-to-end with real data and all states
+5. **Adds cross-cutting concerns** — search, notifications, settings, exports, audit log
+6. **Hardens** — security headers, performance budget, tests
+7. **Verifies** — a 17-step smoke test that catches hollow features before you ship
+
+## What the skill catches
+
+Things that make dashboards feel broken, and what the skill does about them:
+
+| Hollow pattern | What the skill enforces instead |
 |---|---|
-| `SKILL.md` | Core workflow, vertical-slice discipline, mandatory haves/have-nots, archetype routing |
+| `const mockUsers = [...]` in a component | Data from the real persistence layer via query hooks |
+| `onClick={() => console.log("clicked")}` | Real mutation > cache invalidation > success toast |
+| Login that accepts any credentials | Hashed passwords, session management, server-side route guards |
+| "Coming soon" pages in the sidebar | Every nav link routes to a real, rendered page |
+| Charts that re-randomize on refresh | Charts driven by real data from the data layer |
+| Empty table with no guidance | Empty state with explanation + CTA to create the first record |
+| `// TODO: add validation` | Client-side + server-side validation with field-level errors |
+| Permissions checked only in the UI | Server enforces on every mutation; UI reflects as courtesy |
 
-### Reference files (load on demand)
+## 33 industry verticals
 
-| File | Coverage |
-|---|---|
-| `preflight-and-verification.md` | 12 pre-flight questions + verification checklist + smoke test |
-| `information-architecture.md` | 7 layout patterns, nav, sidebar, breadcrumbs, responsive breakpoints |
-| `auth-and-rbac.md` | Passkeys, magic links, social login, RBAC, multi-tenant, user profile, impersonation |
-| `data-layer.md` | React Server Components, server actions, API contracts, queries, mutations, serverless pooling |
-| `data-visualization.md` | Chart selection tree, KPIs, tables, accessibility, responsive charts, sparklines, widget systems |
-| `states-and-feedback.md` | Suspense/streaming, loading, empty, error, toasts, undo, offline |
-| `workflows-and-actions.md` | Forms, onboarding, wizards, drag-and-drop, command palette, approval workflows, collaborative editing |
-| `analytics-and-telemetry.md` | Feature adoption, session replay, A/B testing, anomaly alerts, audit logs, RUM |
-| `settings-and-configuration.md` | User/org/system settings hierarchy, data model, auto-save vs explicit, admin panel, multi-tenant |
-| `ui-design-patterns.md` | Components, typography (14px base), spacing (4px grid), tokens, motion, micro-copy, dark mode, icons, z-index |
-| `payments-and-billing.md` | Checkout, subscriptions, invoicing, refunds, webhooks, PCI compliance, revenue metrics (MRR/ARR/churn/LTV) |
-| `notifications-and-email.md` | Multi-channel (in-app, email, push, SMS, Slack), preferences, digests, templates, delivery tracking, shared inbox |
-| `internationalization.md` | i18n architecture, ICU MessageFormat, RTL support, date/number/currency formatting, translation workflows |
-| `system-integration.md` | Service layer, event bus, cache invalidation chains, entity linking, real-time propagation, job observability, feature flags |
-| `reporting.md` | Report types, builder UI, PDF/Excel generation, scheduled reports, large datasets, print optimization |
-| `api-and-integrations.md` | Adapter pattern, OAuth2, outbound/inbound webhooks, data sync, integration marketplace, building your own API |
-| `ai-product-patterns.md` | Streaming, context window management, model orchestration, prompt management, RAG, evaluation, cost control, moderation, tool calling |
-| `testing-and-quality.md` | E2E, component, API, accessibility, visual regression, load testing, contract testing, test factories |
-| `performance-and-security.md` | Bundle splitting, SSR, database queries, CSP, CORS, rate limiting, input sanitization |
-| `security-deep-dive.md` | Session hardening, API security, data protection, secrets management, supply chain, incident response |
-| `domain-considerations.md` | 33 domain verticals with gotchas, compliance requirements, and seed data shapes |
+The skill knows the domain-specific landmines for 33 industries. Each includes: data model traps, compliance requirements, expected UX patterns, and realistic seed data shapes.
 
-### 33 domain verticals
-
-Each domain includes: archetype description, core entities, domain-specific gotchas, compliance requirements, expected UX patterns, and realistic seed data shapes.
+<details>
+<summary>View all 33 domains</summary>
 
 | # | Domain | # | Domain |
 |---|---|---|---|
 | 1 | SaaS / Multi-tenant | 18 | Non-profit / Fundraising |
 | 2 | E-commerce / Retail | 19 | Media / Streaming |
-| 3 | CMS / Content / Blog | 20 | Agriculture / Farm Management |
+| 3 | CMS / Content / Blog | 20 | Agriculture / Farm |
 | 4 | Financial / Fintech | 21 | AI / ML / Chat |
 | 5 | Healthcare / Medical | 22 | Entertainment / Events |
 | 6 | Education / LMS | 23 | Gaming / Esports |
@@ -64,40 +77,82 @@ Each domain includes: archetype description, core entities, domain-specific gotc
 | 16 | Restaurant / Food Service | 33 | Workflow Automation |
 | 17 | Legal / Law Firm | | |
 
-## How to use
+</details>
 
-### As a Claude skill
+Examples of what domain knowledge prevents:
+- **Healthcare**: building without HIPAA audit logging of every PHI access
+- **Financial**: using `float` for money instead of integer cents
+- **CRM**: modeling one pipeline when every business eventually needs multiple
+- **Gaming**: not tracking embedding model provenance (changing models invalidates all vectors)
+- **Construction**: missing AIA G702/G703 payment applications (the industry-standard billing workflow)
 
-1. Download the `.skill` file or clone this repo.
-2. Add it to your Claude project or Claude Code configuration.
-3. Ask Claude to build a dashboard — the skill activates automatically.
+## Reference files
 
-### As a reference
+22 files, loaded on demand. You read 4-6 per project, never all 22.
 
-Read `SKILL.md` first for the workflow and principles. Then load specific reference files as needed — you don't need to read all 22 files for every project.
+<details>
+<summary>View the full reference library</summary>
 
-**Typical flow:**
-1. Read `SKILL.md` (core principles)
-2. Read `preflight-and-verification.md` (answer 12 questions before coding)
-3. Read the matching domain section in `domain-considerations.md`
-4. Read reference files as you build each layer (auth, data, UI, etc.)
-5. Run the verification checklist before declaring done
+| File | What it covers |
+|---|---|
+| **`SKILL.md`** | Core workflow, vertical-slice discipline, haves/have-nots |
+| **Foundation** | |
+| `preflight-and-verification.md` | 12 pre-flight questions, verification checklist, smoke test |
+| `information-architecture.md` | 7 layout patterns, navigation, sidebar, responsive |
+| `auth-and-rbac.md` | Passkeys, magic links, RBAC, multi-tenant, impersonation |
+| `data-layer.md` | Server Components, API contracts, queries, mutations, caching |
+| **UI & UX** | |
+| `ui-design-patterns.md` | Components, typography, spacing, tokens, motion, dark mode |
+| `data-visualization.md` | Charts, KPIs, tables, accessibility, sparklines |
+| `states-and-feedback.md` | Loading, empty, error, toasts, undo, offline |
+| `workflows-and-actions.md` | Forms, onboarding, drag-and-drop, approval workflows |
+| **Features** | |
+| `settings-and-configuration.md` | User/org/system settings, admin panel, multi-tenant |
+| `notifications-and-email.md` | In-app, email, push, SMS, Slack, delivery tracking |
+| `payments-and-billing.md` | Checkout, subscriptions, invoicing, refunds, PCI |
+| `reporting.md` | PDF/Excel generation, scheduling, large datasets |
+| `analytics-and-telemetry.md` | Feature adoption, session replay, A/B testing, audit logs |
+| **Integration** | |
+| `system-integration.md` | Service layer, event bus, cache invalidation, feature flags |
+| `api-and-integrations.md` | OAuth2, webhooks, data sync, building your own API |
+| `internationalization.md` | i18n, RTL, date/number formatting, translation workflows |
+| **Specialized** | |
+| `ai-product-patterns.md` | Streaming, RAG, prompt management, eval, cost control |
+| `testing-and-quality.md` | E2E, component, load, contract, visual regression testing |
+| `performance-and-security.md` | Bundle size, SSR, CSP, CORS, rate limiting |
+| `security-deep-dive.md` | Sessions, data protection, secrets, incident response |
+| **Domains** | |
+| `domain-considerations.md` | 33 verticals with gotchas, compliance, seed data |
+
+</details>
+
+## Works with any stack
+
+The skill is pattern-based, not framework-specific. It works with:
+
+- **React / Next.js** + TypeScript + Prisma + Auth.js + shadcn/ui + TanStack Query
+- **SvelteKit** + TypeScript + Convex/Drizzle + Auth.js + Tailwind
+- **Vue / Nuxt** + TypeScript + Drizzle + shadcn-vue
+- **Rails** + Hotwire/Turbo + Devise
+- **Django** + HTMX + django-allauth
+- **Laravel** + Inertia + Breeze
+
+...or anything else. The guidance translates.
 
 ## Core principles
 
-- **Vertical slices, not horizontal layers.** Build one feature end-to-end before starting the next.
-- **No scaffolds.** Every visible element is connected to real data. No TODOs, no fake JSON, no "coming soon."
-- **Load on demand.** Read only the reference files relevant to what you're building right now.
-- **The server enforces, the client reflects.** Permissions are checked server-side. The UI hides unauthorized actions as courtesy, never as security.
+**Vertical slices, not horizontal layers.** Don't build the database, then the API, then the auth, then the UI. Build one feature end-to-end — working, tested, deployed — before touching the next.
 
-## Stack agnostic
+**No scaffolds.** If a button is on the screen, clicking it does the thing. If a chart is on the screen, it reflects real data. If there's a settings page, it actually saves. No TODOs, no fake JSON, no "hook this up later."
 
-The skill works with any stack: React/Next.js, Vue/Nuxt, Svelte/SvelteKit, Rails, Django, Laravel, or anything else. Guidance is pattern-based, not framework-specific — though framework-specific recommendations are included where relevant.
+**The server enforces, the client reflects.** Every permission is checked server-side on every mutation. The UI hides unauthorized actions as courtesy, never as security.
+
+**Keep going until it's actually done.** The main pages existing is 40% of the work. The remaining 60% is: empty states, error states, validation, permissions, audit log, settings, profile, logout, responsive, keyboard access, loading skeletons, success toasts, cache invalidation, seed data, and the verification pass.
 
 ## Contributing
 
-This skill is maintained as a living document. If you find a gap, a domain that's missing, or guidance that's outdated, contributions are welcome.
+Gaps, missing domains, outdated guidance — contributions are welcome. This is a living document.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+[MIT](LICENSE)
