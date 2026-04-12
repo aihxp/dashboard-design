@@ -196,8 +196,11 @@ The body above is enough to start building. For depth on a specific domain, load
 | `references/payments-and-billing.md` | Integrating payments: checkout, subscriptions, invoicing, refunds, webhooks, PCI, revenue metrics |
 | `references/internationalization.md` | Multi-language support: i18n architecture, string handling, RTL, date/number/currency formatting, translation workflows |
 | `references/system-integration.md` | Connecting features: service layer, event bus, cache invalidation chains, entity linking, real-time propagation, job observability, feature flags |
+| `references/reporting.md` | Report generation: types, builder UI, PDF/Excel generation, scheduled reports, large datasets, print optimization, report permissions |
+| `references/api-and-integrations.md` | External connections: adapter pattern, OAuth2, outbound/inbound webhooks, data sync, integration marketplace, building your own API |
 | `references/testing-and-quality.md` | Writing tests for auth, CRUD, permissions, accessibility, visual regression |
 | `references/performance-and-security.md` | Optimizing bundle size, queries, caching; hardening CSP, CORS, rate limiting, input sanitization |
+| `references/security-deep-dive.md` | Advanced security: session hardening, API security, data protection, secrets management, supply chain, incident response |
 | `references/domain-considerations.md` | **During pre-flight**, after identifying the domain. Covers 26 verticals with domain-specific gotchas, compliance, and data model traps |
 
 ## How to interpret a vague request
