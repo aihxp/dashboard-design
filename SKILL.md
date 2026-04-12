@@ -192,6 +192,7 @@ The body above is enough to start building. For depth on a specific domain, load
 | `references/states-and-feedback.md` | Building loading, empty, error states, toasts, optimistic updates |
 | `references/workflows-and-actions.md` | Designing forms, multi-step flows, bulk actions, confirmations, exports |
 | `references/analytics-and-telemetry.md` | Adding event tracking, audit logs, in-app metrics, usage dashboards |
+| `references/settings-and-configuration.md` | Settings architecture: user/org/system hierarchy, data model, auto-save vs explicit, admin panel, multi-tenant, validation |
 | `references/ui-design-patterns.md` | Building the visual layer: components, typography, spacing, tokens, motion, micro-copy, dark mode, icons, z-index |
 | `references/payments-and-billing.md` | Integrating payments: checkout, subscriptions, invoicing, refunds, webhooks, PCI, revenue metrics |
 | `references/internationalization.md` | Multi-language support: i18n architecture, string handling, RTL, date/number/currency formatting, translation workflows |
