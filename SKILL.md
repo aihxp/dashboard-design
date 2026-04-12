@@ -202,7 +202,7 @@ The body above is enough to start building. For depth on a specific domain, load
 | `references/testing-and-quality.md` | Writing tests for auth, CRUD, permissions, accessibility, visual regression |
 | `references/performance-and-security.md` | Optimizing bundle size, queries, caching; hardening CSP, CORS, rate limiting, input sanitization |
 | `references/security-deep-dive.md` | Advanced security: session hardening, API security, data protection, secrets management, supply chain, incident response |
-| `references/domain-considerations.md` | **During pre-flight**, after identifying the domain. Covers 31 verticals with domain-specific gotchas, compliance, and data model traps |
+| `references/domain-considerations.md` | **During pre-flight**, after identifying the domain. Covers 33 verticals with domain-specific gotchas, compliance, and data model traps |
 
 ## How to interpret a vague request
 
