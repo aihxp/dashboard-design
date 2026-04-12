@@ -195,6 +195,7 @@ The body above is enough to start building. For depth on a specific domain, load
 | `references/ui-design-patterns.md` | Building the visual layer: components, typography, spacing, tokens, motion, micro-copy, dark mode, icons, z-index |
 | `references/payments-and-billing.md` | Integrating payments: checkout, subscriptions, invoicing, refunds, webhooks, PCI, revenue metrics |
 | `references/internationalization.md` | Multi-language support: i18n architecture, string handling, RTL, date/number/currency formatting, translation workflows |
+| `references/notifications-and-email.md` | Multi-channel notifications: in-app, email, push, SMS, Slack; preferences, digests, templates, delivery tracking, shared inbox |
 | `references/system-integration.md` | Connecting features: service layer, event bus, cache invalidation chains, entity linking, real-time propagation, job observability, feature flags |
 | `references/reporting.md` | Report generation: types, builder UI, PDF/Excel generation, scheduled reports, large datasets, print optimization, report permissions |
 | `references/api-and-integrations.md` | External connections: adapter pattern, OAuth2, outbound/inbound webhooks, data sync, integration marketplace, building your own API |
