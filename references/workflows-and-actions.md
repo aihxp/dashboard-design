@@ -98,6 +98,112 @@ For long forms or settings the user is exploring, auto-save reduces anxiety:
 - Never auto-save invalid data — wait until validation passes
 - For complex forms, save as a draft (not the live record) and require explicit "Publish" to commit
 
+## Onboarding / first-time user experience
+
+The first 5 minutes after login determine whether a user becomes active or churns. Onboarding is the guided path from first login to first value — the moment the user does something real with the dashboard. Empty states (covered in `states-and-feedback.md`) handle what the user sees on each empty page. This section covers the orchestrated flow that gets them to a productive state.
+
+### The onboarding sequence
+
+A good onboarding flow has 3-5 steps, takes under 3 minutes, and ends with the user seeing real value (their first data, their first completed action).
+
+```
+Welcome screen (who are you, what's your goal)
+  > Guided setup (configure the essentials)
+  > First action (create the first real thing)
+  > Success moment (show what they just accomplished)
+  > Dashboard home (with the data they just created)
+```
+
+### Welcome screen
+
+Shown on first login only. Keep it brief:
+- Greeting with the user's name (from the signup/invite).
+- One sentence about what the dashboard helps them do.
+- A primary CTA: "Let's get started" or "Set up your workspace."
+- Optional "Skip setup" link for power users who want to explore on their own.
+
+Don't: show a video, show a wall of text, ask 10 questions before showing the product.
+
+### Guided setup (the essential configuration)
+
+Collect only what's needed to make the dashboard useful. Everything else can be configured later in settings.
+
+**For a SaaS admin:** org name, invite 1-2 team members (or skip), choose a plan (or start trial).
+
+**For a CRM:** import contacts (CSV upload or skip), connect email (OAuth to Gmail/Outlook or skip), create the first deal.
+
+**For a project tool:** create the first project, name it, add 2-3 tasks.
+
+**For an analytics dashboard:** connect the data source, verify data is flowing, see the first chart.
+
+Rules:
+- **3-5 steps maximum.** Each step has one clear action.
+- **Every step is skippable** except the one that creates the minimum viable data (you can't show an empty dashboard and call it onboarded).
+- **Show progress** — step indicator at the top ("Step 2 of 4").
+- **Persist state** — if the user closes the tab and comes back, resume where they left off.
+- **Pre-fill where possible** — if they signed up with a Google account, pre-fill name and email. If the domain is `@acme.com`, suggest "Acme" as the org name.
+
+### First value moment
+
+The setup must end with the user seeing something real — not an empty dashboard. Strategies:
+
+- **Seed sample data** if the user skips data entry. Show 3-5 example records with a banner: "These are sample records to show you around. Delete them anytime." Better than nothing.
+- **Import existing data** as part of setup (CSV upload, connect an existing tool). The user sees their own data immediately.
+- **Create one real record** as the final setup step. "Create your first project" → the user lands on their project page with the project they just named.
+
+### Post-onboarding guidance
+
+After the initial setup, the dashboard is no longer empty but the user doesn't know where everything is. Two patterns:
+
+**Checklist (recommended):** A persistent card on the dashboard home showing 5-7 tasks that gradually introduce features. Each task links to the relevant page with context. Tasks check off as completed. The checklist disappears (or collapses) when all tasks are done.
+
+```
+Getting started                           3 of 6 complete
+  ✓ Create your first project
+  ✓ Invite a team member
+  ✓ Connect your email
+  ○ Set up your first automation
+  ○ Customize your dashboard
+  ○ Explore reports
+```
+
+Rules:
+- The checklist is **dismissible** — "Hide this" link. Don't force it.
+- Each item is a **link** to the relevant page, not just a label.
+- **Celebrate completion** — when all items are done, show a brief congratulations, then remove the checklist permanently.
+- **Track completion** server-side, not just in localStorage (survives device switches).
+
+**Guided tour (use sparingly):** Tooltip-based walkthrough highlighting UI elements. Libraries: Driver.js, Shepherd.js, Intro.js. Keep it to 4-5 steps max. Let the user dismiss at any time. **Never replay on subsequent logins.** A guided tour shown twice is hostile.
+
+### What NOT to do during onboarding
+
+- **Don't show a modal on every page** explaining what the page does. One tooltip tour (once) is enough.
+- **Don't block the product behind onboarding.** Users should be able to skip and explore freely.
+- **Don't ask questions you can infer.** If they're on a Pro trial, don't ask "What plan are you on?"
+- **Don't collect information that isn't needed yet.** Billing details can wait until trial ends. Notification preferences can wait until there are notifications.
+- **Don't treat returning users as new users.** The onboarding state is a flag on the user record (`onboarding_completed_at`). Check it on every login.
+- **Don't build onboarding as a separate app.** It's a state of the main dashboard — same layout, same nav, just with guided elements and empty state handling.
+
+### Invite-based onboarding (team members)
+
+When a user is invited (not self-signup), the onboarding is different:
+- They already have an org and team context.
+- Skip org setup entirely.
+- Show: set name/password (if invite-based auth), profile photo (optional), then land on the dashboard with their team's data already visible.
+- The checklist can be shorter: "Complete your profile, explore the dashboard, create your first [entity]."
+
+### Onboarding analytics
+
+Track the funnel:
+- `onboarding.started` — user hit the welcome screen
+- `onboarding.step_completed` — per step, with step name
+- `onboarding.skipped` — user clicked "Skip setup"
+- `onboarding.completed` — user finished all steps
+- `checklist.item_completed` — per checklist item
+- `checklist.dismissed` — user hid the checklist
+
+Measure: completion rate (what % finish all steps), drop-off per step (which step loses the most users), time to first value (how long from signup to first real action). These metrics directly predict activation and retention.
+
 ## Multi-step flows (wizards)
 
 Some operations are too big for one form: onboarding, multi-page checkout, complex setup, data imports. Use a wizard.
