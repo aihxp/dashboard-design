@@ -88,7 +88,7 @@ Examples of what domain knowledge prevents:
 
 ## Reference files
 
-22 files, loaded on demand. You read 4-6 per project, never all 22.
+25 files, loaded on demand. You read 4-6 per project, never all 25.
 
 <details>
 <summary>View the full reference library</summary>
@@ -121,6 +121,10 @@ Examples of what domain knowledge prevents:
 | `testing-and-quality.md` | E2E, component, load, contract, visual regression testing |
 | `performance-and-security.md` | Bundle size, SSR, CSP, CORS, rate limiting |
 | `security-deep-dive.md` | Sessions, data protection, secrets, incident response |
+| **Growth & Operations** | |
+| `login-and-auth-pages.md` | Login page design, registration UX, auth flows, login-to-dashboard journey |
+| `migration-and-data-import.md` | CSV/API import, platform migration, phased rollout, account merging |
+| `expansion-and-scalability.md` | Multi-tenancy, feature flags, i18n prep, billing expansion, RBAC scaling |
 | **Domains** | |
 | `domain-considerations.md` | 33 verticals with gotchas, compliance, seed data |
 
