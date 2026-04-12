@@ -198,6 +198,7 @@ The body above is enough to start building. For depth on a specific domain, load
 | `references/system-integration.md` | Connecting features: service layer, event bus, cache invalidation chains, entity linking, real-time propagation, job observability, feature flags |
 | `references/reporting.md` | Report generation: types, builder UI, PDF/Excel generation, scheduled reports, large datasets, print optimization, report permissions |
 | `references/api-and-integrations.md` | External connections: adapter pattern, OAuth2, outbound/inbound webhooks, data sync, integration marketplace, building your own API |
+| `references/ai-product-patterns.md` | Building AI products: streaming, context management, model orchestration, prompt management, RAG, evaluation, cost control, moderation, tool calling |
 | `references/testing-and-quality.md` | Writing tests for auth, CRUD, permissions, accessibility, visual regression |
 | `references/performance-and-security.md` | Optimizing bundle size, queries, caching; hardening CSP, CORS, rate limiting, input sanitization |
 | `references/security-deep-dive.md` | Advanced security: session hardening, API security, data protection, secrets management, supply chain, incident response |
