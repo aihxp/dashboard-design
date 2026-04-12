@@ -29,7 +29,7 @@ Follow this sequence. Skipping steps is how dashboards end up hollow.
 
 Before writing a single line of code, read **`references/preflight-and-verification.md`** and answer the questions in it. The pre-flight establishes: what the dashboard is *for*, who uses it, what the stack is, what the data source is, what auth model exists, what already exists vs. what must be built, and what "done" looks like. You cannot build a connected dashboard without this — you'd be guessing at every fork.
 
-Once you've identified the domain (question #1), read the matching section in **`references/domain-considerations.md`**. It covers 26 verticals with domain-specific data model traps, compliance requirements, and UX patterns that generic CRUD misses. Skipping this is how dashboards end up with float-based currency, single-entry accounting, or missing HIPAA audit logs.
+Once you've identified the domain (question #1), read the matching section in **`references/domain-considerations.md`**. It covers 31 verticals with domain-specific data model traps, compliance requirements, and UX patterns that generic CRUD misses. Skipping this is how dashboards end up with float-based currency, single-entry accounting, or missing HIPAA audit logs.
 
 If the user's request is vague ("build me a dashboard"), do not invent a domain. Pick the single most plausible interpretation, state your assumptions in one short paragraph, and proceed. Do not pepper the user with twenty questions. One pass of stated assumptions is enough; they'll redirect if needed.
 
@@ -202,7 +202,7 @@ The body above is enough to start building. For depth on a specific domain, load
 | `references/testing-and-quality.md` | Writing tests for auth, CRUD, permissions, accessibility, visual regression |
 | `references/performance-and-security.md` | Optimizing bundle size, queries, caching; hardening CSP, CORS, rate limiting, input sanitization |
 | `references/security-deep-dive.md` | Advanced security: session hardening, API security, data protection, secrets management, supply chain, incident response |
-| `references/domain-considerations.md` | **During pre-flight**, after identifying the domain. Covers 26 verticals with domain-specific gotchas, compliance, and data model traps |
+| `references/domain-considerations.md` | **During pre-flight**, after identifying the domain. Covers 31 verticals with domain-specific gotchas, compliance, and data model traps |
 
 ## How to interpret a vague request
 

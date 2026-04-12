@@ -1,6 +1,6 @@
 # Domain Considerations
 
-This file covers the domain-specific landmines for 26 common dashboard verticals. The generic dashboard discipline — auth, RBAC, CRUD, vertical slices, states, validation — applies identically to all of them. What differs is the 20% of domain-specific knowledge that, if missed, causes a rewrite, a compliance violation, or a broken product.
+This file covers the domain-specific landmines for 31 common dashboard verticals. The generic dashboard discipline — auth, RBAC, CRUD, vertical slices, states, validation — applies identically to all of them. What differs is the 20% of domain-specific knowledge that, if missed, causes a rewrite, a compliance violation, or a broken product.
 
 **How to use this file:** During pre-flight (question #1: "who uses this, for what job?"), identify which domain archetype matches. Read that section before designing the schema or writing the first migration. The gotchas listed here are things that generic CRUD misses — they're the landmines, not the full terrain.
 
@@ -466,6 +466,10 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 - **RAG (Retrieval-Augmented Generation) adds a whole subsystem** — document ingestion, chunking strategy, embedding generation, vector storage, retrieval quality measurement, source attribution in responses. Each has tuneable parameters that dramatically affect quality.
 - **Content moderation is both input and output** — filter harmful inputs before they reach the model AND filter harmful outputs before they reach the user. Log moderation events. False positives frustrate users; false negatives create liability.
 - **Model availability and latency vary unpredictably** — different models have different rate limits, different uptime, different latency profiles. Build fallback chains (try Model A, fall back to Model B), queue management, and latency monitoring per model.
+- **Model deprecation is an operational lifecycle** — OpenAI deprecates models on ~6-month cycles. Fine-tuned models are stranded when their base is deprecated. Track model version per conversation and eval result. Build migration paths: deprecation alerts, evaluation re-runs against replacement models, forced migration deadlines.
+- **Embedding model changes invalidate all existing vectors** — if you change from `text-embedding-ada-002` to `text-embedding-3-small`, every vector in your database is incompatible. You cannot mix vectors from different models in the same index. Track embedding model provenance per vector. Plan for dual-index migration strategy. This is an architecture decision that's nearly impossible to fix retroactively.
+- **Structured output fails 1-20% of the time** — prompt-based JSON extraction is 80-95% reliable. Function calling raises it to 95-99%. Only constrained decoding (OpenAI `json_schema`, Anthropic tool-use-as-structured-output) reaches near-100%. Validate every response against the schema. Build graceful degradation for parse failures.
+- **Multi-modal content changes everything** — images consume 1,000+ tokens per image (tiled pricing). Audio is time-based. The data model needs `content_blocks[]` not a `content` string. Context budget math must include media tokens. Storage requirements change dramatically.
 
 **Compliance:** Data processing agreements with model providers, GDPR (conversation data is personal data if it contains PII), EU AI Act (risk classification, transparency requirements), CCPA, industry-specific rules if AI processes financial/medical/legal data, content moderation obligations.
 
@@ -489,6 +493,9 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 - **Settlement/payout to artists and venues is a financial workflow** — ticket revenue minus fees, taxes, and venue costs, split among multiple parties. This is accounting with multiple payees per event.
 - **Check-in and access control are real-time** — QR code/barcode scanning at doors, preventing duplicate entry (a scanned ticket can't enter twice), VIP vs. GA routing, and real-time attendance counts.
 - **Multi-day and recurring events add calendar complexity** — festivals with multiple stages and overlapping acts, weekly show series, season passes valid for specific dates.
+- **ADA accessibility is structural data, not just UI** — every seat needs an `accessibility_type` field (wheelchair, companion, limited mobility, hearing impaired). Accessible seats must be distributed throughout the venue (legal requirement), not clustered. Companion seats sell with accessible seats (1:1 ratio). If you build the seating map without accessibility types, you need a schema migration.
+- **Ticket fraud and bot detection are day-one concerns** — 10,000 bots hitting your endpoint in 30 seconds. Purchase velocity detection, CAPTCHA during high-demand on-sales, verified fan queues, dynamic QR codes that change periodically, device fingerprinting.
+- **Venue configurations are one-to-many** — a single venue hosts different events with different layouts: concert (standing floor, 2,500 cap) vs. gala (seated tables, 800 cap) vs. conference (theater-style, 1,200 cap). Each configuration has its own seating map.
 
 **Compliance:** ADA accessibility for venues, local fire code capacity limits, sales tax on tickets (varies by jurisdiction), age restrictions for certain events, anti-scalping laws (jurisdiction-specific), payment card industry compliance.
 
@@ -513,6 +520,10 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 - **Loot box / gacha compliance varies by country** — Belgium and Netherlands ban paid loot boxes, Japan regulates "kompu gacha," China requires published drop rates, Apple/Google require disclosure. The same game may need different monetization per region.
 - **Player data for minors triggers COPPA/GDPR-K** — under-13 accounts need parental consent, restricted chat, restricted spending, no behavioral advertising. Age gating must be real, not a "click yes" checkbox.
 - **Real-time multiplayer state is not a database concern** — match state lives in game servers, not in PostgreSQL. The dashboard reads from match result records, player stats aggregations, and event streams. Don't try to query live match state from the admin panel.
+- **Cross-platform account linking is an identity architecture problem** — a player has one identity but accounts on Steam, PSN, Xbox, Nintendo, Epic. Platform policies restrict data sharing (Sony historically blocked cross-progression). Purchased items may be platform-locked. Linking must be reversible. Data model: `Player` has many `PlatformLink` records.
+- **Live service content pipeline has external blocking dependencies** — seasonal content goes through platform certification (Sony, Microsoft, Nintendo each certify separately, 1-5 business days, may reject). The dashboard needs: release calendar with certification status per platform, rollback capability, feature flags for gradual rollout.
+- **Player behavioral analytics drive LiveOps** — churn risk scoring, engagement segments (whale/dolphin/minnow), content exhaustion detection, social graph health. This isn't just analytics — it drives automated interventions (re-engagement offers when churn probability exceeds threshold).
+- **Guild/clan management is a social governance system** — creation, invitations, roles (leader/officer/member), shared resources/bank, guild progression, inter-guild competition, moderation, dissolution and asset distribution.
 
 **Compliance:** COPPA (minors), GDPR (player data, right to deletion of accounts), loot box regulations (Belgium, Netherlands, Japan, China), ESRB/PEGI rating compliance, gambling regulations (if real-money is involved), platform ToS (Steam, PlayStation, Xbox, App Store policies).
 
@@ -536,6 +547,10 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 - **Threat intelligence feeds are external data integrations** — STIX/TAXII format feeds, commercial threat intel (Recorded Future, CrowdStrike), OSINT feeds. IOCs (IPs, domains, file hashes) must be enriched and correlated against internal telemetry.
 - **Chain of custody matters for forensics** — evidence collected during an investigation (memory dumps, disk images, log exports) must be hashed, timestamped, and stored immutably. This is legal evidence.
 - **Compliance posture tracking is continuous** — SOC 2, ISO 27001, NIST CSF, PCI DSS, HIPAA controls mapped to evidence. Each control has a status (met/partially met/not met) with supporting evidence and review dates.
+- **SOAR playbook execution is how modern SOCs actually respond** — automated workflows: phishing alert > extract URLs > check threat intel > isolate endpoint > reset credentials > notify user. Dashboard needs: playbook builder, execution trace per incident, manual approval gates, playbook metrics. Without SOAR, the dashboard is read-only.
+- **Vulnerability management is a full lifecycle, not just scan results** — discovery > enrichment (add EPSS score, check CISA KEV catalog) > prioritization (CVSS + exploitability + asset criticality + exposure) > assignment with SLA > remediation > verification rescan > exception management. CVSS alone is inadequate — a CVSS 10 on an air-gapped test server is lower priority than a CVSS 7.5 on an internet-facing production database.
+- **Attack surface management is distinct from vulnerability scanning** — external asset discovery (including shadow IT), exposure validation, cloud security posture (CSPM), certificate monitoring, DNS/subdomain takeover risks. This is what an attacker sees from outside.
+- **Threat hunting is proactive, not reactive** — analysts form hypotheses and search historical data for evidence. Dashboard needs: hunting query workspace, campaign tracker, and the ability to convert findings into automated detection rules.
 
 **Compliance:** SOC 2, ISO 27001, NIST CSF, PCI DSS, HIPAA (if healthcare data), GDPR (incident notification within 72 hours), industry-specific regulations, breach notification laws (vary by state/country).
 
@@ -558,7 +573,12 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 - **Safety compliance is non-negotiable and heavily regulated** — OSHA incident reporting (within 24 hours for hospitalizations, 8 hours for fatalities), daily safety logs, toolbox talks, PPE tracking, and near-miss reporting. The dashboard must make safety reporting fast and frictionless.
 - **Drawing/plan management requires version control with superseding** — Revision A is superseded by Revision B. Workers must always see the latest revision. Building from an outdated drawing is a catastrophic (and common) mistake.
 - **Progress tracking is visual and percentage-based** — "Foundation 100%, Framing 60%, Electrical 20%, Plumbing 0%." Progress photos linked to dates and locations. Earned value management (EVM) for financial progress vs. schedule progress.
-- **Prevailing wage requirements apply to government contracts** — Davis-Bacon Act (federal), state prevailing wage laws. Workers on covered projects must be paid specific rates by trade classification. Tracking certified payroll is a reporting requirement.
+- **Prevailing wage requirements apply to government contracts** — Davis-Bacon Act (federal), state prevailing wage laws. Workers on covered projects must be paid specific rates by trade classification. Tracking certified payroll (WH-347 form) is a reporting requirement.
+- **Subcontractor payment applications (AIA G702/G703) are the industry-standard billing workflow** — used on 78% of commercial projects. The G702 is the cover sheet, G703 is the Schedule of Values (each line item with scheduled value, completed work, materials stored, retainage, balance). Lien waivers (4 types: conditional/unconditional for progress/final) must accompany each pay app. Missing this means the dashboard can't handle billing.
+- **RFI and submittal tracking are mission-critical document workflows** — an RFI is a formal question when drawings are unclear. A submittal is a document sent for architect approval before installation. Both have: numbered tracking, routing workflows, response deadlines with escalation, status tracking. A project may have 200-500 RFIs and 300-1000 submittals.
+- **BIM integration is increasingly table-stakes** — 3D models with metadata (materials, costs, schedule). Dashboard integration: click a wall to see its RFI, 4D scheduling (3D + time), clash detection results, model version management linked to drawing revisions.
+- **Bonding and insurance certificate (COI) tracking prevents site shutdowns** — every subcontractor needs certificates of insurance (ACORD 25 form) with the GC as additional insured. Expired COI = sub can't work. Automated expiration tracking across 20+ subs is essential.
+- **Weather delay tracking feeds the claims process** — daily weather recording, delay classification (full/partial day), contractual weather days (only delays beyond the anticipated count trigger extensions), schedule impact analysis linking weather to critical-path activities.
 
 **Compliance:** OSHA (safety), Davis-Bacon (prevailing wage for government work), state contractor licensing, building codes (vary by jurisdiction), environmental regulations (stormwater, hazmat), lien laws and payment bond requirements.
 
@@ -582,13 +602,125 @@ If the dashboard spans multiple domains (e.g., a SaaS that includes billing — 
 - **Search and discovery are core product features** — not just a search bar. Relevance ranking, category navigation, filters (price, location, rating, availability), promoted/sponsored listings, and personalized recommendations. Search quality directly drives GMV.
 - **Dispute resolution is a three-party workflow** — buyer claims item not received, seller provides tracking, platform arbitrates. Escalation tiers, evidence submission, resolution deadlines, and appeal processes. The dispute dashboard is as important as the order dashboard.
 - **Review integrity affects the entire marketplace** — fake review detection, review gating (only verified purchasers), review response from sellers, rating aggregation with recency weighting, and review moderation for prohibited content.
-- **Geographic and regulatory complexity** — a marketplace operating in multiple countries must handle: local payment methods, local tax collection and remittance (marketplace facilitator laws in the US), local consumer protection, and local seller verification requirements.
+- **Geographic and regulatory complexity** — a marketplace operating in multiple countries must handle: local payment methods, local tax collection and remittance (marketplace facilitator laws in 46+ US states — the marketplace, not the seller, collects and remits), local consumer protection, and local seller verification requirements.
+- **Seller onboarding is a multi-step verification pipeline** — identity verification (KYC/KYB), bank account verification (micro-deposits or Plaid), tax form collection (W-9/W-8BEN), 1099-K threshold tracking, restricted category approval. The pipeline is a state machine: `registered > identity_verified > bank_verified > tax_form_verified > active`. Blocking at any step needs clear communication.
+- **Category taxonomy is a schema-per-category problem** — each leaf category has different required attributes: "Laptops" needs RAM/storage/screen; "Dresses" needs size/color/material. Attribute types include enums, free text, numeric with units. Changing taxonomy after thousands of listings exist is a major migration.
+- **Multi-channel inventory sync prevents overselling** — sellers list on your marketplace + Amazon + eBay. A sale on Amazon must decrement your quantity within seconds. Real-time sync, safety stock buffers, centralized order management across channels.
+- **Shipping integration is the physical fulfillment layer** — rate calculation (carrier APIs), label generation, tracking integration, shipping SLA enforcement (ship within X days or face penalties), return logistics. Makes or breaks buyer trust.
+- **Seller analytics is a dashboard-within-a-dashboard** — every seller needs: sales trends, top listings, conversion rates, traffic sources, return rate, satisfaction metrics, payout history, listing quality scores with improvement recommendations.
 
 **Compliance:** Marketplace facilitator tax laws (US, state-by-state), consumer protection (EU Consumer Rights Directive, right of withdrawal), payment services regulations (PSD2 in EU), KYC/AML for seller onboarding, digital services act (EU, content moderation obligations), platform liability laws.
 
 **UX users expect:** Seller dashboard with earnings/payouts/performance, buyer order tracking, admin moderation queue, dispute resolution workflow with evidence viewer, marketplace health dashboard (GMV, take rate, seller churn, buyer satisfaction), category management, search analytics (top queries, zero-result queries), promoted listing management.
 
 **Seed data shape:** 30 sellers (20 active, 5 new/unverified, 3 suspended, 2 churned) across 3 tiers with different commission rates. 100 listings across 8 categories with varied pricing. 200 orders spanning 60 days (160 completed, 15 in transit, 10 pending, 5 disputed, 5 refunded, 5 cancelled). 500 reviews with ratings (4 flagged for moderation — 2 suspected fake). 3 active disputes at different stages. 10 payouts completed, 2 pending. Search analytics: top 20 queries with click-through rates, 5 zero-result queries. 5 promoted listings with spend and impression data. GMV and take-rate metrics for 6 months.
+
+---
+
+## 27. Insurance / InsurTech
+
+**Archetype:** Insurance company or MGA managing policies, claims, underwriting, and agent commissions.
+
+**Core entities:** Policy, Claim, Policyholder, Agent/Broker, Underwriting Submission, Premium, Coverage, Loss/Event
+
+**Gotchas:**
+- **Policy lifecycle is a complex state machine** — quote > bind > issue > endorse > renew > cancel > reinstate. Each state change has financial implications (premium adjustments, refunds, earned vs. unearned premium calculations). Mid-term endorsements (changes to coverage) trigger pro-rated premium recalculation.
+- **Claims processing (FNOL to settlement) is the core workflow** — First Notice of Loss intake > assignment to adjuster > investigation > reserve setting (estimated payout) > negotiation > settlement > payment. Reserve accuracy affects the company's financial position. Subrogation (recovering from a third party) adds another dimension.
+- **Underwriting is a risk assessment pipeline** — submission intake > data enrichment (third-party data: credit, claims history, property data) > risk scoring > pricing > terms/conditions > bind or decline. Automated vs. manual underwriting rules determine which submissions require human review.
+- **Rating engines calculate premiums from dozens of variables** — age, location, coverage limits, deductibles, claims history, credit score, industry code, building construction type. Rate tables are jurisdiction-specific and change with regulatory filings. Never hardcode rates.
+- **Insurance has its own data standards** — ACORD forms (standard data exchange formats), ISO/NAIC lines of business codes, policy administration system integration standards. Using non-standard formats creates integration barriers with carriers and reinsurers.
+- **Regulatory filings are per-state** — each state Department of Insurance has different requirements for rate filings, form filings, annual statements, and market conduct examinations. A policy sold in 50 states has 50 regulatory contexts.
+
+**Compliance:** State DOI regulations (vary per state), NAIC model laws, HIPAA (for health insurance), Gramm-Leach-Bliley Act (privacy), anti-rebating laws, surplus lines filing requirements, producer licensing.
+
+**UX users expect:** Policy lifecycle timeline, claims dashboard with severity and reserve tracking, underwriting submission queue, agent commission statements, loss ratio visualizations, renewal pipeline, FNOL intake form with guided workflow.
+
+**Seed data shape:** 100 policies across 3 lines (auto, home, commercial) in varied states (active, expired, cancelled, pending renewal). 30 claims spanning 6 months (15 open at various stages, 15 closed with settlements). 10 agents with commission schedules. 20 underwriting submissions (10 bound, 5 declined, 5 in review). Premium data with earned/unearned splits. 5 endorsements on active policies.
+
+---
+
+## 28. Telecommunications / ISP
+
+**Archetype:** Telecom or ISP managing subscribers, service provisioning, network operations, and usage-based billing.
+
+**Core entities:** Subscriber/Account, Service Plan, Circuit/Connection, Network Element, Trouble Ticket, Usage Record (CDR), Invoice, Coverage Area
+
+**Gotchas:**
+- **Service provisioning is a multi-system orchestration** — activating a new subscriber touches: billing system (create account), network (provision bandwidth, assign IP, configure RADIUS), hardware (ship modem/router, schedule install), and CRM (create contact, schedule onboarding). Each step can fail independently. Rollback on failure is a saga/compensation problem.
+- **Usage-based billing with CDRs (Call Detail Records) is high-volume metering** — millions of CDR events per day. Each record: caller, callee, start time, duration, data transferred, cell tower, service type. Rating (converting CDR events to charges) applies complex rules: time-of-day rates, bundle allowances, roaming surcharges, family plan sharing, rollover data.
+- **Network monitoring is a real-time operations concern** — SNMP traps, syslog events, performance metrics (latency, packet loss, utilization) from thousands of network elements. Outage detection, root cause analysis, SLA compliance tracking. The dashboard must show network health maps with drill-down to individual elements.
+- **Trouble ticket SLAs are regulated** — the FCC and state PUCs mandate response and resolution times for service outages. Telecom SLAs are contractual AND regulatory, unlike typical helpdesk SLAs.
+- **Number portability is a regulated workflow** — customers porting phone numbers in/out. The Local Number Portability process has specific timelines (simple port: 1 business day), and losing carriers cannot block ports. Tracking port status and compliance is dashboard functionality.
+
+**Compliance:** FCC regulations, state PUC rules, CALEA (lawful intercept), CPNI (Customer Proprietary Network Information) privacy, E-911 requirements, universal service fund contributions, number portability regulations.
+
+**UX users expect:** Subscriber account dashboard with service status, network health map with outage overlay, trouble ticket queue with SLA timers, usage analytics (data/voice/text), provisioning workflow tracker, coverage map, invoice management with CDR detail drill-down.
+
+**Seed data shape:** 200 subscribers across 4 plan types (basic, standard, premium, business). 50,000 CDR events spanning 30 days. 10 network elements with health metrics. 30 trouble tickets (20 resolved, 10 open with SLA tracking). 3 service outages with affected subscriber counts. 5 active number port requests. Monthly invoices with usage breakdown.
+
+---
+
+## 29. Energy / Utilities
+
+**Archetype:** Utility company or energy provider managing meters, consumption, grid operations, and regulatory compliance.
+
+**Core entities:** Meter, Customer/Account, Rate Schedule, Usage Reading, Outage, Work Order, Regulatory Filing, Renewable Certificate
+
+**Gotchas:**
+- **Meter data management is the foundation** — smart meters report consumption at 15-minute intervals. A utility with 500,000 meters generates 48 million readings per day. This is time-series data requiring specialized storage. Data validation (detecting faulty meters, estimated reads, meter tampering) is a continuous process.
+- **Rate schedules are regulated and complex** — time-of-use rates (different price per kWh by time of day and season), tiered rates (first 500 kWh at one price, next 500 at another), demand charges (peak kW usage), net metering (solar customers selling back to grid). Rate changes require regulatory approval and public notice periods.
+- **Outage management is safety-critical** — outage detection (from meter last-gasp signals, customer reports, SCADA), crew dispatch, estimated restoration time, rolling status updates to affected customers. Mutual aid coordination during major events (storms). Regulatory reporting of outage duration and frequency (SAIDI, SAIFI metrics).
+- **Demand forecasting drives grid operations** — predicting load 15 minutes, 1 hour, 1 day, and 1 year ahead. Weather-dependent. Affects wholesale energy procurement, generation dispatch, and grid stability. Machine learning models are standard.
+- **Renewable energy certificates (RECs) are tradeable compliance instruments** — each MWh of renewable generation produces a REC. Tracking generation, certification, sale, and retirement of RECs is a compliance requirement for renewable portfolio standards.
+
+**Compliance:** NERC (reliability standards), FERC (wholesale markets), state PUC rate regulation, Green Button (data access standard), EPA emissions reporting, renewable portfolio standards, PURPA (qualifying facilities), cybersecurity (NERC CIP for critical infrastructure).
+
+**UX users expect:** Grid operations dashboard with real-time load, outage map with affected customers and ETR, customer consumption charts with rate tier visualization, demand response event management, meter health monitoring, regulatory filing tracker, renewable generation dashboard.
+
+**Seed data shape:** 500 meters with 30 days of 15-minute interval readings. 3 rate schedules (residential, commercial, time-of-use). 10 outage events (5 resolved, 5 active with crew assignments). 200 customer accounts with billing history. 50 work orders across types (meter install, line repair, tree trimming). 30 days of demand/generation data for forecasting.
+
+---
+
+## 30. Government / Public Sector
+
+**Archetype:** Government agency managing permits, citizen services, public records, procurement, and transparency.
+
+**Core entities:** Permit/License, Application, Citizen/Applicant, Case, Public Record, Procurement/RFP, Budget Line Item, FOIA Request
+
+**Gotchas:**
+- **Permit and licensing workflows vary by jurisdiction and type** — building permits, business licenses, event permits, liquor licenses — each has different requirements, review workflows, fee schedules, and inspection processes. A single agency may administer 50+ permit types. The workflow engine must be configurable per permit type, not hardcoded.
+- **Public records and FOIA compliance have strict timelines** — federal FOIA requires acknowledgment within 20 business days. State open records laws vary (some require response within 3-5 business days). The dashboard must track: request intake, review/redaction workflow, cost estimation, response deadline, appeal process. Overdue requests are legal violations.
+- **Procurement is heavily regulated** — RFP lifecycle: draft > legal review > public posting > vendor questions (all answers must be shared equally) > proposal receipt > evaluation (scoring rubrics, conflict of interest declarations) > award > protest period > contract execution. Transparency requirements mean most records are public. Bid tabulations, scoring sheets, and award justifications must be accessible.
+- **Budget transparency is legally required** — citizens have a right to see how public money is spent. Dashboards may need public-facing budget explorers (expenditures by department, fund, program). Data must align with government accounting standards (GASB for US, IPSAS international).
+- **Accessibility is legally mandated, not optional** — Section 508 compliance is required for all federal systems and most state/local. This goes beyond WCAG: specific testing with assistive technology (JAWS, NVDA, VoiceOver), document accessibility (all published PDFs must be tagged), and VPAT (Voluntary Product Accessibility Template) documentation.
+
+**Compliance:** Section 508 / ADA, FedRAMP (cloud security for federal), FOIA / state open records laws, GASB accounting standards, procurement regulations (FAR for federal, state-specific), records retention schedules, data sovereignty requirements.
+
+**UX users expect:** Permit application portal with status tracker, public-facing searchable permit database, procurement portal with RFP listing and vendor registration, budget transparency dashboard, FOIA request tracker with deadline countdown, case management for inspections/enforcement, GIS integration for spatial permits (zoning, land use).
+
+**Seed data shape:** 50 permit applications across 5 types (building, business, event, liquor, sign) in varied states. 20 procurement actions (10 active RFPs, 5 awarded, 5 closed). 15 FOIA requests (5 open with deadline tracking, 10 completed). Budget data across 8 departments with line-item detail. 30 inspection records. 5 public meeting agendas with attached documents.
+
+---
+
+## 31. Recruiting / ATS (Applicant Tracking)
+
+**Archetype:** HR or recruiting team managing job postings, candidates, interview pipelines, and hiring compliance.
+
+**Core entities:** Job Requisition, Candidate, Application, Interview, Offer, Hiring Pipeline Stage, Evaluation/Scorecard, Source/Channel
+
+**Gotchas:**
+- **The hiring pipeline is a funnel with configurable stages** — applied > phone screen > technical interview > onsite > offer > accepted/rejected. But stages vary by role (engineering has a coding test, sales has a role play). Each stage has: assigned interviewers, scorecards/rubrics, pass/fail criteria, and time-in-stage SLAs. The pipeline must be configurable per job requisition.
+- **Interview scheduling is a constraint satisfaction problem** — coordinate availability across 3-6 interviewers, candidate timezone, room availability, and buffer time between interviews. Integration with Google Calendar / Outlook is essential. Self-scheduling links (candidate picks from available slots) reduce coordination overhead.
+- **EEO compliance requires specific data collection and reporting** — US employers with 100+ employees must file EEO-1 reports (demographics by job category). Demographic data (race, gender, veteran status, disability) must be collected voluntarily and kept separate from hiring decisions — interviewers must NOT see this data. The dashboard must enforce this separation.
+- **OFCCP compliance for government contractors** — federal contractors must maintain applicant flow logs, track hiring disposition by demographic group, and demonstrate non-discriminatory hiring practices. Internet Applicant Rule defines who counts as an "applicant" (must meet basic qualifications and express interest).
+- **Candidate experience is measurable and matters** — time-to-response (acknowledge application within 24-48 hours), time-in-stage (candidates ghosted in "under review" for weeks), interview feedback turnaround, and offer response time. Track these as SLAs. A poor candidate experience damages employer brand.
+- **Source attribution drives recruiting spend** — which channels (LinkedIn, Indeed, referrals, career page, agencies) produce the most hires, at what cost per hire? Track source at application time AND at hire time (the source of the application, not just the source of the candidate record). Agency placements have fee structures (typically 15-25% of first-year salary) that must be tracked.
+
+**Compliance:** EEO-1 reporting, OFCCP (federal contractors), EEOC anti-discrimination, ban-the-box laws (jurisdiction-specific — some prohibit asking about criminal history), FCRA (Fair Credit Reporting Act for background checks), state-specific salary history ban laws, GDPR (EU candidates), data retention policies for applicant data.
+
+**UX users expect:** Kanban pipeline view per job (candidates as cards moving through stages), interview scheduling with calendar integration, scorecard/rubric forms, offer letter generation, candidate profile with full activity timeline, sourcing analytics (cost per hire by channel), compliance reporting (EEO-1 data, time-to-fill, demographic disposition), hiring manager dashboard (their open reqs, pending interviews, candidates awaiting decision).
+
+**Seed data shape:** 10 open job requisitions across 4 departments. 200 candidates with varied pipeline stages (100 applied, 40 phone screened, 20 interviewing, 10 offer stage, 5 hired, rest rejected/withdrawn). 50 completed scorecards across interviewers. 3 sourcing channels with cost data. 5 accepted offers and 2 declined. EEO demographic data (voluntary, separated from hiring data). 3 agency placements with fee tracking. Interview schedules across 2 weeks.
 
 ---
 
