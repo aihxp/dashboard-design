@@ -192,6 +192,124 @@ When a user is invited (not self-signup), the onboarding is different:
 - Show: set name/password (if invite-based auth), profile photo (optional), then land on the dashboard with their team's data already visible.
 - The checklist can be shorter: "Complete your profile, explore the dashboard, create your first [entity]."
 
+### Role-based onboarding paths
+
+Different roles need different onboarding:
+
+**Admin/creator** (full onboarding): workspace name, branding, invite members, connect integrations, configure settings. This is the standard flow above.
+
+**Member (invited)**: abbreviated. Accept invite, set profile, learn the workspace that already exists. Show "Here's what your team has set up" — not "Let's set things up." Skip org setup entirely. The workspace already has data, channels, or projects visible.
+
+**Viewer/guest**: minimal or zero onboarding. Read-only access. A single tooltip: "You have view access to this workspace." Don't show creation tutorials.
+
+**Permission-aware checklist**: filter checklist items by role. Don't show "Connect email integration" to a viewer. Don't show "Configure billing" to a member.
+
+### Template / quickstart gallery
+
+Instead of starting from scratch, offer starter templates during onboarding (after welcome, before dashboard):
+
+**Two types:**
+- **Data templates** — pre-seeded records (sample contacts, projects, invoices). The user deletes or modifies them. Think Trello's "Welcome Board."
+- **Structural templates** — create entities, custom fields, views, and workflows. When a user selects "Project Management," the template creates databases with specific properties, Kanban/Timeline views, and sample pages. More complex to implement.
+
+**UI:** Show 3-6 templates with name, one-line description, preview icon. "Use this template" or "Start from scratch." Allow switching or clearing template data later.
+
+**Implementation:** templates are JSON fixtures or seed scripts run against the user's workspace. Structural templates need a definition format describing: which entities to create, which fields to add, which views to configure, which sample records to insert.
+
+### Onboarding email sequence
+
+The emails sent in the first 7-14 days, tied to in-app onboarding state:
+
+| Day | Email | Trigger |
+|---|---|---|
+| 0 | Welcome (confirm signup, link to get started) | Immediate on signup |
+| 1 | "Getting started" — one specific action with deep link | Time-based |
+| 3 | Feature highlight — one feature they haven't used yet | Behavioral (based on in-app state) |
+| 5-7 | Social proof / case study | Time-based |
+| 7 | "You haven't done X yet" nudge | Behavioral (only if they haven't) |
+| 10-12 | Trial expiry warning (if applicable) | Time-based |
+| 14 | Final nudge or upgrade prompt | Time-based |
+
+**Key principles:**
+- Send from a real person's name, not "noreply@." Real-person emails achieve 68% open rate vs ~25% for branded emails.
+- Behavioral triggers outperform time-based. "You ingested data but haven't created a dashboard" beats "It's day 3."
+- Every email has exactly one CTA that deep-links to the specific in-app location.
+- The email system checks onboarding state before sending. If the user already completed the action, don't send the nudge.
+- Expect to iterate through 5-10 versions of the flow.
+
+**Benchmarks:** open rate goal >40%, CTR goal >4%, unsubscribe <1%.
+
+### Progressive disclosure (post-onboarding feature discovery)
+
+Initial onboarding covers 3-5 features. A dashboard with 15+ features needs a long-tail discovery strategy for weeks 2-4:
+
+**Contextual first-visit tooltips:** show a tooltip the first time a user visits a specific page or encounters a feature — not during initial onboarding, but days later. Dismissible, never replay, never block interaction.
+
+**Behavioral triggers for education:** when a user manually does something 3+ times that could be automated, show a tooltip about the automation. When they create their 10th record, suggest bulk operations. Trigger on behavior, not time.
+
+**Feature announcements (layered):**
+- **Major feature:** one-time modal on first login after release (max 1/month).
+- **Medium improvement:** inline banner on the relevant page.
+- **Minor change:** changelog entry only.
+
+Track which educational moments have been shown/dismissed per user in a `user_feature_discovery` table.
+
+**In-product learning center:** a persistent "Learn" or "?" section in the nav with getting-started guides, feature tutorials, and documentation links. Replaces the need to introduce every feature during onboarding.
+
+### Re-engagement (returning after absence)
+
+When a dormant user returns (30+ days inactive):
+
+- Do NOT restart onboarding or show the welcome screen.
+- If onboarding was incomplete, show the checklist in its previous state (completed items still checked).
+- Show a subtle "Welcome back" banner (not modal) with what's changed: "3 new features since your last visit" with changelog link.
+- If teammates were active: "Your team has been busy — 12 new projects were created."
+- Track `last_seen_at` on the user record. When >30 days ago, set a `returning_user` session flag.
+
+### Activation metrics
+
+Onboarding completion is not activation. Activation is the specific behavior that predicts long-term retention — the "aha moment":
+
+- Slack: team sends 2,000 messages (93% retention after threshold)
+- Dropbox: 1 file in 1 folder on 1 device
+- PostHog: events ingested + 1 insight created + 1 dashboard created
+
+**How to find your activation metric:** compare users who retained at 90 days vs. those who churned. Find the action that differs. Your onboarding flow should be reverse-engineered from this metric.
+
+**Benchmarks:** activation rate <20% = major problem, 20-40% = typical, 40-60% = good, >60% = excellent.
+
+For B2B dashboards, measure activation at the org/team level, not individual. Anyone in the org performing the action counts.
+
+### Onboarding state data model
+
+All onboarding state is server-side (survives device switches):
+
+```sql
+user_onboarding
+  user_id                UUID PRIMARY KEY
+  current_step           VARCHAR(50)
+  completed_at           TIMESTAMPTZ     -- null until finished
+  skipped_at             TIMESTAMPTZ     -- null unless skipped
+  checklist_state        JSONB           -- per-item completion + timestamps
+
+user_feature_discovery
+  user_id                UUID
+  feature_key            VARCHAR(100)    -- 'bulk_export', 'api_keys'
+  first_shown_at         TIMESTAMPTZ
+  dismissed_at           TIMESTAMPTZ
+  interacted_at          TIMESTAMPTZ     -- when user actually used the feature
+
+user_announcements
+  user_id                UUID
+  announcement_id        UUID
+  seen_at                TIMESTAMPTZ
+  dismissed_at           TIMESTAMPTZ
+```
+
+**Key implementation rule:** the checklist should observe actual application state, not just track clicks. If a user creates a project through the normal UI (not the checklist link), the "Create first project" item auto-completes. Query real data (`SELECT COUNT(*) FROM projects WHERE org_id = ?`) rather than checking a boolean flag.
+
+Provide an admin API to reset onboarding state for testing and customer support.
+
 ### Onboarding analytics
 
 Track the funnel:
@@ -201,8 +319,9 @@ Track the funnel:
 - `onboarding.completed` — user finished all steps
 - `checklist.item_completed` — per checklist item
 - `checklist.dismissed` — user hid the checklist
+- `activation.reached` — user hit the activation metric threshold
 
-Measure: completion rate (what % finish all steps), drop-off per step (which step loses the most users), time to first value (how long from signup to first real action). These metrics directly predict activation and retention.
+Measure: completion rate (what % finish all steps), drop-off per step (which step loses users), time to first value (signup to first real action), activation rate (what % reach the aha moment), email sequence performance (open rate, CTR per email).
 
 ## Multi-step flows (wizards)
 
