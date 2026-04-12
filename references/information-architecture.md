@@ -582,6 +582,65 @@ Use icons consistently:
 - Same icon size in the same context
 - Icons in primary nav are filled or outlined consistently
 
+## Avoiding redundant actions
+
+The same action appearing in the sidebar, the user menu, AND a header icon confuses users about which is "the real one." Research shows users don't recognize duplicates — they scan each one separately, doubling cognitive effort, and may click both expecting different content.
+
+### One canonical location per action
+
+Every visible UI element that a user can click should have ONE canonical location. Use this decision framework:
+
+| Question | Canonical location | Examples |
+|---|---|---|
+| **Is it about the user personally?** | Avatar dropdown (top-right). Nowhere else. | Profile, preferences, theme, logout |
+| **Is it about the workspace/team?** | Sidebar, labeled with workspace scope. Nowhere else. | Workspace settings, members, billing, features |
+| **Is it a high-frequency navigation destination?** | Sidebar primary items. | Projects, issues, customers, analytics |
+| **Is it a creation action?** | ONE visible button (page header or sidebar, not both). | "Create Customer", "+ New Project" |
+| **Is it search?** | ONE visible trigger (header bar or sidebar item). | Search bar or "Search" nav item |
+| **Is it a power-user shortcut?** | Invisible accelerators are acceptable alongside visible actions. | Cmd+K for search, `C` for create, right-click context menu |
+
+**Invisible accelerators (keyboard shortcuts, right-click menus) don't count as redundancy** — they don't compete for visual attention.
+
+### How real products solve this
+
+Every major dashboard product follows the same pattern:
+
+- **Personal actions** (profile, preferences, theme, logout) → avatar dropdown only
+- **Workspace settings** → sidebar or workspace switcher, clearly labeled with scope
+- **Search** → one visible trigger + Cmd+K (the only universally accepted visible redundancy)
+- **Create new** → one visible button + optional keyboard shortcut
+- **Logout** → avatar dropdown, last item. Never in the sidebar.
+
+Linear, Notion, Stripe, Vercel, and GitHub all put Settings in exactly ONE visible location. None of them duplicate it.
+
+### Disambiguating multiple "settings"
+
+When a dashboard has personal settings AND workspace settings AND admin settings, use different names and different locations:
+
+| Scope | Label | Location |
+|---|---|---|
+| Personal | "Preferences", "My account", "Profile" | Avatar dropdown |
+| Workspace/team | "Workspace settings", "[Team name] settings" | Sidebar |
+| Admin/system | "Administration", "Admin console" | Inside workspace settings, role-gated |
+
+Never label all three "Settings." The user can't tell which is which.
+
+### Redundancy anti-patterns
+
+- **Triple settings** — gear icon in header + "Settings" in sidebar + "Settings" in user menu. Users assume three different destinations.
+- **Triple "New" button** — sidebar + page header + floating action button. Users don't know which to click.
+- **Dual profile** — "My Profile" in sidebar AND in avatar dropdown. Profile is a personal action, not a navigation destination — avatar dropdown only.
+- **Dual notifications** — bell icon in header AND "Notifications" in sidebar. Pick one.
+- **Same dropdown from two triggers** — if two UI elements open the identical dropdown, remove one.
+
+### Mobile: resolve all desktop redundancy
+
+Desktop has room for 3 navigation zones (sidebar + header + user menu). Mobile has room for at most 2. If "Settings" was in two places on desktop, it must be in exactly one on mobile.
+
+- **Bottom tab bar** (3-5 items max) for highest-frequency destinations
+- **Hamburger** for everything else — but deduplicate: never show the same action in both the tab bar and the hamburger
+- **Avatar icon** in mobile header (if present) is the sole entry point for personal actions — don't duplicate in hamburger
+
 ## What to avoid
 
 - **Hamburger menu on desktop.** Hides the nav behind a click for no reason. Use a persistent sidebar.
