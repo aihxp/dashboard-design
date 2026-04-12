@@ -178,6 +178,48 @@ When you catch yourself about to write any of these, stop and do the real versio
 - **Don't** ship a dashboard without testing it on a small viewport. The mobile breakage is always worse than you think.
 - **Don't** trust client-supplied IDs in mutations. The server resolves the current user from the session, not from the request body.
 
+## Naming conventions
+
+Inconsistent naming is how a dashboard ends up with `getUserData`, `fetchUserInfo`, and `loadUserDetails` all doing the same thing. Pick a convention per layer and enforce it everywhere.
+
+### Code naming
+
+| Layer | Convention | Examples |
+|---|---|---|
+| **Files and directories** | `kebab-case`, grouped by feature | `user-management/`, `create-user-form.tsx`, `use-users.ts` |
+| **Components** | `PascalCase`, noun-based | `UserTable`, `OrderDetail`, `CreateCustomerForm` |
+| **Functions / hooks** | `camelCase`, verb-first | `createUser`, `updateOrder`, `useUsers`, `useOrderById` |
+| **Service functions** | `camelCase`, verb + entity | `updateUserRole`, `deleteProject`, `inviteMember` |
+| **Database tables** | `snake_case`, plural | `users`, `orders`, `audit_logs`, `order_items` |
+| **Database columns** | `snake_case` | `created_at`, `user_id`, `is_active`, `total_amount` |
+| **API endpoints** | Plural nouns, `kebab-case` for multi-word | `/api/users`, `/api/order-items`, `/api/audit-logs` |
+| **Environment variables** | `SCREAMING_SNAKE_CASE` | `DATABASE_URL`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_API_URL` |
+| **Events** | `entity.verb_past_tense` | `user.created`, `order.fulfilled`, `billing.payment_failed` |
+| **Permissions** | `resource:action` | `users:read`, `users:delete`, `billing:edit`, `audit_log:read` |
+| **Query keys** | Array starting with entity name | `['users']`, `['users', id]`, `['users', 'list', filters]` |
+| **CSS / design tokens** | `--category-property` or `--category-element-property` | `--color-primary`, `--button-primary-bg`, `--radius-sm` |
+| **Feature flags** | `kebab-case` | `ai-ticket-routing`, `new-billing-page`, `dark-mode-v2` |
+
+### Navigation and UI naming
+
+| Element | Convention | Right | Wrong |
+|---|---|---|---|
+| **Top-level nav labels** | Short nouns, 1-2 words | "Customers" | "Manage Customers" |
+| **Nav casing** | Pick sentence case or title case — never mix | "Audit log" everywhere | "Audit log" here, "Audit Log" there |
+| **Sub-nav items** | More specific nouns | "All customers", "Segments" | "Customer list", "Customer segments" |
+| **Page titles** | Match the nav label exactly | Sidebar: "Orders" → page: "Orders" | Sidebar: "Orders" → page: "Order Management" |
+| **Breadcrumbs** | Match nav labels, not internal names | "Customers / Acme Corp" | "customer-list / cust_123" |
+| **URL slugs** | `kebab-case`, plural for collections | `/customers`, `/customers/:id` | `/customerList`, `/customer/view/:id` |
+| **Action buttons** | Verb + noun | "Create Customer", "Export Report" | "New", "Submit", "Go" |
+| **Status labels** | One vocabulary, used everywhere | "Active / Inactive" everywhere | "Active" here, "Enabled" there |
+| **Empty/loading text** | Specific noun, not generic | "No customers yet" | "No data", "No results" |
+| **Error messages** | What happened + what to do | "Email already exists. Try signing in." | "Error", "Invalid input" |
+| **Toast messages** | Past tense confirmation | "Customer created" | "Success!" |
+| **Confirmation dialogs** | Verb + specific noun as title | "Delete 3 customers?" | "Are you sure?", "Confirm" |
+| **Settings sections** | Domain grouping, not alphabetical | General, Security, Billing | API, Billing, General |
+
+The single most important naming rule: **the same concept has the same name in every layer.** If the sidebar says "Customers," the page title says "Customers," the breadcrumb says "Customers," the API endpoint is `/api/customers`, the database table is `customers`, the query key is `['customers']`, the event is `customer.created`, and the permission is `customers:read`. One word, everywhere.
+
 ## Reference files — load on demand
 
 The body above is enough to start building. For depth on a specific domain, load the matching reference file. Read each file *before* implementing that layer, not after — the cost of re-doing a layer is much higher than the cost of reading 300 lines.
