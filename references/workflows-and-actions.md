@@ -214,6 +214,15 @@ The pattern from Linear, Notion, Slack, Vercel, Stripe. Open with `⌘K` (Mac) /
 
 Build it when the dashboard has > 50 navigable destinations or > 100 records the user might look up.
 
+**Implementation:** Use `cmdk` (React) or `kbar` (React) as the foundation. Key patterns:
+
+- **Action registration** — each page/feature registers its own actions. The palette aggregates them.
+- **Async search** — for records (customers, orders), search the server with debounce. Show recent items while results load.
+- **Nested commands** — select a project, then select an action on it ("Open" / "Edit" / "Archive").
+- **Recent items** — show the last 5-10 visited pages when the palette opens with no query.
+- **Action mode** — `>` prefix shows actions ("Export," "Invite user"), not navigation.
+- **Feedback** — when an action executes, close the palette and show a toast. If it fails, keep the palette open with an error.
+
 Rules:
 - **Fuzzy match** — match words out of order, ignore minor typos
 - **Group results by type** — Pages, Customers, Orders, Actions
@@ -228,6 +237,52 @@ A search input above a table, narrows the rows shown. Debounce 250–400ms. Use 
 ### Filter typeaheads
 
 Inside a select with > 10 options, add a search input at the top. Esc closes. Arrow keys navigate. Enter selects.
+
+## Drag-and-drop
+
+Three use cases in dashboards:
+
+1. **Kanban boards** — drag cards between columns (status changes). The drop triggers a mutation.
+2. **List reordering** — drag to reorder items in a priority list. Save the new order immediately or on explicit save.
+3. **File organization** — drag files into folders.
+
+**Libraries:** `dnd-kit` (React, modular, accessible), `pragmatic-drag-and-drop` (Atlassian, headless, framework-agnostic), `@hello-pangea/dnd` (fork of react-beautiful-dnd, list-focused).
+
+**UX pattern:** idle > hover (show grab cursor) > grab (element lifts, placeholder appears) > move (element follows cursor, drop zones highlight) > drop (element settles, mutation fires). Show a loading indicator on the dropped item if the mutation is async.
+
+**Accessibility:** drag-and-drop must have a keyboard alternative. Provide "Move up" / "Move down" buttons or a "Move to..." menu as a non-drag fallback.
+
+## Approval workflows
+
+Multi-step approval routing for procurement, expenses, content publishing, or HR requests:
+
+1. User submits a request.
+2. Request routes to their manager (based on org hierarchy or configured routing rules).
+3. Manager approves or rejects (with comments).
+4. If approved, routes to next approver (finance, legal, etc.).
+5. Final approval triggers execution (payment, publication, access grant).
+
+The request is a state machine: `draft > pending_manager > pending_finance > approved > executed` (or `rejected` at any step). Each transition logs who, when, and any comments. Show the approval chain visually with current status highlighted.
+
+## Collaborative editing
+
+When multiple users can edit the same record simultaneously:
+
+- **Presence indicators** — "Alice is also editing this record" with avatar badge.
+- **Live cursors** — show where others are editing (for rich text / spreadsheet surfaces).
+- **Conflict resolution** — optimistic locking (version field) for form-based editing. CRDTs (Yjs, Automerge) for real-time collaborative text.
+- **Tools:** Liveblocks (managed, easiest), Yjs + a provider (self-hosted), Convex (built-in reactivity).
+
+Build this only when the use case demands it. Most CRUD dashboards don't need real-time collaboration — optimistic locking (covered in `data-layer.md`) is sufficient.
+
+## Conditional form fields
+
+Fields that appear/disappear based on other selections:
+
+- Selecting "Payment method: Credit card" reveals card fields; "Bank transfer" reveals bank fields.
+- **Preserve values** of hidden fields (don't clear on hide) — the user may toggle back.
+- **Validate only visible fields** — hidden fields should not block submission.
+- **Animate show/hide** with a brief height transition (150ms).
 
 ## Filtering and saved views
 

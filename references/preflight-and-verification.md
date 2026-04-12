@@ -8,9 +8,9 @@ This file is the bookends of every dashboard build. Read the **pre-flight** sect
 
 The pre-flight is a thinking exercise that takes 2–5 minutes and saves hours of rework. Do not skip it. Do not collapse it into "I'll figure it out as I go." A dashboard built without pre-flight has incompatible decisions in different layers and you discover the incompatibility on page four.
 
-### The 9 questions
+### The 12 questions
 
-Answer all 9 in writing — even one or two sentences each — before coding. If you don't know an answer, pick the most plausible default and label it as an assumption.
+Answer all 12 in writing — even one or two sentences each — before coding. If you don't know an answer, pick the most plausible default and label it as an assumption.
 
 #### 1. Who uses this dashboard, and for what job?
 Not "admins" — what does an admin actually open this dashboard to *do*? "Approve pending refunds." "See which servers are down." "Add a user to a team." The job determines the landing page, the primary navigation, and which features get the vertical-slice treatment first.
@@ -24,8 +24,8 @@ Example: For an e-commerce admin — `Order`, `Customer`, `Product`, `Refund`, `
 Framework, language, database, ORM, auth library, UI library, styling system, state library, chart library. Write them all down. If the user hasn't specified, pick a coherent set and state it. Coherent sets that work well in 2026:
 
 - **Next.js + TypeScript + Postgres + Prisma + NextAuth/Auth.js + shadcn/ui + Tailwind + TanStack Query + Recharts** — the safe default
-- **Remix + TypeScript + SQLite + Drizzle + Lucia + shadcn/ui + Tailwind + Recharts** — when SSR-first matters
-- **SvelteKit + TypeScript + Postgres + Drizzle + Lucia + shadcn-svelte + Tailwind + LayerChart** — when Svelte is preferred
+- **React Router v7 (framework mode) + TypeScript + SQLite + Drizzle + Better Auth + shadcn/ui + Tailwind + Recharts** — when SSR-first matters
+- **SvelteKit + TypeScript + Postgres + Drizzle + Auth.js + shadcn-svelte + Tailwind + LayerChart** — when Svelte is preferred
 - **Vue 3 + Nuxt + TypeScript + Postgres + Drizzle + Sidebase Auth + shadcn-vue + Tailwind + unovis** — when Vue is preferred
 - **Rails 7 + Postgres + Devise + Hotwire/Turbo + ViewComponent + Chartkick** — when the user wants Rails
 - **Django + Postgres + django-allauth + HTMX + Tailwind + Chart.js** — when the user wants Django
@@ -81,6 +81,15 @@ Write out every URL the dashboard will have, with parent → child nesting. This
 
 #### 8. What does "done" look like for v1?
 Give yourself a finite definition. "Done" cannot be "everything works perfectly forever." It should be: which features must be complete for v1, which are explicitly out of scope, and what the smoke test looks like (the sequence of clicks a real user does to validate).
+
+#### 10. What are the performance constraints?
+Set targets before building: initial JS bundle under 200KB gzipped, LCP under 2.5s, INP under 200ms, API p95 under 500ms. Without upfront budgets, teams optimize retroactively — which means never.
+
+#### 11. Where does this deploy?
+Vercel, AWS, Docker, self-hosted VPS, Cloudflare Workers? The deployment target affects the data layer (serverless connection pooling is mandatory on Vercel/Lambda), auth (edge runtime compatibility), and SSR strategy. Write it down.
+
+#### 12. What's the responsive scope?
+Desktop-only (many internal tools)? Responsive down to tablet? Full mobile with offline/PWA? The answer changes the layout approach. Stating "desktop-only" is valid — not stating it leads to a half-baked mobile experience.
 
 #### 9. What already exists vs. what must be built?
 If the user is adding to an existing project, inventory what's there (auth library, design system, base layout, existing pages) before adding anything. Adding a second auth library or a second design system is a project-level mistake that's hard to reverse.
@@ -188,6 +197,15 @@ Test by: turning off the network in DevTools, deleting all rows in the DB, retur
 - [ ] Color contrast for text is at least 4.5:1, for UI components 3:1.
 - [ ] Icons that convey meaning have an `aria-label`.
 - [ ] No element relies solely on hover to reveal critical info on touch devices.
+
+### Build and deploy checks
+
+- [ ] `npm run build` (or equivalent) succeeds with zero errors. Not just locally — in a clean environment.
+- [ ] `npm run lint` passes (or there is no linter configured, which is itself a check to add).
+- [ ] A CI config exists (GitHub Actions, GitLab CI, or equivalent) that runs build + lint + tests on every push.
+- [ ] All environment variables are documented in `.env.example` with placeholder values.
+- [ ] The app fails gracefully with a clear error on startup if a required env var is missing, not with `TypeError: Cannot read property of undefined`.
+- [ ] The deployment target is documented in the README.
 
 ### Polish checks
 

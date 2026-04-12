@@ -297,6 +297,69 @@ test('dashboard home looks correct', async ({ page }) => {
 
 Don't screenshot every page in every state — the maintenance burden grows fast. Focus on: landing page, main list page, main form, empty states, and the login page.
 
+## Playwright component testing
+
+Playwright now supports component testing for React, Vue, Svelte, and Angular. This sits between Testing Library (JSDOM, not a real browser) and full E2E (real browser, full app). Components render in a real browser with full CSS — ideal for testing visual states, focus management, and responsive behavior that JSDOM misses.
+
+Use for: components with complex CSS (dark mode, responsive breakpoints), focus management (modals, drawers), and hover/animation states.
+
+## Contract testing
+
+When frontend and backend are developed by different teams (or when consuming third-party APIs), contract tests ensure the API shape doesn't break without both sides knowing.
+
+- **Consumer-driven contracts:** frontend defines expected interactions, backend verifies them.
+- **Tool:** Pact (v4+ supports GraphQL and async messages).
+- **Pattern:** consumer publishes contract > Pact Broker shares it > provider CI verifies against it > mismatch fails the build.
+
+## Load testing
+
+Dashboards that work for 1 user may crash with 100 concurrent users. Test under load:
+
+- **Tools:** k6 (scriptable, modern, CLI-first), Artillery (YAML-based).
+- **What to test:** list API endpoints with filters under concurrent load, WebSocket connections at scale, concurrent writes to the same record.
+- **Establish baselines:** record p50/p95/p99 response times. Alert when they regress.
+
+## Testing dark mode
+
+Run visual regression tests in both light and dark themes:
+
+```typescript
+// Playwright: test in dark mode
+test('dashboard in dark mode', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/');
+  await expect(page).toHaveScreenshot('dashboard-dark.png');
+});
+```
+
+Catches: unreadable text in dark mode, chart colors that disappear, invisible borders.
+
+## Testing webhooks and background jobs
+
+- **Webhooks:** POST test payloads to your handler with valid signatures (compute HMAC with test secret). Assert side effects (DB updates, notifications).
+- **Background jobs:** invoke the worker function directly with test data. Assert the result, verify retry behavior on failure.
+
+## Test data factories
+
+Functions that generate realistic test data with sensible defaults and overrides:
+
+```typescript
+// Using @faker-js/faker + fishery
+const userFactory = Factory.define<User>(() => ({
+  id: faker.string.uuid(),
+  name: faker.person.fullName(),
+  email: faker.internet.email(),
+  role: 'member',
+  createdAt: faker.date.recent({ days: 90 }),
+}));
+
+// In tests: unique data, easy edge cases
+const admin = userFactory.build({ role: 'admin' });
+const oldUser = userFactory.build({ createdAt: subDays(new Date(), 365) });
+```
+
+Every test gets unique data. No test depends on specific seed IDs.
+
 ## Test organization
 
 ```

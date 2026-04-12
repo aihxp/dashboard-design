@@ -106,7 +106,7 @@ Pick a tracker:
 - **SaaS**: PostHog Cloud, Mixpanel, Amplitude, Heap, Segment (which routes to all the others)
 - **Inside the data warehouse**: send events directly to Snowflake / BigQuery / ClickHouse via Snowplow or Rudderstack
 
-For most internal dashboards, **self-hosted PostHog** is the right answer in 2026 — open source, privacy-friendly, full feature parity with the SaaS tools, runs anywhere.
+For most internal dashboards, **self-hosted PostHog** is the right answer in 2026 — open source, privacy-friendly, and now includes product analytics, session replay, feature flags, A/B testing, and surveys in a single platform. Runs anywhere.
 
 ### What to track
 
@@ -137,6 +137,44 @@ Stable, consistent, easy to grep, easy to filter on. Avoid:
 A **user identifier** (their `user_id`, not PII), an **org identifier**, a **session id**, the **page path**, the **timestamp**, and the **app version**. Attach these via the tracker's "super properties" or initialization config so you don't have to remember on every call.
 
 **Don't attach PII** unless you've decided to. Email, name, IP address — these end up in tracker storage forever. Use IDs and look them up at query time.
+
+### Feature adoption tracking
+
+Beyond tracking that a feature was used, measure adoption:
+
+- What percentage of users have tried Feature X? Segment by cohort, plan, role.
+- Adoption funnel: signed up > saw feature > tried feature > uses regularly.
+- Track adoption over time: is Feature X being adopted or abandoned?
+- Activation metrics: what's the "aha moment" for each feature?
+
+This is the core use case for product analytics tools (PostHog, Mixpanel, Amplitude). Web analytics (page views, sessions) doesn't answer these questions.
+
+### Session replay
+
+Session replay (PostHog, LogRocket, FullStory) records what users did as video-like playback. It's the qualitative complement to quantitative analytics: when a funnel shows 40% drop-off, watch replays to see *why*.
+
+Implementation: add the SDK, it records DOM mutations. Key considerations:
+- Mask sensitive fields (passwords, PII) — most tools do this by default.
+- Storage costs grow with traffic — set sampling rates for high-traffic dashboards.
+- Link analytics events to replay sessions so you can go from "user hit error" to "watch what happened."
+
+### A/B testing infrastructure
+
+Test which layout, onboarding flow, or default setting performs better:
+
+- Feature flag wraps two variants.
+- Analytics tracks the conversion event per variant.
+- The tool calculates statistical significance.
+- Tools: PostHog (built-in flags + experiments), Statsig, GrowthBook.
+
+### Anomaly detection and alerts
+
+Display metrics, but also alert when they change unexpectedly:
+
+- Threshold alerts: "notify when error rate > 5%."
+- Anomaly detection: "alert when revenue drops > 2 standard deviations from the 30-day mean."
+- Notify via email, Slack, or in-app notification.
+- Table-stakes for operational dashboards.
 
 ### Privacy, GDPR, and consent
 

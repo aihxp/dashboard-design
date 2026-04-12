@@ -22,10 +22,12 @@ Real auth has these properties. If any are missing, the auth isn't real and the 
 
 Do not roll your own auth in 2026. The libraries below handle the details (hashing, session storage, CSRF, refresh, OAuth) so you don't have to.
 
-- **Next.js / TypeScript** — Auth.js (formerly NextAuth), Lucia, Clerk, Stack Auth, Better Auth
-- **Remix / TypeScript** — Lucia, remix-auth, Clerk
-- **SvelteKit** — Lucia, Auth.js for SvelteKit, Clerk
-- **Nuxt / Vue** — Sidebase nuxt-auth, Lucia
+- **Next.js / TypeScript** — Auth.js v5 (formerly NextAuth), Better Auth, Clerk, Stack Auth
+- **React Router v7 / TypeScript** — Auth.js, Better Auth, remix-auth, Clerk
+- **SvelteKit** — Auth.js for SvelteKit, Better Auth, Clerk
+- **Nuxt / Vue** — Sidebase nuxt-auth, Better Auth
+
+Note: Lucia was deprecated in January 2025. If you see it recommended elsewhere, use Better Auth or Auth.js instead. The Lucia author's session management guide remains useful as a reference for rolling your own.
 - **Rails** — Devise, Rodauth
 - **Django** — django-allauth, dj-rest-auth
 - **Laravel** — Breeze, Fortify, Sanctum
@@ -52,6 +54,26 @@ Things to add once the basics work:
 - **Password reset flow** — request token by email, set new password with token, single-use token, 1-hour expiry.
 - **Email verification** — for self-service sign-up dashboards. For invited-user dashboards, the invite link is the verification.
 - **MFA / TOTP** — once the dashboard handles anything sensitive. `otplib`, `pyotp`, `rotp`, `speakeasy`. Show a QR code on enrollment, ask for a 6-digit code on subsequent logins.
+
+### Passkey / WebAuthn (passwordless)
+
+Passkeys have gone mainstream — 15 billion accounts support them. For dashboards built in 2026, passkeys should be offered alongside email+password, not as an afterthought.
+
+The flow: user enters email (identifier-first pattern) > system checks for a registered passkey > if found, prompt biometric/device auth > session created. No password involved. If no passkey, fall back to password.
+
+Enrollment: after login, prompt to register a passkey from the security settings page. Store the credential ID and public key. Libraries: `@simplewebauthn/server` + `@simplewebauthn/browser` (TypeScript), `py-webauthn` (Python).
+
+### Magic link authentication
+
+Common for internal dashboards and low-friction SaaS. User enters email > receives a link > clicks it > session created. No password needed. The link is single-use, expires in 15-60 minutes, and contains a signed token.
+
+Use when: the dashboard doesn't warrant users remembering a password, or when the user base is small and you want minimal friction. Libraries: Auth.js + Resend, Better Auth + any email provider.
+
+### Social login (Google / GitHub / Microsoft)
+
+Table-stakes for customer-facing SaaS dashboards. The pattern: show "Continue with Google" + "Continue with GitHub" buttons above the email+password form. On click, redirect to the provider's OAuth flow (covered in `api-and-integrations.md`). On callback, create or link the user account.
+
+Gotchas: handle the case where a user signs up with email+password and later tries Google with the same email (account linking). Handle the case where a user uses Google on desktop and email+password on mobile (same account, different auth methods).
 
 ### Sign-up vs. invite-only
 
@@ -317,6 +339,17 @@ The currently logged-in user editing their own info. This page looks simple but 
 ### Disable vs. delete
 
 Don't hard-delete users. Disable them (set `disabled_at` timestamp). Their audit trail and historical references stay intact. Hard-delete is only for GDPR / right-to-be-forgotten requests, and even then it's usually anonymization, not deletion.
+
+## Account impersonation (support access)
+
+Admin-as-user is critical for customer support. The pattern:
+
+1. Admin clicks "Login as [user]" on the user management page.
+2. Server creates a time-limited session (30-60 minutes max) as that user, with a flag marking it as impersonated.
+3. The UI shows a persistent banner: "You are impersonating Alice. [Return to admin]"
+4. All actions are logged to the audit trail as "admin (impersonating alice)" — both the admin and the user are recorded.
+5. Impersonating sessions cannot: change the user's password, modify billing, delete the account, or access other impersonation features.
+6. Clicking "Return to admin" destroys the impersonation session and restores the admin's original session.
 
 ## Groups
 

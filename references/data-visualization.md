@@ -252,6 +252,41 @@ Build it from the start. Both modes share the same token names; only the values 
 - Brand colors that look great on light and ugly on dark — adjust the brand color per mode if needed. Most brand colors need ~10% saturation drop in dark mode.
 - Forgetting chart colors — categorical palettes also need dark-mode variants.
 
+## Chart accessibility
+
+Charts are visual by nature, but they must be usable by everyone:
+
+- **Provide a data table alternative** for every chart. Screen reader users cannot interpret SVG/canvas. A toggleable "View as table" button that shows the chart's data in a sortable table.
+- **ARIA labels on chart elements** — each bar, line, or point should have a descriptive label ("Revenue: $42,103 in March 2026").
+- **Keyboard navigation** within charts — tabbing through bars/data points with focus indicators. Not all chart libraries support this; test specifically.
+- **`prefers-reduced-motion`** — respect it for chart animations. Disable transitions, show final state immediately.
+- **High contrast mode** — test that all chart elements are visible with OS-level high contrast enabled.
+
+## Responsive charts on mobile
+
+Charts must work on small screens:
+
+- Charts reflow to full-width on mobile.
+- Legends move from side to bottom (or become a scrollable row).
+- Tooltips work with touch (tap, not hover).
+- Sparklines are better than full charts for mobile KPI cards.
+- Wide bar charts may need horizontal scroll or conversion to vertical lists with inline bars.
+
+## Sparklines and inline micro-charts
+
+A tiny trend line inside a table cell showing the last 7-30 data points per row. High information density, no interaction needed. Use for: revenue trend per customer, error rate per service, stock price in a portfolio. Render as inline SVG, 60-100px wide, 20-30px tall, no axes or labels.
+
+## Configurable dashboard layouts
+
+Many modern dashboards (Grafana, Datadog, Vercel) let users add, remove, resize, and rearrange widgets:
+
+- Grid-based layout with drag-to-resize and drag-to-reorder.
+- Save custom layouts per user.
+- Widget picker: add a chart, KPI card, table, or feed from a catalog.
+- Libraries: `react-grid-layout`, `gridstack.js`, `@hello-pangea/dnd`.
+
+Build this only when users need personalized views. Most dashboards with a fixed audience should have a fixed layout.
+
 ## Picking a chart library
 
 Don't reinvent. Don't mix more than one in the same dashboard. Some good defaults:
@@ -265,7 +300,7 @@ Don't reinvent. Don't mix more than one in the same dashboard. Some good default
 
 For 90% of dashboards: **Recharts (React) / unovis (Vue) / LayerChart (Svelte) / Apache ECharts (anywhere)** are all correct answers. Pick one and commit.
 
-For dashboards that need to look polished out of the box without much custom work: **Tremor** (React, Tailwind-based dashboard kit) is unmatched for time-to-decent. Use it when the user wants results in a hurry.
+For dashboards that need to look polished out of the box: **shadcn/ui charts** (built on Recharts, Tailwind-based) offer strong defaults with less lock-in than Tremor. Tremor (v3+) remains viable but shadcn/ui's composable approach is now the more popular choice.
 
 ## Performance
 

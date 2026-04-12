@@ -25,6 +25,17 @@ EMPTY   LOADED      ERROR
 
 If any of these is missing, the user sees a confusing in-between (a blank screen, a flash of "no data" before the data arrives, an unhandled exception). Quality dashboards never have these gaps.
 
+## Progressive loading with Suspense
+
+The four-states model assumes data arrives all at once. With React Suspense + streaming SSR (Next.js App Router, React 19), data arrives in sections:
+
+1. The page shell renders immediately (header, sidebar, page title).
+2. Each data section is wrapped in `<Suspense fallback={<Skeleton />}>`.
+3. As each section's data resolves, it replaces its skeleton independently.
+4. Slow sections don't block fast ones.
+
+This is the modern default for Next.js dashboards. The skeleton is no longer a whole-page state — it's a per-section state. Design skeletons per component, not per page.
+
 ## Loading states
 
 A loading state tells the user "I heard you, I'm working on it." Without one, the user doesn't know if their click registered.
@@ -210,6 +221,19 @@ Rules:
 └─────────────────────────────────────┘
 ```
 
+## Undo as a primary pattern
+
+For reversible destructive actions, prefer undo over confirmation dialogs. The Gmail/Linear pattern:
+
+1. User clicks Delete.
+2. Item is instantly removed from the UI (optimistic).
+3. Backend performs a soft-delete.
+4. A toast appears: "Deleted. [Undo]" with a 6-8 second countdown.
+5. If the user clicks Undo: restore the item, remove the toast.
+6. If the countdown expires: the soft-delete becomes permanent (or stays soft with a longer TTL).
+
+Undo is faster and more forgiving than confirmation. Use it for: single-item deletes, archiving, status changes, drag-to-move. Use confirmation for: bulk deletes, irreversible actions, actions with financial consequences.
+
 ## Optimistic updates
 
 For high-confidence actions, update the UI before the server confirms. The action *feels* instant. On error, roll back.
@@ -276,6 +300,16 @@ If the dashboard polls or streams:
 - **For polled widgets, show a subtle pulse on update** so the user knows new data arrived
 - **For streamed updates, animate new rows in** with a fade or slide — but briefly (200ms max)
 - **Don't auto-scroll or jump the user's view** when new data arrives. They're reading something. Show "5 new items" as a banner they can click to load.
+
+## Offline state
+
+For dashboards that may be used on unreliable connections (field services, mobile, travel):
+
+- Show a persistent banner: "You're offline. Changes will sync when you reconnect."
+- Queue mutations locally (IndexedDB or localStorage).
+- Replay queued mutations on reconnection.
+- Handle conflicts if server state changed while offline (show diff, let user resolve).
+- Use `navigator.onLine` + the `online`/`offline` events for detection, but verify with a heartbeat fetch (the events are unreliable on some platforms).
 
 ## Don'ts
 

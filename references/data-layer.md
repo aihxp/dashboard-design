@@ -27,7 +27,30 @@ For the major frameworks:
 - **Next.js / Remix / SvelteKit** — framework loaders + a query library on the client. Loaders give you SSR; the query library gives you client-side caching, mutations, and invalidation. Use both.
 - **Plain HTML / HTMX / Hotwire** — the framework is the data layer. Server-rendered partials with htmx/Turbo updates. No client-side cache to manage.
 
+### React Server Components and server actions
+
+For Next.js App Router dashboards (the default in 2026), the data-fetching model has shifted:
+
+- **Server Components fetch data directly** — no hooks, no query library needed for initial load. The component is async, runs on the server, and returns rendered HTML.
+- **Server actions handle mutations** — no explicit API routes needed for same-app mutations. Define a function with `'use server'`, call it from client components.
+- **TanStack Query is for client-side interactivity** — polling, optimistic updates, infinite scroll, cache invalidation after mutations. It complements Server Components, not replaces them.
+- **Suspense boundaries control progressive loading** — wrap sections in `<Suspense fallback={<Skeleton />}>`. The shell renders immediately; each section streams in as its data resolves.
+
+If you're building with Next.js App Router, start with Server Components + server actions. Add TanStack Query only for surfaces that need client-side caching or real-time updates.
+
 Hand-rolling `useEffect + fetch + useState` is acceptable for one-off tiny dashboards. Beyond ~3 pages, the ad-hoc approach produces inconsistent loading states, missed cache invalidations, double-fetches on mount, and stale lists. Use the library.
+
+### Database connection pooling in serverless
+
+If deploying to Vercel, AWS Lambda, or Cloudflare Workers: every function invocation opens a new database connection. This exhausts the pool within minutes under load. Solutions:
+
+- **Supabase Supavisor** — connection pooler for Supabase Postgres
+- **Neon serverless driver** — HTTP-based Postgres access, no persistent connections
+- **PlanetScale HTTP driver** — HTTP-based MySQL
+- **Prisma Accelerate** — connection pooling proxy for Prisma
+- **Drizzle + `@neondatabase/serverless`** — direct serverless Postgres
+
+If the file recommends Prisma + Postgres + serverless deployment, connection pooling is mandatory, not optional.
 
 ## API contracts
 
@@ -241,7 +264,7 @@ For data that needs to stay fresh, in increasing order of complexity:
 2. **Window focus refetch** — refetch when the tab becomes visible. Default in TanStack Query and SWR. Free freshness, no extra code.
 3. **Polling** — refetch on an interval (`refetchInterval: 10_000`). Use for operational dashboards (NOC, monitoring). Set the interval based on how stale data can be without harm — usually 10–60 seconds.
 4. **WebSockets / Server-Sent Events** — push from server to client. Use for chat, live collaboration, real-time alerts. The query library typically integrates: receive a message, call `queryClient.setQueryData` or `invalidateQueries`.
-5. **CRDT-based sync** (Yjs, Automerge, ElectricSQL, Replicache, Zero, Convex) — full bidirectional sync with conflict resolution. Use for collaborative editing dashboards. Big upfront cost; transformative when needed.
+5. **CRDT-based sync** (Yjs, Automerge, Zero, Convex) — full bidirectional sync with conflict resolution. Use for collaborative editing dashboards. Big upfront cost; transformative when needed.
 
 Don't jump to websockets just because real-time sounds cool. Start at the lowest level that's adequate. Most dashboards are fine with polling on the few widgets that need it.
 
