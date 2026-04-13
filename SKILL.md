@@ -25,6 +25,16 @@ This principle is non-negotiable. It is the single biggest determinant of whethe
 
 Follow this sequence. Skipping steps is how dashboards end up hollow.
 
+### 0. Detect project state and research (mandatory)
+
+Before anything else, determine what you're working with. Read **`references/codebase-research.md`** and run the mode detection protocol.
+
+- **Empty directory or boilerplate-only?** → Mode A (Greenfield). Run lightweight checks for external constraints (existing API, deployment config, design docs), then proceed to step 1.
+- **Existing codebase with source files?** → Mode B (Assessment). Run the full codebase scan before step 1. The scan output replaces guesswork in the pre-flight and constrains the architecture step.
+- **User asked to audit/verify/harden?** → Mode C (Audit). Run the verification-focused scan and produce a fix-it list. Skip steps 1–6 and go directly to fixing what's broken.
+
+The research output is a structured document any agent's planner can consume. Do not skip this — building on an existing codebase without reading it first is how you end up with two auth libraries, two design systems, and incompatible conventions.
+
 ### 1. Run the pre-flight (mandatory)
 
 Before writing a single line of code, read **`references/preflight-and-verification.md`** and answer the questions in it. The pre-flight establishes: what the dashboard is *for*, who uses it, what the stack is, what the data source is, what auth model exists, what already exists vs. what must be built, and what "done" looks like. You cannot build a connected dashboard without this — you'd be guessing at every fork.
@@ -32,6 +42,8 @@ Before writing a single line of code, read **`references/preflight-and-verificat
 Once you've identified the domain (question #1), read the matching section in **`references/domain-considerations.md`**. It covers 31 verticals with domain-specific data model traps, compliance requirements, and UX patterns that generic CRUD misses. Skipping this is how dashboards end up with float-based currency, single-entry accounting, or missing HIPAA audit logs.
 
 If the user's request is vague ("build me a dashboard"), do not invent a domain. Pick the single most plausible interpretation, state your assumptions in one short paragraph, and proceed. Do not pepper the user with twenty questions. One pass of stated assumptions is enough; they'll redirect if needed.
+
+If the research phase (step 0) produced an assessment output, use it to pre-fill pre-flight answers. The stack is already decided (question 3). The data source is already known (question 4). The auth model is already in place (question 5). The route map already exists (question 7). What already exists is already inventoried (question 9). Focus the pre-flight on the gaps: what's missing, what's hollow, what needs to be added.
 
 ### 2. Decide the architecture in writing
 
@@ -42,6 +54,8 @@ Produce a short architecture note (5–15 lines, inline in the chat or as a top-
 - **Auth model** — sessions vs. JWT, where the user record lives, how roles attach to users
 - **Permission model** — RBAC role list and the resource × action matrix (see `references/auth-and-rbac.md`)
 - **Route map** — every page that will exist, with parent → child nesting
+
+**In assessment mode (existing codebase):** Do not decide the architecture — document it. The research output already contains the stack, auth model, permission model, and route map. Your architecture note adopts what exists and adds only what's missing. The note becomes: "Existing: [what the research found]. Adding: [what the gap analysis identified]."
 
 Showing this up front prevents the most common failure: building three pages with three incompatible auth assumptions and discovering it on page four.
 
@@ -133,7 +147,9 @@ The foundation slice is always the same and must come first:
 
 Do not move past the foundation until you can: run the app, sign in as the admin, sign out, sign in as a non-admin, and see different things. This is the proof the foundation is real.
 
-### 4. Build feature slices
+**→ Tier 1 checkpoint.** If the foundation slice is complete and the CRUD entity works end-to-end, declare Tier 1 (Foundation) complete. See the completion tiers section below.
+
+### 5. Build feature slices
 
 For each feature (user management, the orders table, billing, settings, etc.), build the full vertical slice. The recipe:
 
@@ -147,11 +163,13 @@ For each feature (user management, the orders table, billing, settings, etc.), b
 
 The order of feature slices should be: most-used feature first, riskiest feature second, "nice to have" features last. If the user runs out of patience halfway through, they should still have the most important feature working completely.
 
-### 5. Layer in cross-cutting concerns
+### 6. Layer in cross-cutting concerns
 
 After two or three feature slices, add the cross-cutting layer: global search, notifications, user preferences/settings, theme toggle, exports, audit log viewer, profile page. These are easier to do once you have real data flowing — building them on top of empty pages is wasted effort.
 
-### 6. Write tests alongside each slice
+**→ Tier 2 checkpoint** after feature slices are done (RBAC, states, validation, settings, profile all working). **→ Tier 3 checkpoint** after cross-cutting concerns are wired (audit log, accessibility, responsive, breadcrumbs).
+
+### 7. Write tests alongside each slice
 
 A vertical slice isn't done until it has tests. Read `references/testing-and-quality.md` before writing the first test. At minimum, each slice should have:
 
@@ -161,7 +179,7 @@ A vertical slice isn't done until it has tests. Read `references/testing-and-qua
 
 Don't delay testing until "after the build." A dashboard without tests is a dashboard that breaks silently the next time someone changes a query key or a permission rule.
 
-### 7. Harden performance and security
+### 8. Harden performance and security
 
 Before the verification pass, read `references/performance-and-security.md` and apply the relevant hardening:
 
@@ -171,34 +189,127 @@ Before the verification pass, read `references/performance-and-security.md` and 
 - Run `npm audit` (or equivalent) and fix critical/high vulnerabilities
 - Check that no secrets are in git and no server secrets leak to the client bundle
 
-### 8. Run the verification checklist
+### 9. Run the verification checklist
 
 Before declaring the dashboard "done," walk the verification checklist in `references/preflight-and-verification.md` and the security checklist in `references/performance-and-security.md`. They catch the specific failure modes that make dashboards feel hollow or insecure: dead links, fake data, permissions you forgot to check, missing empty states, console errors, XSS vectors, missing headers, etc.
 
-## The "haves" — every dashboard must have all of these
+**→ Tier 4 checkpoint.** Tests pass, security headers set, verification checklist green, zero hollow indicators. The dashboard is ship-ready.
 
-Memorize this list. If any item is missing when you stop coding, the dashboard isn't done.
+## Completion tiers
 
-1. **Real auth.** A login page that rejects bad credentials, stores a session, and gates every protected route on the server side (not just hidden links in the UI).
-2. **Real RBAC.** At least two roles. Server-side permission checks on every mutation. UI that hides actions a user can't perform — but never *only* hides them; the server enforces.
-3. **Real data.** Seeded into a real persistence layer. Reloading the page does not reset the data. Two browsers see consistent state.
-4. **A shell.** Header (logo top-left, user menu top-right), persistent sidebar (collapsible on mobile), main content area, breadcrumbs on nested pages.
-5. **Working navigation.** Every link in the sidebar goes somewhere real. Active state highlights the current page. Sub-menus expand/collapse and remember their state.
-6. **A landing page.** The route after login is not a 404 and not "lorem ipsum." It shows something specific and useful — typically 3–6 KPI cards plus one or two key charts plus a recent-activity feed.
-7. **At least one full CRUD entity.** List, detail, create, edit, delete — all wired, all persisted, all permissioned.
-8. **Loading states, empty states, and error states for every async surface.** Not spinners-everywhere; specific states that explain what's happening.
-9. **Form validation.** Client-side for instant feedback, server-side for truth. Errors shown inline next to the field.
-10. **Success and error feedback.** Toasts or inline banners after every mutation. Never silent.
-11. **Pagination, sorting, and filtering on any table that could exceed 25 rows.** Server-side once it could exceed 200.
-12. **A settings page** that actually saves.
-13. **A user profile / account page** the logged-in user can edit.
-14. **An audit log** of who did what, when. Even a minimal one.
-15. **Keyboard accessibility.** Every interactive element reachable by Tab. Focus styles visible. No keyboard traps.
-16. **Responsive layout.** Works at 1440, 1024, 768, and 375 wide. Sidebar collapses to a drawer on mobile.
-17. **A logout button** that actually invalidates the session.
-18. **Tests.** At minimum: auth flow (login, logout, reject bad credentials), one full CRUD flow, one permission denial test, and axe accessibility checks on every page. A dashboard without tests is a dashboard that breaks silently.
-19. **Security headers.** CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy set on every response. No secrets in git. Rate limiting on login and mutations.
-20. **A visual identity.** The dashboard has a coherent, intentional look derived from its domain and audience — not default component library styling. Colors, typography, border radius, and spacing are set via design tokens and applied consistently across every page. Two dashboards built for different domains should look visually distinct.
+A full dashboard has 24 requirements across 4 tiers. An agent rarely finishes all 24 in one session — and a half-built everything is worse than a fully-built subset. These tiers define meaningful checkpoints where the dashboard is *real* at its current scope.
+
+### Decision tree: where to start, where to stop
+
+```
+START
+│
+├─ Is this a new project (greenfield)?
+│   │
+│   YES → Build from Tier 1
+│   │     ├─ Session has capacity for more? → Continue to Tier 2
+│   │     ├─ Session has capacity for more? → Continue to Tier 3
+│   │     └─ Session has capacity for more? → Continue to Tier 4
+│   │
+│   NO → Existing codebase (assessment mode)
+│        │
+│        ├─ Does auth work + real data + one CRUD entity?
+│        │   NO  → Tier 1 incomplete. Fix foundation gaps first.
+│        │   YES ↓
+│        │
+│        ├─ RBAC + states + validation + settings + profile?
+│        │   NO  → Tier 2 incomplete. Fill these gaps.
+│        │   YES ↓
+│        │
+│        ├─ Audit log + accessibility + responsive + cross-cutting?
+│        │   NO  → Tier 3 incomplete. Add polish layer.
+│        │   YES ↓
+│        │
+│        └─ Tests + security headers + verification green?
+│            NO  → Tier 4 incomplete. Harden.
+│            YES → Dashboard is complete.
+│
+├─ Is this an audit?
+│   │
+│   YES → Run Mode C research → Determine current tier
+│         → Produce fix-it list for next tier's unmet requirements
+│
+STOP at any tier boundary — each tier is shippable.
+```
+
+**At each tier boundary, stop and declare the tier complete.** The user decides whether to continue to the next tier or ship what exists. Every tier produces a dashboard that works — not a scaffold that "just needs a few more things."
+
+### Tier 1: Foundation (steps 0–4)
+
+The dashboard runs, authenticates, and shows real data. One person can do one real job with it.
+
+| # | Requirement |
+|---|---|
+| 1 | **Real auth.** Login rejects bad credentials, stores a session, gates every protected route server-side. |
+| 2 | **Real data.** Seeded into a real persistence layer. Reloads persist. Two browsers see consistent state. |
+| 3 | **A shell.** Header (logo top-left, user menu top-right), persistent sidebar, content area. |
+| 4 | **Working navigation.** Every sidebar link goes somewhere real. Active state highlights current page. |
+| 5 | **A landing page.** Route after login shows something useful — KPI cards, a chart, or an activity feed. Not lorem ipsum. |
+| 6 | **At least one full CRUD entity.** List, detail, create, edit, delete — all wired, all persisted. |
+| 7 | **A logout button** that actually invalidates the session. |
+| 8 | **A visual identity.** Design tokens applied — colors, typography, radius, density. Not default component library styling. |
+
+**Proof test:** Run the app → sign in → see the landing page with real data → navigate to the CRUD page → create a record → edit it → delete it → sign out → sign back in → data persists. If this loop works, Tier 1 is complete.
+
+### Tier 2: Functional (steps 5–6)
+
+The dashboard handles multiple features, roles, and edge cases. A team can use it daily.
+
+| # | Requirement |
+|---|---|
+| 9 | **Real RBAC.** At least two roles. Server-side permission checks on every mutation. UI hides unauthorized actions as courtesy, never as security. |
+| 10 | **Loading, empty, and error states** for every async surface. Specific, not generic spinners. |
+| 11 | **Form validation.** Client-side for instant feedback, server-side for truth. Inline field-level errors. |
+| 12 | **Success and error feedback.** Toasts or banners after every mutation. Never silent. |
+| 13 | **Pagination, sorting, filtering** on any table that could exceed 25 rows. State preserved in URL. |
+| 14 | **A settings page** that actually saves. |
+| 15 | **A user profile / account page** the logged-in user can edit. |
+
+**Proof test:** Sign in as admin → do everything. Sign in as non-admin → confirm restricted access, server returns 403 on forbidden mutations. Empty a table → see the empty state with a CTA. Submit a form with bad data → see inline errors. Save settings → reload → settings persist.
+
+### Tier 3: Polished (steps 6–7)
+
+The dashboard handles cross-cutting concerns and is accessible. Ready for internal use or beta.
+
+| # | Requirement |
+|---|---|
+| 16 | **An audit log** of who did what, when. |
+| 17 | **Keyboard accessibility.** Every interactive element reachable by Tab. Focus styles visible. No keyboard traps. |
+| 18 | **Responsive layout.** Works at 1440, 1024, 768, 375. Sidebar collapses to drawer on mobile. |
+| 19 | **Breadcrumbs** on nested pages. Sub-menus expand/collapse and remember state. |
+| 20 | **Cross-cutting concerns** wired: search, exports, notifications, or theme toggle (whichever the domain needs). |
+
+**Proof test:** Resize to 375px → the layout holds and is usable. Tab through the entire page → every element reachable. Check the audit log → see a record of recent mutations. Export a table → get a real file.
+
+### Tier 4: Hardened (steps 8–9)
+
+Ship-ready. Tested, secure, verified.
+
+| # | Requirement |
+|---|---|
+| 21 | **Tests.** Auth flow, one CRUD flow, one permission denial, axe accessibility on every page. |
+| 22 | **Security headers.** CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. No secrets in git. Rate limiting on login and mutations. |
+| 23 | **Verification checklist passed.** The full checklist from `references/preflight-and-verification.md` walked and green. |
+| 24 | **No hollow indicators.** Zero TODOs, zero console.logs, zero hardcoded data, zero empty handlers in production paths. |
+
+**Proof test:** `npm run build` succeeds clean. `npm run test` passes. `npm run lint` passes. Open DevTools → zero red errors, zero failed requests. The verification checklist is 100% green.
+
+### How tiers work in practice
+
+- **The agent always aims for the highest tier the session allows.** Don't stop at Tier 1 if there's context and time to reach Tier 2.
+- **Declare the completed tier explicitly** when reaching a boundary: "Tier 1 (Foundation) is complete. The dashboard authenticates, shows real data, and supports full CRUD on [entity]. Continuing to Tier 2."
+- **Never leave a tier half-done.** If you're in the middle of Tier 2 and running out of context, finish the current feature slice and declare Tier 1 complete with a note on what Tier 2 items remain.
+- **The "have-nots" apply at every tier.** No TODOs, no fake data, no empty handlers — even at Tier 1. Each tier is *real* at its scope, not scaffolded.
+- **In assessment mode (existing codebase):** Determine which tier the codebase currently satisfies, then work toward the next one. The research output's gap analysis maps directly to unfulfilled tier requirements.
+
+## The "haves" — the full list
+
+The tiers above organize these into a buildable sequence. The complete list remains the definition of a fully finished dashboard — Tier 4 complete means all of these are present.
 
 ## The "have nots" — things that disqualify the dashboard
 
@@ -451,6 +562,7 @@ The body above is enough to start building. For depth on a specific domain, load
 
 | Reference file | Read before |
 |---|---|
+| `references/codebase-research.md` | **Always**, at the very start, before pre-flight. Detects greenfield vs. existing codebase, runs the appropriate research protocol |
 | `references/preflight-and-verification.md` | **Always**, at the very start, and again at the end |
 | `references/information-architecture.md` | Designing the shell, nav, menus, layout, page structure |
 | `references/auth-and-rbac.md` | Implementing login, sessions, roles, permissions, user management |

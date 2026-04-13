@@ -27,6 +27,7 @@ The skill enforces a **vertical-slice discipline**: build one feature completely
 
 When you ask Claude to build a dashboard, the skill:
 
+0. **Researches the project state** — detects greenfield vs. existing codebase vs. audit, scans what's real and what's hollow
 1. **Runs a pre-flight** — 12 questions that prevent incompatible decisions across layers
 2. **Identifies your domain** — loads domain-specific gotchas from 33 industry verticals
 3. **Derives a visual identity** — picks colors, typography, radius, density, and a signature detail from the domain context so every dashboard looks distinct
@@ -35,6 +36,8 @@ When you ask Claude to build a dashboard, the skill:
 6. **Adds cross-cutting concerns** — search, notifications, settings, exports, audit log
 7. **Hardens** — security headers, performance budget, tests
 8. **Verifies** — a 20-point smoke test that catches hollow features before you ship
+
+Each step maps to a **completion tier** — Foundation, Functional, Polished, Hardened — so the dashboard is shippable at every checkpoint, not just at the end.
 
 ## What the skill catches
 
@@ -90,7 +93,7 @@ Examples of what domain knowledge prevents:
 
 ## Reference files
 
-35 files, loaded on demand. You read 4-8 per project, never all 35.
+36 files, loaded on demand. You read 4-8 per project, never all 36.
 
 <details>
 <summary>View the full reference library</summary>
@@ -98,6 +101,7 @@ Examples of what domain knowledge prevents:
 | File | What it covers |
 |---|---|
 | **`SKILL.md`** | Core workflow, vertical-slice discipline, haves/have-nots |
+| `codebase-research.md` | Project state detection, greenfield/assessment/audit modes, codebase scan protocol |
 | **Foundation** | |
 | `preflight-and-verification.md` | 12 pre-flight questions, verification checklist, smoke test |
 | `information-architecture.md` | 7 layout patterns, navigation, sidebar, responsive |
@@ -143,6 +147,31 @@ Examples of what domain knowledge prevents:
 | `domain-considerations.md` | 33 verticals with gotchas, compliance, seed data |
 
 </details>
+
+## Three entry modes
+
+The skill handles any project state — not just greenfield.
+
+| Mode | When it activates | What it does |
+|---|---|---|
+| **Greenfield** | Empty directory or boilerplate-only | Quick scan for external constraints, then full scaffolding |
+| **Assessment** | Existing codebase with source files | 7-part codebase scan (stack, routes, data, auth, UI, conventions, hollow indicators) → gap analysis → targeted todo list |
+| **Audit** | User asks to verify/harden an existing dashboard | Assessment + verification checklist → severity-sorted fix-it list |
+
+The research output is a structured document any AI agent's planner can consume — works with Claude Code, Codex, Cursor, or any agent with a plan-then-execute loop.
+
+## Completion tiers
+
+A full dashboard has 24 requirements. The skill organizes them into 4 tiers, each independently shippable:
+
+| Tier | Name | What's real |
+|---|---|---|
+| 1 | **Foundation** | Auth, real data, shell, navigation, one CRUD entity, visual identity |
+| 2 | **Functional** | + RBAC, all states, validation, feedback, pagination, settings, profile |
+| 3 | **Polished** | + Audit log, keyboard accessibility, responsive, cross-cutting concerns |
+| 4 | **Hardened** | + Tests, security headers, verification checklist green, zero hollows |
+
+The agent declares each tier complete at its checkpoint and continues to the next if the session allows. For existing codebases, the research phase determines the current tier and builds the todo list toward the next one.
 
 ## Works with any stack
 
