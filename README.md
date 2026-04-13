@@ -29,11 +29,12 @@ When you ask Claude to build a dashboard, the skill:
 
 1. **Runs a pre-flight** — 12 questions that prevent incompatible decisions across layers
 2. **Identifies your domain** — loads domain-specific gotchas from 33 industry verticals
-3. **Builds the foundation** — auth, RBAC, shell layout, seed data, one working protected page
-4. **Builds feature slices** — each feature wired end-to-end with real data and all states
-5. **Adds cross-cutting concerns** — search, notifications, settings, exports, audit log
-6. **Hardens** — security headers, performance budget, tests
-7. **Verifies** — a 17-step smoke test that catches hollow features before you ship
+3. **Derives a visual identity** — picks colors, typography, radius, density, and a signature detail from the domain context so every dashboard looks distinct
+4. **Builds the foundation** — auth, RBAC, design tokens, shell layout, seed data, one working protected page
+5. **Builds feature slices** — each feature wired end-to-end with real data and all states
+6. **Adds cross-cutting concerns** — search, notifications, settings, exports, audit log
+7. **Hardens** — security headers, performance budget, tests
+8. **Verifies** — a 20-point smoke test that catches hollow features before you ship
 
 ## What the skill catches
 
@@ -49,6 +50,7 @@ Things that make dashboards feel broken, and what the skill does about them:
 | Empty table with no guidance | Empty state with explanation + CTA to create the first record |
 | `// TODO: add validation` | Client-side + server-side validation with field-level errors |
 | Permissions checked only in the UI | Server enforces on every mutation; UI reflects as courtesy |
+| Every dashboard looks the same | Visual identity system derives unique colors, typography, and personality from the domain |
 
 ## 33 industry verticals
 
@@ -88,7 +90,7 @@ Examples of what domain knowledge prevents:
 
 ## Reference files
 
-25 files, loaded on demand. You read 4-6 per project, never all 25.
+35 files, loaded on demand. You read 4-8 per project, never all 35.
 
 <details>
 <summary>View the full reference library</summary>
@@ -102,10 +104,15 @@ Examples of what domain knowledge prevents:
 | `auth-and-rbac.md` | Passkeys, magic links, RBAC, multi-tenant, impersonation |
 | `data-layer.md` | Server Components, API contracts, queries, mutations, caching |
 | **UI & UX** | |
-| `ui-design-patterns.md` | Components, typography, spacing, tokens, motion, dark mode |
+| `ui-design-patterns.md` | Components, typography, spacing, tokens, visual identity token sets |
 | `data-visualization.md` | Charts, KPIs, tables, accessibility, sparklines |
 | `states-and-feedback.md` | Loading, empty, error, toasts, undo, offline |
 | `workflows-and-actions.md` | Forms, onboarding, drag-and-drop, approval workflows |
+| `animation-and-motion.md` | Transitions, micro-interactions, loading choreography, spring physics, View Transitions API |
+| `dark-mode-deep-dive.md` | Token remapping, image handling, chart colors, flash prevention, component-level patterns |
+| `accessibility-deep-dive.md` | Screen readers, ARIA widgets, keyboard navigation, legal compliance, cognitive accessibility |
+| `error-pages-and-offline.md` | 404/403/500/503 pages, maintenance mode, PWA offline, partial failures |
+| `file-management-and-uploads.md` | Upload UX, chunked uploads, image crop, file previews, file manager UI, security |
 | **Features** | |
 | `settings-and-configuration.md` | User/org/system settings, admin panel, multi-tenant |
 | `notifications-and-email.md` | In-app, email, push, SMS, Slack, delivery tracking |
@@ -121,6 +128,13 @@ Examples of what domain knowledge prevents:
 | `testing-and-quality.md` | E2E, component, load, contract, visual regression testing |
 | `performance-and-security.md` | Bundle size, SSR, CSP, CORS, rate limiting |
 | `security-deep-dive.md` | Sessions, data protection, secrets, incident response |
+| **Frontend & Marketing** | |
+| `headers-and-navigation.md` | Header layout, mega menus, mobile nav, footer design, back-to-top |
+| `marketing-and-landing-pages.md` | Hero sections, social proof, feature grids, pricing tables, conversion patterns |
+| `seo-and-web-standards.md` | Meta tags, Open Graph, robots.txt, llms.txt, RSS feeds, sitemap, favicons |
+| `social-media-features.md` | Social links, share modals, social media management, embeds, social login |
+| `email-template-design.md` | HTML email, responsive email, dark mode in email, deliverability, frameworks |
+| `realtime-and-collaboration.md` | Presence, live cursors, collaborative editing, WebSocket lifecycle |
 | **Growth & Operations** | |
 | `login-and-auth-pages.md` | Login page design, registration UX, auth flows, login-to-dashboard journey |
 | `migration-and-data-import.md` | CSV/API import, platform migration, phased rollout, account merging |

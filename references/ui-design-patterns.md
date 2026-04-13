@@ -774,3 +774,341 @@ How to catch drift:
 - **Don't use pure black** (`#000`) as dark mode background. Use `#0a0a0a` to `#171717`.
 - **Don't hand-roll number formatting.** Use `Intl.NumberFormat` with the user's locale.
 - **Don't use "Submit" as a button label.** Use verb + noun: "Create Project", "Save Changes".
+
+---
+
+## Visual identity token sets
+
+These are 10 ready-to-use token sets — one per aesthetic archetype defined in `SKILL.md`. Copy the closest match, adjust to the specific project, and paste into your global stylesheet. Every component should reference these variables, never hardcoded values.
+
+The archetype is chosen in step 3 of the workflow based on the user's domain and audience. See `SKILL.md > Visual identity` for the decision framework.
+
+### Clean Corporate
+
+For: finance, legal, insurance, government, enterprise SaaS.
+
+```css
+:root {
+  /* --- Visual identity: Clean Corporate --- */
+  --color-primary: hsl(217 71% 45%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(217 71% 38%);
+  --color-accent: hsl(199 89% 48%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(210 20% 98%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(217 33% 17%);
+  --color-sidebar-foreground: hsl(214 32% 91%);
+  --color-sidebar-active: hsl(217 71% 45%);
+  --color-muted: hsl(215 16% 47%);
+  --color-border: hsl(214 32% 91%);
+  --color-success: hsl(142 71% 35%);
+  --color-warning: hsl(38 92% 50%);
+  --color-error: hsl(0 84% 50%);
+  --color-info: hsl(210 92% 45%);
+  --font-heading: 'DM Sans', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px;
+  --spacing-unit: 16px; --row-height: 40px;
+}
+```
+
+Signature: dark navy sidebar with sharp corners. Professional, restrained, trustworthy.
+
+### Warm Neutral
+
+For: HR, education, hospitality, non-profit, recruiting.
+
+```css
+:root {
+  /* --- Visual identity: Warm Neutral --- */
+  --color-primary: hsl(25 75% 47%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(25 75% 40%);
+  --color-accent: hsl(173 58% 39%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(30 25% 97%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(30 10% 96%);
+  --color-sidebar-foreground: hsl(25 10% 30%);
+  --color-sidebar-active: hsl(25 75% 47%);
+  --color-muted: hsl(25 8% 52%);
+  --color-border: hsl(30 15% 90%);
+  --color-success: hsl(152 56% 39%);
+  --color-warning: hsl(43 96% 56%);
+  --color-error: hsl(4 80% 52%);
+  --color-info: hsl(210 75% 50%);
+  --font-heading: 'Nunito', sans-serif;
+  --font-body: 'Nunito Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+  --spacing-unit: 16px; --row-height: 40px;
+}
+```
+
+Signature: warm-tinted surfaces with a light sidebar. Approachable, human, calming.
+
+### Bold Saturated
+
+For: marketing, CRM, gaming, esports, social media.
+
+```css
+:root {
+  /* --- Visual identity: Bold Saturated --- */
+  --color-primary: hsl(262 83% 58%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(262 83% 50%);
+  --color-accent: hsl(330 81% 60%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(260 10% 97%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(262 50% 15%);
+  --color-sidebar-foreground: hsl(262 20% 90%);
+  --color-sidebar-active: hsl(262 83% 58%);
+  --color-muted: hsl(262 10% 50%);
+  --color-border: hsl(262 15% 90%);
+  --color-success: hsl(142 71% 35%);
+  --color-warning: hsl(38 92% 50%);
+  --color-error: hsl(0 84% 50%);
+  --color-info: hsl(210 92% 45%);
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+  --spacing-unit: 16px; --row-height: 40px;
+}
+```
+
+Signature: vibrant purple-to-pink gradient sidebar. Energetic, bold, confident.
+
+### Dark-First Technical
+
+For: DevOps, cybersecurity, IoT, AI/ML, monitoring.
+
+```css
+:root {
+  /* --- Visual identity: Dark-First Technical --- */
+  --color-primary: hsl(192 91% 36%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(192 91% 30%);
+  --color-accent: hsl(142 72% 50%);
+  --color-accent-foreground: hsl(0 0% 10%);
+  --color-background: hsl(220 13% 10%);
+  --color-surface: hsl(220 13% 14%);
+  --color-sidebar: hsl(220 13% 8%);
+  --color-sidebar-foreground: hsl(220 10% 75%);
+  --color-sidebar-active: hsl(192 91% 36%);
+  --color-muted: hsl(220 10% 50%);
+  --color-border: hsl(220 13% 20%);
+  --color-success: hsl(142 72% 50%);
+  --color-warning: hsl(43 96% 56%);
+  --color-error: hsl(0 72% 55%);
+  --color-info: hsl(192 91% 50%);
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px;
+  --spacing-unit: 12px; --row-height: 32px;
+}
+```
+
+Signature: dark background by default, cyan/green accents, monospace numbers in data. Terminal-inspired.
+
+### Soft Modern
+
+For: healthcare, wellness, consumer SaaS, productivity.
+
+```css
+:root {
+  /* --- Visual identity: Soft Modern --- */
+  --color-primary: hsl(210 85% 55%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(210 85% 48%);
+  --color-accent: hsl(168 65% 45%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(210 20% 98%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(0 0% 100%);
+  --color-sidebar-foreground: hsl(215 16% 35%);
+  --color-sidebar-active: hsl(210 85% 96%);
+  --color-muted: hsl(215 16% 55%);
+  --color-border: hsl(210 18% 92%);
+  --color-success: hsl(152 56% 39%);
+  --color-warning: hsl(38 92% 50%);
+  --color-error: hsl(0 72% 51%);
+  --color-info: hsl(210 85% 55%);
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+  --spacing-unit: 20px; --row-height: 44px;
+}
+```
+
+Signature: white sidebar with soft blue active states, generous whitespace, rounded everything. Clean, gentle, trustworthy.
+
+### High-Contrast Editorial
+
+For: media, publishing, CMS, content platforms.
+
+```css
+:root {
+  /* --- Visual identity: High-Contrast Editorial --- */
+  --color-primary: hsl(0 0% 9%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(0 0% 20%);
+  --color-accent: hsl(12 76% 50%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(40 23% 97%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(0 0% 100%);
+  --color-sidebar-foreground: hsl(0 0% 20%);
+  --color-sidebar-active: hsl(0 0% 9%);
+  --color-muted: hsl(0 0% 45%);
+  --color-border: hsl(0 0% 85%);
+  --color-success: hsl(142 71% 35%);
+  --color-warning: hsl(38 92% 50%);
+  --color-error: hsl(0 84% 50%);
+  --color-info: hsl(210 92% 45%);
+  --font-heading: 'Fraunces', serif;
+  --font-body: 'Source Serif 4', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius-sm: 0px; --radius-md: 2px; --radius-lg: 4px;
+  --spacing-unit: 16px; --row-height: 40px;
+}
+```
+
+Signature: serif typography, near-zero radius, strong black-and-white contrast with a single warm accent. Authoritative, literary.
+
+### Playful Rounded
+
+For: food service, consumer apps, community platforms.
+
+```css
+:root {
+  /* --- Visual identity: Playful Rounded --- */
+  --color-primary: hsl(340 82% 52%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(340 82% 45%);
+  --color-accent: hsl(45 93% 58%);
+  --color-accent-foreground: hsl(0 0% 15%);
+  --color-background: hsl(340 15% 97%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(340 50% 18%);
+  --color-sidebar-foreground: hsl(340 15% 90%);
+  --color-sidebar-active: hsl(340 82% 52%);
+  --color-muted: hsl(340 10% 50%);
+  --color-border: hsl(340 10% 90%);
+  --color-success: hsl(142 65% 40%);
+  --color-warning: hsl(43 96% 56%);
+  --color-error: hsl(0 80% 55%);
+  --color-info: hsl(210 80% 55%);
+  --font-heading: 'Quicksand', sans-serif;
+  --font-body: 'Nunito Sans', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --radius-sm: 12px; --radius-md: 16px; --radius-lg: 24px;
+  --spacing-unit: 18px; --row-height: 44px;
+}
+```
+
+Signature: large border radius everywhere, warm pink palette, friendly typography. Fun, inviting, approachable.
+
+### Industrial Minimal
+
+For: logistics, construction, manufacturing, supply chain.
+
+```css
+:root {
+  /* --- Visual identity: Industrial Minimal --- */
+  --color-primary: hsl(220 14% 30%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(220 14% 23%);
+  --color-accent: hsl(43 96% 50%);
+  --color-accent-foreground: hsl(0 0% 10%);
+  --color-background: hsl(220 10% 96%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(220 14% 20%);
+  --color-sidebar-foreground: hsl(220 10% 80%);
+  --color-sidebar-active: hsl(43 96% 50%);
+  --color-muted: hsl(220 10% 50%);
+  --color-border: hsl(220 10% 85%);
+  --color-success: hsl(142 71% 35%);
+  --color-warning: hsl(43 96% 50%);
+  --color-error: hsl(0 84% 50%);
+  --color-info: hsl(210 80% 50%);
+  --font-heading: 'Barlow', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px;
+  --spacing-unit: 12px; --row-height: 36px;
+}
+```
+
+Signature: dark slate sidebar, yellow/amber accents on dark backgrounds (like safety markings), compact density, strong borders. Utilitarian, no-nonsense.
+
+### Luxury Restrained
+
+For: real estate, premium SaaS, fashion, high-end retail.
+
+```css
+:root {
+  /* --- Visual identity: Luxury Restrained --- */
+  --color-primary: hsl(30 10% 25%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(30 10% 18%);
+  --color-accent: hsl(38 40% 55%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(30 15% 97%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(0 0% 100%);
+  --color-sidebar-foreground: hsl(30 10% 30%);
+  --color-sidebar-active: hsl(30 10% 25%);
+  --color-muted: hsl(30 5% 55%);
+  --color-border: hsl(30 10% 90%);
+  --color-success: hsl(152 45% 42%);
+  --color-warning: hsl(38 80% 50%);
+  --color-error: hsl(0 65% 48%);
+  --color-info: hsl(210 60% 50%);
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Lato', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius-sm: 0px; --radius-md: 2px; --radius-lg: 4px;
+  --spacing-unit: 24px; --row-height: 48px;
+}
+```
+
+Signature: serif headings with generous whitespace, muted warm palette, near-zero radius, subtle shadows. Sophisticated, unhurried, premium.
+
+### Data-Dense Operational
+
+For: analytics, trading, fleet management, telecom.
+
+```css
+:root {
+  /* --- Visual identity: Data-Dense Operational --- */
+  --color-primary: hsl(210 80% 50%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(210 80% 42%);
+  --color-accent: hsl(142 72% 45%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(220 13% 10%);
+  --color-surface: hsl(220 13% 14%);
+  --color-sidebar: hsl(220 13% 8%);
+  --color-sidebar-foreground: hsl(220 10% 70%);
+  --color-sidebar-active: hsl(210 80% 50%);
+  --color-muted: hsl(220 10% 45%);
+  --color-border: hsl(220 13% 22%);
+  --color-success: hsl(142 72% 45%);
+  --color-warning: hsl(43 96% 56%);
+  --color-error: hsl(0 72% 55%);
+  --color-info: hsl(210 80% 55%);
+  --font-heading: 'Figtree', sans-serif;
+  --font-body: 'Figtree', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px;
+  --spacing-unit: 8px; --row-height: 32px;
+}
+```
+
+Signature: dark mode default, maximum density, monospace numbers in all data cells, minimal chrome. Every pixel is information.
