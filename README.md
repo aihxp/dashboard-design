@@ -1,4 +1,4 @@
-# Dashboard Design
+# Production Ready
 
 Build dashboards that actually work.
 
@@ -10,7 +10,7 @@ This skill fixes that. It's an AI instruction set that ensures every feature is 
 
 **With Claude Code:**
 ```bash
-git clone https://github.com/aihxp/dashboard-design.git
+git clone https://github.com/aihxp/production-ready.git
 # Add the repo as a skill in your Claude Code configuration
 # Then just ask Claude to build a dashboard — the skill activates automatically
 ```

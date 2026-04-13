@@ -1,9 +1,9 @@
 ---
-name: dashboard-design
+name: production-ready
 description: "Build production-grade, end-to-end connected dashboards — admin panels, analytics consoles, internal tools, operational control centers, SaaS back-offices — across any stack (React/Next/Vue/Svelte/Remix/Rails/Django/Laravel/etc.). Use this skill whenever the user asks for a 'dashboard,' 'admin panel,' 'control panel,' 'back office,' 'internal tool,' 'analytics view,' 'reporting interface,' 'ops console,' 'metrics view,' 'KPI view,' or describes building any multi-page interface that displays domain data with navigation, auth, and CRUD — even if the word 'dashboard' is never spoken. Triggers also include requests to add a sidebar nav, role-based access, user management, audit logs, charts/graphs over real data, filters, exports, settings pages, or any 'logged-in area' of an app. This skill enforces a no-scaffold-no-placeholder rule — every feature shipped must be wired end-to-end to a real backend (or a real local persistence layer), not stubbed with TODO, fake JSON, or 'you can hook this up later' comments."
 ---
 
-# Dashboard Design
+# Production Ready
 
 This skill exists to solve one specific failure mode: AI-generated dashboards that *look* finished but are hollow. Buttons that don't save. Filters that don't filter. "Settings" pages with no persistence. Login screens that accept anything. Charts hardcoded to fake JSON. Sidebars with five items where four route to 404. The user runs the result and within ten seconds discovers it's a museum, not a tool.
 
