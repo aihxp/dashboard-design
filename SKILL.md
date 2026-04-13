@@ -147,7 +147,7 @@ The foundation slice is always the same and must come first:
 
 Do not move past the foundation until you can: run the app, sign in as the admin, sign out, sign in as a non-admin, and see different things. This is the proof the foundation is real.
 
-**→ Tier 1 checkpoint.** If the foundation slice is complete and the CRUD entity works end-to-end, declare Tier 1 (Foundation) complete. See the completion tiers section below.
+**→ Tier 1 checkpoint.** If the foundation slice is complete and the CRUD entity works end-to-end, declare Tier 1 (Foundation) complete. Run the hollow check protocol before declaring Tier 1 complete. See the completion tiers section below.
 
 ### 5. Build feature slices
 
@@ -163,11 +163,35 @@ For each feature (user management, the orders table, billing, settings, etc.), b
 
 The order of feature slices should be: most-used feature first, riskiest feature second, "nice to have" features last. If the user runs out of patience halfway through, they should still have the most important feature working completely.
 
+### 5.1. Hollow check protocol (runs after every slice)
+
+After completing each feature slice and at each tier checkpoint, run this scan before proceeding. It takes 30 seconds and catches hollows while they're cheap to fix.
+
+**The scan:**
+
+```
+grep -rn "// TODO\|// FIXME\|// HACK\|// TEMP" src/
+grep -rn "() => {}\|onClick={() => {}" src/ --include="*.tsx" --include="*.ts"
+grep -rn "Coming soon\|Not implemented\|TBD\|WIP" src/
+grep -rn "mockData\|fakeData\|dummyData\|lorem\|Lorem" src/
+grep -rn "Math\.random()" src/ --include="*.tsx" --include="*.ts"
+grep -rn "console\.log" src/ --include="*.tsx" --include="*.ts"
+```
+
+These are the B7 hollow indicator patterns from `references/codebase-research.md`.
+
+**The rule:** Zero high-severity hits before starting the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now — not "later." Low-severity hits (console.log in a catch block for intentional error logging) can be noted and batched for cleanup at the tier checkpoint.
+
+**When to run:**
+- After each feature slice completes — scan only the files touched in that slice
+- At each tier checkpoint — scan the entire `src/` directory
+- The Tier 4 checkpoint requires zero hits of any severity
+
 ### 6. Layer in cross-cutting concerns
 
 After two or three feature slices, add the cross-cutting layer: global search, notifications, user preferences/settings, theme toggle, exports, audit log viewer, profile page. These are easier to do once you have real data flowing — building them on top of empty pages is wasted effort.
 
-**→ Tier 2 checkpoint** after feature slices are done (RBAC, states, validation, settings, profile all working). **→ Tier 3 checkpoint** after cross-cutting concerns are wired (audit log, accessibility, responsive, breadcrumbs).
+**→ Tier 2 checkpoint** after feature slices are done (RBAC, states, validation, settings, profile all working). **→ Tier 3 checkpoint** after cross-cutting concerns are wired (audit log, accessibility, responsive, breadcrumbs). Run the hollow check protocol at each checkpoint.
 
 ### 7. Write tests alongside each slice
 
@@ -193,7 +217,7 @@ Before the verification pass, read `references/performance-and-security.md` and 
 
 Before declaring the dashboard "done," walk the verification checklist in `references/preflight-and-verification.md` and the security checklist in `references/performance-and-security.md`. They catch the specific failure modes that make dashboards feel hollow or insecure: dead links, fake data, permissions you forgot to check, missing empty states, console errors, XSS vectors, missing headers, etc.
 
-**→ Tier 4 checkpoint.** Tests pass, security headers set, verification checklist green, zero hollow indicators. The dashboard is ship-ready.
+**→ Tier 4 checkpoint.** Tests pass, security headers set, verification checklist green, zero hollow indicators. The hollow check protocol must return zero hits at any severity level. The dashboard is ship-ready.
 
 ## Completion tiers
 
@@ -307,9 +331,7 @@ Ship-ready. Tested, secure, verified.
 - **The "have-nots" apply at every tier.** No TODOs, no fake data, no empty handlers — even at Tier 1. Each tier is *real* at its scope, not scaffolded.
 - **In assessment mode (existing codebase):** Determine which tier the codebase currently satisfies, then work toward the next one. The research output's gap analysis maps directly to unfulfilled tier requirements.
 
-## The "haves" — the full list
-
-The tiers above organize these into a buildable sequence. The complete list remains the definition of a fully finished dashboard — Tier 4 complete means all of these are present.
+*The completion tiers above ARE the full requirements list. Tier 4 complete = all 24 requirements present. The "have-nots" below apply at every tier.*
 
 ## The "have nots" — things that disqualify the dashboard
 
@@ -560,30 +582,30 @@ One distinctive visual element that makes this specific dashboard recognizable. 
 
 The body above is enough to start building. For depth on a specific domain, load the matching reference file. Read each file *before* implementing that layer, not after — the cost of re-doing a layer is much higher than the cost of reading 300 lines.
 
-| Reference file | Read before |
+| Reference file | When to load |
 |---|---|
-| `references/codebase-research.md` | **Always**, at the very start, before pre-flight. Detects greenfield vs. existing codebase, runs the appropriate research protocol |
-| `references/preflight-and-verification.md` | **Always**, at the very start, and again at the end |
-| `references/information-architecture.md` | Designing the shell, nav, menus, layout, page structure |
-| `references/auth-and-rbac.md` | Implementing login, sessions, roles, permissions, user management |
-| `references/data-layer.md` | Wiring API contracts, query/mutation hooks, caching, websockets, file upload |
-| `references/data-visualization.md` | Choosing chart types, building KPI cards, designing tables |
-| `references/states-and-feedback.md` | Building loading, empty, error states, toasts, optimistic updates |
-| `references/workflows-and-actions.md` | Designing forms, multi-step flows, bulk actions, confirmations, exports |
-| `references/analytics-and-telemetry.md` | Adding event tracking, audit logs, in-app metrics, usage dashboards |
-| `references/settings-and-configuration.md` | Settings architecture: user/org/system hierarchy, data model, auto-save vs explicit, admin panel, multi-tenant, validation |
-| `references/ui-design-patterns.md` | Building the visual layer: components, typography, spacing, tokens, motion, micro-copy, dark mode, icons, z-index. Also covers the visual identity token system with 10 ready-to-use archetype token sets for per-project distinctiveness. |
-| `references/payments-and-billing.md` | Integrating payments: checkout, subscriptions, invoicing, refunds, webhooks, PCI, revenue metrics |
-| `references/internationalization.md` | Multi-language support: i18n architecture, string handling, RTL, date/number/currency formatting, translation workflows |
-| `references/notifications-and-email.md` | Multi-channel notifications: in-app, email, push, SMS, Slack; preferences, digests, templates, delivery tracking, shared inbox |
-| `references/system-integration.md` | Connecting features: service layer, event bus, cache invalidation chains, entity linking, real-time propagation, job observability, feature flags |
-| `references/reporting.md` | Report generation: types, builder UI, PDF/Excel generation, scheduled reports, large datasets, print optimization, report permissions |
-| `references/api-and-integrations.md` | External connections: adapter pattern, OAuth2, outbound/inbound webhooks, data sync, integration marketplace, building your own API |
-| `references/ai-product-patterns.md` | Building AI products: streaming, context management, model orchestration, prompt management, RAG, evaluation, cost control, moderation, tool calling |
-| `references/testing-and-quality.md` | Writing tests for auth, CRUD, permissions, accessibility, visual regression |
-| `references/performance-and-security.md` | Optimizing bundle size, queries, caching; hardening CSP, CORS, rate limiting, input sanitization |
-| `references/security-deep-dive.md` | Advanced security: session hardening, API security, data protection, secrets management, supply chain, incident response |
-| `references/domain-considerations.md` | **During pre-flight**, after identifying the domain. Covers 33 verticals with domain-specific gotchas, compliance, and data model traps |
+| `references/codebase-research.md` | **Always** — start of every session |
+| `references/preflight-and-verification.md` | **Always** — start + end |
+| `references/domain-considerations.md` | **Always** — during pre-flight, after identifying domain |
+| `references/information-architecture.md` | **Tier 1** — shell, nav, layout |
+| `references/auth-and-rbac.md` | **Tier 1** — login, sessions, roles, permissions |
+| `references/data-layer.md` | **Tier 1** — API, queries, mutations, caching |
+| `references/ui-design-patterns.md` | **Tier 1** — components, tokens, visual identity |
+| `references/states-and-feedback.md` | **Tier 2** — loading, empty, error, toasts |
+| `references/workflows-and-actions.md` | **Tier 2** — forms, bulk actions, exports |
+| `references/settings-and-configuration.md` | **Tier 2** — settings hierarchy, data model |
+| `references/analytics-and-telemetry.md` | **Tier 3** — audit log, event tracking |
+| `references/system-integration.md` | **Tier 3** — service layer, event bus, feature flags |
+| `references/testing-and-quality.md` | **Tier 4** — test strategy, integration tests |
+| `references/performance-and-security.md` | **Tier 4** — CSP, CORS, rate limiting, bundle size |
+| `references/security-deep-dive.md` | **Tier 4** — session hardening, secrets, incident response |
+| `references/data-visualization.md` | **On demand** — charts, KPIs, tables |
+| `references/payments-and-billing.md` | **On demand** — checkout, subscriptions, PCI |
+| `references/internationalization.md` | **On demand** — i18n, RTL, translation |
+| `references/notifications-and-email.md` | **On demand** — multi-channel notifications |
+| `references/reporting.md` | **On demand** — report generation, PDF/Excel |
+| `references/api-and-integrations.md` | **On demand** — external APIs, webhooks |
+| `references/ai-product-patterns.md` | **On demand** — AI/LLM features |
 
 ## How to interpret a vague request
 

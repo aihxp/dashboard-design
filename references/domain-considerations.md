@@ -6,6 +6,30 @@ This file covers the domain-specific landmines for 33 common dashboard verticals
 
 If the dashboard spans multiple domains (e.g., a SaaS that includes billing — that's SaaS + Financial), read both sections.
 
+## Top gotchas by frequency
+
+These are the domain-specific mistakes that cause the most rewrites. Check before your first migration:
+
+```
+Domain                     #1 gotcha that generic CRUD misses
+──────────────────────────────────────────────────────────────────────────
+SaaS / Multi-tenant        Missing WHERE org_id = ? on every query (data leak)
+E-commerce                 Price as a single float (should be integer cents + multi-price)
+Financial / Accounting     Single-entry bookkeeping (must be double-entry, append-only)
+Healthcare                 Missing HIPAA audit log of every PHI access
+CMS / Content              Body as one text blob (must be structured fields + revisions)
+Education / LMS            Grade as a percentage (must handle weighted categories + drops)
+Legal                      Time as hours (must be 0.1-hour increments for billing)
+Restaurant / POS           Menu item as a flat row (must handle modifiers/customizations)
+Marketplace                No escrow/hold for payments (direct transfer = disputes)
+IoT / Devices              Polling for status (must handle offline as first-class state)
+HR / Payroll               Salary as annual number (must handle pay periods + tax brackets)
+Real Estate                Lease as start+end dates (must handle renewals + deposit ledger)
+Logistics                  Shipment as one status (must be state machine with parallel paths)
+```
+
+Each domain section below has the full gotcha list, compliance requirements, expected UX, and seed data shape. Read the matching section before designing your schema.
+
 ---
 
 ## 1. SaaS / Multi-tenant

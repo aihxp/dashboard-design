@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.2.0 — 2026-04-12
+
+### Added
+
+- **Mid-build hollow check protocol** (Step 5.1 in SKILL.md) — automated grep-based scan that runs after every feature slice and at every tier checkpoint. Catches TODOs, empty handlers, hardcoded data, and console.logs while they're cheap to fix, not at the end.
+
+- **Decision trees added to 6 reference files** — each file now opens with actionable routing guidance before the deep content:
+  - `auth-and-rbac.md` — "Which auth method?" decision tree (internal/SaaS/sensitive → method)
+  - `data-layer.md` — Concrete Next.js App Router pattern (server component + server action + client component)
+  - `information-architecture.md` — "Which layout?" table (page count × task → layout type)
+  - `testing-and-quality.md` — Test prioritization table (priority 1–4 by regression damage)
+  - `settings-and-configuration.md` — Default hybrid architecture + auto-save vs explicit save rule
+  - `domain-considerations.md` — Top 13 domain gotchas frequency table
+
+### Changed
+
+- **Reference table is now tier-annotated** — each file tagged with when to load it (Always / Tier 1 / Tier 2 / Tier 3 / Tier 4 / On demand) instead of vague descriptions
+- **Hollow check reminders** added to all tier checkpoint annotations
+- **"Haves" section condensed** — replaced vestigial header with one-line note pointing to tiers (the tiers ARE the requirements list)
+- **Tier 4 checkpoint** now explicitly requires zero hollow check hits at any severity
+
+---
+
 ## v1.1.0 — 2026-04-12
 
 ### Added

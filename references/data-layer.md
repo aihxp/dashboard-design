@@ -38,6 +38,69 @@ For Next.js App Router dashboards (the default in 2026), the data-fetching model
 
 If you're building with Next.js App Router, start with Server Components + server actions. Add TanStack Query only for surfaces that need client-side caching or real-time updates.
 
+**The concrete pattern for Next.js App Router dashboards:**
+
+```tsx
+// --- Server Component: fetches data, no hooks needed ---
+// app/customers/page.tsx
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; search?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const { data, totalCount } = await db.customer.findMany({
+    where: params.search ? { name: { contains: params.search } } : undefined,
+    skip: (page - 1) * 25,
+    take: 25,
+  });
+  return (
+    <Suspense fallback={<TableSkeleton rows={5} />}>
+      <CustomerTable data={data} totalCount={totalCount} />
+    </Suspense>
+  );
+}
+
+// --- Server Action: handles mutations, no API route needed ---
+// app/customers/actions.ts
+'use server';
+import { revalidatePath } from 'next/cache';
+
+export async function createCustomer(formData: FormData) {
+  const session = await auth();
+  if (!session) throw new Error('Unauthorized');
+  if (!can(session.user.role, 'customers:create')) throw new Error('Forbidden');
+
+  const parsed = customerSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+
+  await db.customer.create({ data: parsed.data });
+  await db.auditLog.create({
+    data: { userId: session.user.id, action: 'customer.created', entity: 'customer' },
+  });
+  revalidatePath('/customers');
+}
+
+// --- Client Component: only when you need interactivity ---
+// components/customers/DeleteCustomerButton.tsx
+'use client';
+export function DeleteCustomerButton({ id }: { id: string }) {
+  const [pending, startTransition] = useTransition();
+  return (
+    <Button
+      variant="destructive"
+      disabled={pending}
+      onClick={() => startTransition(() => deleteCustomer(id))}
+    >
+      {pending ? 'Deleting...' : 'Delete'}
+    </Button>
+  );
+}
+```
+
+**When to add TanStack Query on top of this:** polling/real-time surfaces, infinite scroll, optimistic updates with rollback, or client-side filtering that needs a local cache. For standard CRUD pages, Server Components + server actions are sufficient.
+
 Hand-rolling `useEffect + fetch + useState` is acceptable for one-off tiny dashboards. Beyond ~3 pages, the ad-hoc approach produces inconsistent loading states, missed cache invalidations, double-fetches on mount, and stale lists. Use the library.
 
 ### Database connection pooling in serverless

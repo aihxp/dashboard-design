@@ -2,6 +2,23 @@
 
 The shell of a dashboard — the layout, navigation, header, sidebar, breadcrumbs, page structure — is where convention is your friend. Users learn dashboards by transferring expectations from every other dashboard they've used. Deviating from the conventions costs more than it gains. This file is the rules for the shell.
 
+## Quick decision: which layout?
+
+```
+How many pages?     User's primary task?          → Layout
+─────────────────────────────────────────────────────────────
+1 page              View/monitor                  → Content only (no sidebar)
+2–5, flat           Short labels, won't grow      → Top nav + content
+2–5, flat           Will grow past 6              → Sidebar + content
+5+, or sub-pages    Navigate between sections     → Sidebar + content (default)
+Any count           Select-from-list + details    → Three-pane (master-detail)
+Any count           Side-by-side comparison       → Split pane (resizable)
+N/A                 Monitor only, no interaction  → Full-bleed / no chrome
+Detail pages        3–7 facets per entity         → Sidebar + tabs in content
+```
+
+**Default when unsure:** Sidebar + content. It handles growth, supports sub-nav, and matches user expectations from every other dashboard. Detailed descriptions of each layout are below.
+
 ## The canonical layout
 
 Adopt this layout unless the domain demands otherwise. It is the convention used by Stripe, Linear, Notion, Vercel, GitHub, GitLab, AWS, Datadog, Tableau, Power BI, Looker, Mixpanel, Segment, Asana, Jira, Atlassian, ServiceNow, Salesforce, HubSpot, Intercom, Shopify admin, Airtable, Retool, Metabase, and roughly every internal tool you've used.

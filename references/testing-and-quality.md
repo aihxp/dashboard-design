@@ -2,6 +2,25 @@
 
 A dashboard that passes the verification checklist once is good. A dashboard that passes it every time someone pushes code is production-grade. This file is the rules for testing dashboards so they stay working as they grow.
 
+## Quick decision: what to test first
+
+Budget is always limited. Prioritize tests by the damage a regression causes:
+
+```
+Priority  What to test                         Why
+────────────────────────────────────────────────────────────────
+1 (must)  Auth flow: login, session, logout     Broken auth = nobody can use the app
+1 (must)  Permission denial: admin vs member    Broken RBAC = data leak / unauthorized action
+2 (high)  CRUD happy path per entity            Broken CRUD = the core job fails
+2 (high)  Form validation (server-side)         Missing validation = bad data in production
+3 (mid)   Empty, loading, error states          Broken states = user confusion, not data loss
+3 (mid)   Accessibility (axe) per page          Catches WCAG violations mechanically
+4 (nice)  Filter/sort/paginate round-trip       Regression-prone but lower blast radius
+4 (nice)  Visual regression (screenshots)       Catches CSS drift, low urgency
+```
+
+**Minimum viable test suite:** 1 auth flow test, 1 CRUD flow test, 1 permission denial test, axe scan on every page. This covers priorities 1–3 in ~4 test files. Add priority 4 tests when the dashboard stabilizes.
+
 ## The testing pyramid for dashboards
 
 Dashboards are UI-heavy, data-heavy, and auth-heavy. The testing strategy reflects that:

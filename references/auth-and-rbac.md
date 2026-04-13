@@ -4,6 +4,40 @@ Authentication answers "who are you." Authorization answers "what are you allowe
 
 The single most important principle: **enforce on the server, reflect on the client.** The client never decides whether something is allowed — the client only decides whether to *show* the option. The server is the source of truth for every permission decision. Treat the client as untrusted, because it is.
 
+## Quick decision: which auth method?
+
+```
+What kind of dashboard?
+│
+├── Internal / corporate (users have company email)
+│   ├── Company uses SSO (Okta, Entra, Google Workspace)?
+│   │   YES → OIDC/SAML with the existing IdP. No local passwords.
+│   │   NO  → Magic link (lowest friction) or email+password with invite-only
+│   │
+│   └── Fewer than 20 users, low sensitivity?
+│       YES → Magic link. No passwords to manage.
+│       NO  → Email+password + enforce MFA
+│
+├── SaaS product (public sign-up)
+│   ├── Consumer-facing (broad audience)?
+│   │   YES → Social login (Google/GitHub) + email+password fallback
+│   │         + passkey enrollment after first login
+│   │   NO  → Email+password + optional social login
+│   │         + MFA for admin roles
+│   │
+│   └── Enterprise tier exists?
+│       YES → Add SAML/OIDC SSO for enterprise orgs
+│
+├── Sensitive data (healthcare, finance, legal)?
+│   └── Email+password + mandatory MFA + session timeout ≤ 12h
+│       + passkey offered as upgrade
+│
+└── Default when unsure
+    └── Email+password (invite-only) + passkey enrollment in settings
+```
+
+**Sessions vs. JWTs:** Use sessions unless you have multiple services that need stateless token verification. Sessions are revocable, simpler, and the right default for single-app dashboards. See "Sessions vs. JWTs" below for the full comparison.
+
 ## Authentication
 
 ### What "real auth" means
