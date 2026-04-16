@@ -1,12 +1,12 @@
 # Production Ready
 
-> **An AI skill for Claude Code, Codex, and any AI coding agent.**
+> **An AI skill for any coding agent — Claude Code, Codex, Cursor, Windsurf, Copilot, or your own.**
 
 Stop shipping apps that fall apart on first click.
 
 AI-generated apps — dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers — look finished until someone tries to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. Ten seconds of clicking reveals the truth: it's a screenshot, not a tool.
 
-Production Ready is a **skill** (an AI instruction set) that eliminates this failure mode. Install it in Claude Code or Codex, and every app ships with real auth, real data, real permissions, real states, and real feedback — across any stack and any industry.
+Production Ready is a **skill** — a structured AI instruction set that any coding agent can consume. It ensures every feature ships wired end-to-end: real auth, real data, real permissions, real states, real feedback — across any stack and any industry.
 
 <p align="center">
 <strong>36 reference files</strong> &nbsp;·&nbsp; <strong>33 industry verticals</strong> &nbsp;·&nbsp; <strong>24 production requirements</strong> &nbsp;·&nbsp; <strong>4 shippable tiers</strong>
@@ -17,7 +17,6 @@ Production Ready is a **skill** (an AI instruction set) that eliminates this fai
 **Claude Code:**
 ```bash
 git clone https://github.com/aihxp/production-ready.git ~/.claude/skills/production-ready
-# The skill activates automatically when you ask Claude to build an app, dashboard, or admin panel
 ```
 
 **Codex:**
@@ -25,8 +24,11 @@ git clone https://github.com/aihxp/production-ready.git ~/.claude/skills/product
 git clone https://github.com/aihxp/production-ready.git ~/.codex/skills/production-ready
 ```
 
-**Any other AI agent (Cursor, Windsurf, custom agents):**
-Upload `SKILL.md` and the relevant reference files to your project context. The structured output works with any agent that has a plan-then-execute loop.
+**Cursor / Windsurf / other agents:**
+Add `SKILL.md` to your project rules or system prompt. Load reference files as needed.
+
+**Any agent with a plan-then-execute loop:**
+Upload `SKILL.md` and the relevant reference files to your project context. The skill produces structured output (tables, checklists, gap analyses) that any planner can consume — it's not tied to any specific agent runtime.
 
 ## The problem this solves
 
