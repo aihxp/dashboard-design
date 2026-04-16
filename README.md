@@ -1,63 +1,95 @@
 # Production Ready
 
-Build dashboards that actually work.
+**Stop shipping dashboards that fall apart on first click.**
 
-AI-generated dashboards have a specific failure mode: they *look* finished but fall apart the moment you try to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. A museum piece, not a tool.
+AI-generated dashboards look finished — until someone tries to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. Ten seconds of clicking reveals the truth: it's a screenshot, not a tool.
 
-This skill fixes that. It's an AI instruction set that ensures every feature is wired end-to-end — real auth, real data, real permissions, real states, real feedback — across any stack and any industry.
+Production Ready is an AI instruction set that eliminates this failure mode. Every feature ships wired end-to-end — real auth, real data, real permissions, real states, real feedback — across any stack and any industry.
+
+<p align="center">
+<strong>36 reference files</strong> &nbsp;·&nbsp; <strong>33 industry verticals</strong> &nbsp;·&nbsp; <strong>24 production requirements</strong> &nbsp;·&nbsp; <strong>4 shippable tiers</strong>
+</p>
 
 ## Quick start
 
-**With Claude Code:**
+**Claude Code / Codex:**
 ```bash
 git clone https://github.com/aihxp/production-ready.git
-# Add the repo as a skill in your Claude Code configuration
-# Then just ask Claude to build a dashboard — the skill activates automatically
+# Add as a skill → ask Claude to build a dashboard → the skill activates automatically
 ```
 
-**With Claude Chat:**
-Upload `SKILL.md` and the relevant reference files to your project context.
+**Any AI agent:**
+Upload `SKILL.md` and the relevant reference files to your project context. The structured output works with any agent that has a plan-then-execute loop — Claude Code, Codex, Cursor, Windsurf, or custom agents.
 
-**As a standalone reference:**
-Read `SKILL.md` for the workflow, then load reference files as you build each layer.
+**Standalone reference:**
+Read `SKILL.md` for the workflow, load reference files as you build each layer.
+
+## The problem this solves
+
+AI agents build dashboards layer by layer — database, then API, then auth, then UI. This produces 80% completion on every layer and 0% completion on any actual feature. The result is a scaffold that *looks* done but does nothing.
+
+Production Ready enforces **vertical-slice discipline**: build one feature completely — schema, API, permissions, UI, states, tests — before touching the next. When a feature is done, a real person can do a real job with it.
 
 ## How it works
 
-The skill enforces a **vertical-slice discipline**: build one feature completely (schema > API > permissions > UI > states > tests) before starting the next. No layer is left half-done.
+```
+Step 0  Research     → Detect project state (greenfield / existing / audit)
+Step 1  Pre-flight   → 12 questions that prevent incompatible decisions
+Step 2  Architecture → Stack, auth model, permission model, route map
+Step 3  Identity     → Derive unique visual personality from the domain
+Step 4  Foundation   → Auth, RBAC, shell, seed data, one working page
+Step 5  Features     → Each feature wired end-to-end with all states
+Step 5.1 Hollow check → Automated scan catches TODOs and fake data mid-build
+Step 6  Cross-cutting → Search, notifications, settings, exports, audit log
+Step 7  Tests        → Auth flow, CRUD, permissions, accessibility
+Step 8  Harden       → Security headers, performance budget, bundle size
+Step 9  Verify       → 20-point smoke test before shipping
+```
 
-When you ask Claude to build a dashboard, the skill:
+Each step maps to a **completion tier** — the dashboard is shippable at every checkpoint, not just at the end.
 
-0. **Researches the project state** — detects greenfield vs. existing codebase vs. audit, scans what's real and what's hollow
-1. **Runs a pre-flight** — 12 questions that prevent incompatible decisions across layers
-2. **Identifies your domain** — loads domain-specific gotchas from 33 industry verticals
-3. **Derives a visual identity** — picks colors, typography, radius, density, and a signature detail from the domain context so every dashboard looks distinct
-4. **Builds the foundation** — auth, RBAC, design tokens, shell layout, seed data, one working protected page
-5. **Builds feature slices** — each feature wired end-to-end with real data and all states
-6. **Adds cross-cutting concerns** — search, notifications, settings, exports, audit log
-7. **Hardens** — security headers, performance budget, tests
-8. **Verifies** — a 20-point smoke test that catches hollow features before you ship
+## Three entry modes
 
-Each step maps to a **completion tier** — Foundation, Functional, Polished, Hardened — so the dashboard is shippable at every checkpoint, not just at the end.
+Not just for new projects.
 
-## What the skill catches
+| Mode | Trigger | Output |
+|---|---|---|
+| **Greenfield** | Empty directory | Full scaffolding from zero |
+| **Assessment** | Existing codebase | 7-part scan → gap analysis → targeted todos |
+| **Audit** | "Verify this dashboard" | Assessment + checklist → severity-sorted fix-it list |
 
-Things that make dashboards feel broken, and what the skill does about them:
+The research output is a structured document any agent's planner can consume to generate precise, gap-filling tasks instead of generic ones.
 
-| Hollow pattern | What the skill enforces instead |
+## Completion tiers
+
+24 requirements, organized into 4 independently shippable tiers:
+
+| Tier | Name | What you can do with it |
+|---|---|---|
+| 1 | **Foundation** | Sign in, see real data, create/edit/delete one entity, sign out |
+| 2 | **Functional** | Role-based access, all states handled, settings that save, profile page |
+| 3 | **Polished** | Audit trail, keyboard accessible, responsive to mobile, cross-cutting features wired |
+| 4 | **Hardened** | Tested, secure, verified, zero hollow indicators — ready to ship |
+
+The agent declares each tier complete at its checkpoint. For existing codebases, the research phase determines the current tier and works toward the next one.
+
+## What it catches
+
+| What AI agents typically ship | What Production Ready enforces |
 |---|---|
 | `const mockUsers = [...]` in a component | Data from the real persistence layer via query hooks |
-| `onClick={() => console.log("clicked")}` | Real mutation > cache invalidation > success toast |
-| Login that accepts any credentials | Hashed passwords, session management, server-side route guards |
+| `onClick={() => console.log("clicked")}` | Real mutation → cache invalidation → success toast |
+| Login that accepts any credentials | Hashed passwords, sessions, server-side route guards |
 | "Coming soon" pages in the sidebar | Every nav link routes to a real, rendered page |
 | Charts that re-randomize on refresh | Charts driven by real data from the data layer |
-| Empty table with no guidance | Empty state with explanation + CTA to create the first record |
-| `// TODO: add validation` | Client-side + server-side validation with field-level errors |
-| Permissions checked only in the UI | Server enforces on every mutation; UI reflects as courtesy |
-| Every dashboard looks the same | Visual identity system derives unique colors, typography, and personality from the domain |
+| Empty table with no guidance | Empty state with explanation + CTA |
+| `// TODO: add validation` | Client + server validation with inline field errors |
+| Permissions checked only in the UI | Server enforces every mutation; UI reflects as courtesy |
+| Every dashboard looks the same | Visual identity derived from domain context — unique colors, typography, personality |
 
 ## 33 industry verticals
 
-The skill knows the domain-specific landmines for 33 industries. Each includes: data model traps, compliance requirements, expected UX patterns, and realistic seed data shapes.
+Generic CRUD misses domain-specific landmines. The skill carries gotchas, compliance requirements, UX patterns, and seed data shapes for 33 industries:
 
 <details>
 <summary>View all 33 domains</summary>
@@ -84,16 +116,29 @@ The skill knows the domain-specific landmines for 33 industries. Each includes: 
 
 </details>
 
-Examples of what domain knowledge prevents:
-- **Healthcare**: building without HIPAA audit logging of every PHI access
-- **Financial**: using `float` for money instead of integer cents
-- **CRM**: modeling one pipeline when every business eventually needs multiple
-- **Gaming**: not tracking embedding model provenance (changing models invalidates all vectors)
-- **Construction**: missing AIA G702/G703 payment applications (the industry-standard billing workflow)
+**Examples of what domain knowledge prevents:**
+- **Healthcare** — building without HIPAA audit logging of every PHI access
+- **Financial** — using `float` for money instead of integer cents
+- **E-commerce** — modeling inventory as a counter instead of a ledger
+- **SaaS** — missing `WHERE org_id = ?` on every query (tenant data leak)
+- **Construction** — missing AIA G702/G703 payment applications
 
-## Reference files
+## Works with any stack
 
-36 files, loaded on demand. You read 4-8 per project, never all 36.
+Pattern-based, not framework-specific:
+
+- **React / Next.js** + TypeScript + Prisma + Auth.js + shadcn/ui + TanStack Query
+- **SvelteKit** + TypeScript + Convex/Drizzle + Auth.js + Tailwind
+- **Vue / Nuxt** + TypeScript + Drizzle + shadcn-vue
+- **Rails** + Hotwire/Turbo + Devise
+- **Django** + HTMX + django-allauth
+- **Laravel** + Inertia + Breeze
+
+...or anything else. The guidance translates.
+
+## Reference library
+
+36 files, loaded on demand. A typical project reads 4–8, never all 36.
 
 <details>
 <summary>View the full reference library</summary>
@@ -112,11 +157,11 @@ Examples of what domain knowledge prevents:
 | `data-visualization.md` | Charts, KPIs, tables, accessibility, sparklines |
 | `states-and-feedback.md` | Loading, empty, error, toasts, undo, offline |
 | `workflows-and-actions.md` | Forms, onboarding, drag-and-drop, approval workflows |
-| `animation-and-motion.md` | Transitions, micro-interactions, loading choreography, spring physics, View Transitions API |
-| `dark-mode-deep-dive.md` | Token remapping, image handling, chart colors, flash prevention, component-level patterns |
-| `accessibility-deep-dive.md` | Screen readers, ARIA widgets, keyboard navigation, legal compliance, cognitive accessibility |
-| `error-pages-and-offline.md` | 404/403/500/503 pages, maintenance mode, PWA offline, partial failures |
-| `file-management-and-uploads.md` | Upload UX, chunked uploads, image crop, file previews, file manager UI, security |
+| `animation-and-motion.md` | Transitions, micro-interactions, loading choreography, spring physics |
+| `dark-mode-deep-dive.md` | Token remapping, image handling, chart colors, flash prevention |
+| `accessibility-deep-dive.md` | Screen readers, ARIA widgets, keyboard navigation, legal compliance |
+| `error-pages-and-offline.md` | 404/403/500/503 pages, maintenance mode, PWA offline |
+| `file-management-and-uploads.md` | Upload UX, chunked uploads, image crop, file previews |
 | **Features** | |
 | `settings-and-configuration.md` | User/org/system settings, admin panel, multi-tenant |
 | `notifications-and-email.md` | In-app, email, push, SMS, Slack, delivery tracking |
@@ -133,72 +178,24 @@ Examples of what domain knowledge prevents:
 | `performance-and-security.md` | Bundle size, SSR, CSP, CORS, rate limiting |
 | `security-deep-dive.md` | Sessions, data protection, secrets, incident response |
 | **Frontend & Marketing** | |
-| `headers-and-navigation.md` | Header layout, mega menus, mobile nav, footer design, back-to-top |
-| `marketing-and-landing-pages.md` | Hero sections, social proof, feature grids, pricing tables, conversion patterns |
-| `seo-and-web-standards.md` | Meta tags, Open Graph, robots.txt, llms.txt, RSS feeds, sitemap, favicons |
-| `social-media-features.md` | Social links, share modals, social media management, embeds, social login |
-| `email-template-design.md` | HTML email, responsive email, dark mode in email, deliverability, frameworks |
+| `headers-and-navigation.md` | Header layout, mega menus, mobile nav, footer design |
+| `marketing-and-landing-pages.md` | Hero sections, social proof, feature grids, pricing tables |
+| `seo-and-web-standards.md` | Meta tags, Open Graph, robots.txt, llms.txt, RSS feeds, sitemap |
+| `social-media-features.md` | Social links, share modals, embeds, social login |
+| `email-template-design.md` | HTML email, responsive email, dark mode in email |
 | `realtime-and-collaboration.md` | Presence, live cursors, collaborative editing, WebSocket lifecycle |
 | **Growth & Operations** | |
-| `login-and-auth-pages.md` | Login page design, registration UX, auth flows, login-to-dashboard journey |
-| `migration-and-data-import.md` | CSV/API import, platform migration, phased rollout, account merging |
-| `expansion-and-scalability.md` | Multi-tenancy, feature flags, i18n prep, billing expansion, RBAC scaling |
+| `login-and-auth-pages.md` | Login page design, registration UX, auth flows |
+| `migration-and-data-import.md` | CSV/API import, platform migration, phased rollout |
+| `expansion-and-scalability.md` | Multi-tenancy, feature flags, i18n prep, billing expansion |
 | **Domains** | |
 | `domain-considerations.md` | 33 verticals with gotchas, compliance, seed data |
 
 </details>
 
-## Three entry modes
-
-The skill handles any project state — not just greenfield.
-
-| Mode | When it activates | What it does |
-|---|---|---|
-| **Greenfield** | Empty directory or boilerplate-only | Quick scan for external constraints, then full scaffolding |
-| **Assessment** | Existing codebase with source files | 7-part codebase scan (stack, routes, data, auth, UI, conventions, hollow indicators) → gap analysis → targeted todo list |
-| **Audit** | User asks to verify/harden an existing dashboard | Assessment + verification checklist → severity-sorted fix-it list |
-
-The research output is a structured document any AI agent's planner can consume — works with Claude Code, Codex, Cursor, or any agent with a plan-then-execute loop.
-
-## Completion tiers
-
-A full dashboard has 24 requirements. The skill organizes them into 4 tiers, each independently shippable:
-
-| Tier | Name | What's real |
-|---|---|---|
-| 1 | **Foundation** | Auth, real data, shell, navigation, one CRUD entity, visual identity |
-| 2 | **Functional** | + RBAC, all states, validation, feedback, pagination, settings, profile |
-| 3 | **Polished** | + Audit log, keyboard accessibility, responsive, cross-cutting concerns |
-| 4 | **Hardened** | + Tests, security headers, verification checklist green, zero hollows |
-
-The agent declares each tier complete at its checkpoint and continues to the next if the session allows. For existing codebases, the research phase determines the current tier and builds the todo list toward the next one.
-
-## Works with any stack
-
-The skill is pattern-based, not framework-specific. It works with:
-
-- **React / Next.js** + TypeScript + Prisma + Auth.js + shadcn/ui + TanStack Query
-- **SvelteKit** + TypeScript + Convex/Drizzle + Auth.js + Tailwind
-- **Vue / Nuxt** + TypeScript + Drizzle + shadcn-vue
-- **Rails** + Hotwire/Turbo + Devise
-- **Django** + HTMX + django-allauth
-- **Laravel** + Inertia + Breeze
-
-...or anything else. The guidance translates.
-
-## Core principles
-
-**Vertical slices, not horizontal layers.** Don't build the database, then the API, then the auth, then the UI. Build one feature end-to-end — working, tested, deployed — before touching the next.
-
-**No scaffolds.** If a button is on the screen, clicking it does the thing. If a chart is on the screen, it reflects real data. If there's a settings page, it actually saves. No TODOs, no fake JSON, no "hook this up later."
-
-**The server enforces, the client reflects.** Every permission is checked server-side on every mutation. The UI hides unauthorized actions as courtesy, never as security.
-
-**Keep going until it's actually done.** The main pages existing is 40% of the work. The remaining 60% is: empty states, error states, validation, permissions, audit log, settings, profile, logout, responsive, keyboard access, loading skeletons, success toasts, cache invalidation, seed data, and the verification pass.
-
 ## Contributing
 
-Gaps, missing domains, outdated guidance — contributions are welcome. This is a living document.
+Gaps, missing domains, outdated guidance — contributions welcome. Open an issue or PR.
 
 ## License
 
