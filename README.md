@@ -1,32 +1,36 @@
 # Production Ready
 
-**Stop shipping dashboards that fall apart on first click.**
+> **An AI skill for Claude Code, Codex, and any AI coding agent.**
 
-AI-generated dashboards look finished — until someone tries to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. Ten seconds of clicking reveals the truth: it's a screenshot, not a tool.
+Stop shipping apps that fall apart on first click.
 
-Production Ready is an AI instruction set that eliminates this failure mode. Every feature ships wired end-to-end — real auth, real data, real permissions, real states, real feedback — across any stack and any industry.
+AI-generated apps — dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers — look finished until someone tries to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. Ten seconds of clicking reveals the truth: it's a screenshot, not a tool.
+
+Production Ready is a **skill** (an AI instruction set) that eliminates this failure mode. Install it in Claude Code or Codex, and every app ships with real auth, real data, real permissions, real states, and real feedback — across any stack and any industry.
 
 <p align="center">
 <strong>36 reference files</strong> &nbsp;·&nbsp; <strong>33 industry verticals</strong> &nbsp;·&nbsp; <strong>24 production requirements</strong> &nbsp;·&nbsp; <strong>4 shippable tiers</strong>
 </p>
 
-## Quick start
+## Install
 
-**Claude Code / Codex:**
+**Claude Code:**
 ```bash
-git clone https://github.com/aihxp/production-ready.git
-# Add as a skill → ask Claude to build a dashboard → the skill activates automatically
+git clone https://github.com/aihxp/production-ready.git ~/.claude/skills/production-ready
+# The skill activates automatically when you ask Claude to build an app, dashboard, or admin panel
 ```
 
-**Any AI agent:**
-Upload `SKILL.md` and the relevant reference files to your project context. The structured output works with any agent that has a plan-then-execute loop — Claude Code, Codex, Cursor, Windsurf, or custom agents.
+**Codex:**
+```bash
+git clone https://github.com/aihxp/production-ready.git ~/.codex/skills/production-ready
+```
 
-**Standalone reference:**
-Read `SKILL.md` for the workflow, load reference files as you build each layer.
+**Any other AI agent (Cursor, Windsurf, custom agents):**
+Upload `SKILL.md` and the relevant reference files to your project context. The structured output works with any agent that has a plan-then-execute loop.
 
 ## The problem this solves
 
-AI agents build dashboards layer by layer — database, then API, then auth, then UI. This produces 80% completion on every layer and 0% completion on any actual feature. The result is a scaffold that *looks* done but does nothing.
+AI agents build apps layer by layer — database, then API, then auth, then UI. This produces 80% completion on every layer and 0% completion on any actual feature. The result is a scaffold that *looks* done but does nothing.
 
 Production Ready enforces **vertical-slice discipline**: build one feature completely — schema, API, permissions, UI, states, tests — before touching the next. When a feature is done, a real person can do a real job with it.
 
@@ -46,7 +50,7 @@ Step 8  Harden       → Security headers, performance budget, bundle size
 Step 9  Verify       → 20-point smoke test before shipping
 ```
 
-Each step maps to a **completion tier** — the dashboard is shippable at every checkpoint, not just at the end.
+Each step maps to a **completion tier** — the app is shippable at every checkpoint, not just at the end.
 
 ## Three entry modes
 
@@ -56,7 +60,7 @@ Not just for new projects.
 |---|---|---|
 | **Greenfield** | Empty directory | Full scaffolding from zero |
 | **Assessment** | Existing codebase | 7-part scan → gap analysis → targeted todos |
-| **Audit** | "Verify this dashboard" | Assessment + checklist → severity-sorted fix-it list |
+| **Audit** | "Verify this app" | Assessment + checklist → severity-sorted fix-it list |
 
 The research output is a structured document any agent's planner can consume to generate precise, gap-filling tasks instead of generic ones.
 
@@ -85,7 +89,7 @@ The agent declares each tier complete at its checkpoint. For existing codebases,
 | Empty table with no guidance | Empty state with explanation + CTA |
 | `// TODO: add validation` | Client + server validation with inline field errors |
 | Permissions checked only in the UI | Server enforces every mutation; UI reflects as courtesy |
-| Every dashboard looks the same | Visual identity derived from domain context — unique colors, typography, personality |
+| Every app looks the same | Visual identity derived from domain context — unique colors, typography, personality |
 
 ## 33 industry verticals
 
