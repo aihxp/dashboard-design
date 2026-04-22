@@ -4,6 +4,8 @@ The data layer is the wiring that takes data from the database/API to the screen
 
 This file is the rules for building the data layer so it feels solid.
 
+**Canonical scope:** server components, internal API contracts, queries, mutations, cache invalidation, optimistic updates, server state vs. client state. **See also:** `api-and-integrations.md` for external APIs and webhooks, `system-integration.md` for internal event bus and feature flags.
+
 ## The big idea: server state is not client state
 
 Server state is data that lives on a server, can be modified by other users, requires async to access, and can become stale at any moment. Client state is data that lives entirely in the browser (form input values, "is this modal open," "which tab is selected").

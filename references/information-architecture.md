@@ -2,6 +2,8 @@
 
 The shell of a dashboard — the layout, navigation, header, sidebar, breadcrumbs, page structure — is where convention is your friend. Users learn dashboards by transferring expectations from every other dashboard they've used. Deviating from the conventions costs more than it gains. This file is the rules for the shell.
 
+**Canonical scope:** dashboard shell layout, sidebar nav, breadcrumbs, responsive collapse, grid systems, page structure. **See also:** `headers-and-navigation.md` for public-site horizontal headers and footers, `ui-design-patterns.md` for components and design tokens.
+
 ## Quick decision: which layout?
 
 ```

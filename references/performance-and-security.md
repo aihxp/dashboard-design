@@ -2,6 +2,8 @@
 
 A dashboard that works but loads in 8 seconds or leaks data across tenants isn't production-grade. This file covers the performance optimizations and security hardening that separate a working dashboard from a shippable one.
 
+**Canonical scope:** bundle size, SSR, code-splitting, CSP, CORS, rate limiting, security headers, supply-chain hygiene, basic dependency scanning. **See also:** `security-deep-dive.md` for session hardening, secrets, and incident response; `auth-and-rbac.md` for authorization logic.
+
 ---
 
 ## Part 1 — Performance

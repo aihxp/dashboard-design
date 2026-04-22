@@ -2,6 +2,8 @@
 
 Error pages are not edge cases — they are guaranteed UI surfaces. Every user will see a 404 eventually. Every app will have a server hiccup. Every mobile user will lose signal. Build these surfaces with the same care as your main dashboard. A well-crafted error page turns a frustrating dead end into a recoverable moment.
 
+**Canonical scope:** full-page 404/403/500/503 pages, maintenance mode, PWA offline shell. **See also:** `states-and-feedback.md` for inline error states and toasts within active pages.
+
 ---
 
 ## Custom error pages

@@ -13,6 +13,7 @@ Determine which mode applies before doing anything else. This is a 30-second che
 | Empty directory, or only config/boilerplate | `ls` returns no source files, or only `package.json`/`README.md`/config stubs with no routes, components, or schema | **A: Greenfield** |
 | Source files with routes, components, schema | Glob for route files, component directories, migration files (see patterns below) | **B: Assessment** |
 | User says "audit," "verify," "harden," "check," "review" | Keyword in the user's prompt | **C: Audit** |
+| Off-the-shelf template, prior agent's unfinished work, or cross-framework port | Recognizable template markers (Retool exports, shadcn admin kit folder structure, Appsmith `application.json`), half-built features with visible hollows, or the user says "we started with X, help us move to Y" | **D: Migration** |
 
 **Detection patterns:**
 
@@ -481,6 +482,63 @@ The user has a dashboard they believe is done and wants verification. This is no
 
 The fix-it list is the todo. Each item maps to a tier and has enough context to implement without re-investigation. Work through tiers in order — don't start Tier 3 fixes while Tier 2 has critical gaps.
 
+## Mode D: Migration research
+
+The user inherited something. Sources: an off-the-shelf admin template (Retool export, Appsmith, Tooljet, shadcn admin kit, Mantine admin starter, Nuxt UI dashboard template), a previous AI agent's half-built work, or a cross-framework port (Vue to React, PHP to Rails, WordPress back-office to a custom dashboard). The existing code is not a contract. It's scaffolding measured against the tier requirements.
+
+The failure this mode prevents: adopting hollow patterns because they are already there. Template kits ship with default shadcn styling, stub auth, and mock data — all of which violate the skill's tier requirements. A migration that preserves the template wholesale inherits every one of those hollows.
+
+**Process:**
+
+1. Run Mode B scans (B1 through B7) to produce the raw assessment.
+2. Additionally, run the hollow-check protocol across the entire codebase. Every hit is migration-relevant.
+3. For each artifact in the assessment, assign one of three dispositions: **keep**, **rewrite**, or **discard**.
+
+**Disposition rules:**
+
+| Keep | Rewrite | Discard |
+|---|---|---|
+| Meets the tier bar as-is (real auth, real data, real states, no hollow indicators). | The shape is right but the implementation is hollow (UI exists but uses mock data; API endpoint exists but skips permission check; form posts and ignores response). | The path is not on the route map; the entity is not in the domain model; the feature does not survive the pre-flight's "who uses this, for what job?" question. |
+| Passing tests. Meaningful. | Tests exist but mock everything. Rewrite to hit a real boundary. | Tests for discarded code. |
+| Design tokens and visual identity that match or can be adapted to the chosen archetype. | Components wired to shadcn defaults instead of project tokens. Rewrite the token layer; keep the component structure. | Components named `ExampleDashboard`, `DemoSidebar`, placeholder illustrations, or lorem-ipsum copy. |
+| Conventions that are internally consistent (file layout, naming, test patterns). | Conventions that are inconsistent (two auth libraries, mixed state management). Pick one, rewrite to unify. | Dead conventions with no active code referencing them. |
+
+### Migration output format
+
+```markdown
+## Research output: Migration
+
+**Mode:** Migration
+**Origin:** [Retool export | shadcn admin kit v1.2 | prior agent work (last touched 2026-03-15) | Vue 3 admin, porting to Next.js]
+**Scanned at:** [timestamp]
+
+### B1–B7 assessment
+[Same structure as Mode B output.]
+
+### Hollow-check results
+- High-severity hits: [count] across [files]
+- `GHOST:` dependencies: [list or "none"]
+
+### Disposition inventory
+
+**Keep ([N] items):**
+- [path] — [why it meets the tier bar]
+
+**Rewrite ([N] items):**
+- [path] — [current shape / required shape] — [tier it blocks]
+
+**Discard ([N] items):**
+- [path] — [reason]
+
+### Migration plan
+Phase 1 (Tier 1 foundation): rewrite [auth, data layer, shell] items, keep [X, Y]. Discard before starting: [list].
+Phase 2 (Tier 2 functional slices): [ordered slice list, each marked keep/rewrite].
+Phase 3 (Tier 3 polish): [items].
+Phase 4 (Tier 4 harden): [items].
+```
+
+The plan is the todo. The key discipline: **no item crosses from "rewrite" to "keep" without an ADR explaining why it now meets the tier bar.** This prevents the common migration failure where scope creeps and half-done template code gets blessed as "good enough."
+
 ## Research-to-planning bridge
 
 The research output feeds the next step in the workflow differently per mode.
@@ -491,9 +549,11 @@ The research output feeds the next step in the workflow differently per mode.
 
 **Audit → Fix-it list:** Skip the pre-flight and architecture steps. The dashboard already exists. Go directly to the fix-it list and work through it by severity. Each fix is a vertical slice: identify the hollow → implement the real version → verify it works.
 
+**Migration → Step 1 (pre-flight), then disposition-driven execution:** The research produced a keep/rewrite/discard inventory plus a phased migration plan. Walk the pre-flight using the inventory: stack is inherited (question 3 is whatever the template shipped with, unless you are porting frameworks), domain entities are whatever is in the keep/rewrite lists after discarding dead ones. Architecture note (Step 2) adopts the keep items and documents the rewrites as planned work. Work the migration plan phase by phase; each rewrite item is a vertical slice.
+
 ### Rules for working with existing codebases
 
-These are non-negotiable when Mode B or C is active:
+These are non-negotiable when Mode B, C, or D is active:
 
 1. **Never install a second auth library** when one already exists. Extend it, configure it, fix it — don't replace it.
 2. **Never introduce a different CSS methodology** when tokens or a design system exist. If the project uses Tailwind + CSS variables, you use Tailwind + CSS variables.
@@ -505,3 +565,5 @@ These are non-negotiable when Mode B or C is active:
 8. **Match the existing test patterns.** If existing tests use Vitest with Testing Library, new tests use Vitest with Testing Library.
 
 The only exception: if the existing choice is actively broken or insecure (SHA-256 password hashing, no CSRF protection), fix it and document the change. Convention-following does not extend to perpetuating security vulnerabilities.
+
+**Mode D caveat:** in a migration, the above rules apply *only to "keep" items*. Anything marked "rewrite" or "discard" in the disposition inventory is, by definition, not the convention going forward. The new convention is whatever the migration plan establishes for the target state. When a rewrite replaces a keep item, write an ADR so the shift is legible to the next maintainer.

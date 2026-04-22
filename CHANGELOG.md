@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.4.0 (2026-04-22)
+
+Quality-polish release. Adds per-step acceptance tests, a fourth project-state mode for migrations, canonical-scope headers on overlapping references, and a focused trigger surface. Frontmatter description trimmed; long trigger list moved to README. No breaking changes.
+
+### Added
+
+- **Per-step acceptance tests in SKILL.md.** Every workflow step now ends with a one-line "Passes when" gate that makes step completion auditable.
+- **Mode D: Migration** in `codebase-research.md` and SKILL.md Step 0. Detects off-the-shelf templates (Retool, Appsmith, shadcn admin kit), prior-agent work, and cross-framework ports. Produces a keep/rewrite/discard disposition inventory and a phased migration plan. Prevents the "preserve hollow patterns because they're already there" failure mode.
+- **Canonical-scope headers on 11 overlapping reference files.** Each file now states its owned scope and cross-references related files. Kills the split-brain between `auth-and-rbac.md` and `login-and-auth-pages.md`, `security-deep-dive.md` and `performance-and-security.md`, `data-layer.md` and `api-and-integrations.md`, `information-architecture.md` and `headers-and-navigation.md`, and others.
+- **"When Production Ready should trigger" section in README.** Full trigger surface moved out of frontmatter: positive triggers, implied triggers, mode triggers, negative triggers, and the repo-ready pairing rule. Agents read the concise frontmatter first, then the detailed list when needed.
+
+### Changed
+
+- **Frontmatter description trimmed** from ~1,100 to ~620 characters. Retains core trigger signal ("dashboard," "admin panel," "internal tool"), enforcement rule, and pairing. Full trigger list now lives in README.
+- **"Rules for working with existing codebases"** in `codebase-research.md` now applies to Modes B, C, and D (was B and C only), with a Mode D caveat: rules govern only "keep" items; "rewrite" and "discard" items are re-decided per the migration plan.
+
 ## v1.3.0 (2026-04-22)
 
 Incident-aligned release. Closes the dominant AI-coding complaint gaps surfaced by industry research (METR 2025, Veracode 2025, Socket/slopsquatting, Stack Overflow 2025, and 2025 incidents at Moltbook, Lovable, Base44, Replit). Trims SKILL.md, extracts naming conventions to a new reference, adds a repo-ready companion handoff, and introduces session-state handoff plus ADRs for cross-session continuity.

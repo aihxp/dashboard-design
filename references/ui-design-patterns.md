@@ -4,6 +4,8 @@ This file covers the visual design layer — the components, typography, spacing
 
 Dashboard UI is not marketing-site UI. Dashboards are data-dense, functional, used for hours daily. Every decision here optimizes for **scannability, density, and clarity** — not novelty.
 
+**Canonical scope:** component library, typography, spacing and density tokens, visual identity decision framework, 10 archetype token sets, dark mode, micro-copy. **See also:** `states-and-feedback.md` for state patterns, `information-architecture.md` for layout, `data-visualization.md` for charts and tables, `animation-and-motion.md` for transitions.
+
 ---
 
 ## Component patterns

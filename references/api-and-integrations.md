@@ -2,6 +2,8 @@
 
 This file covers connecting the dashboard to external services and offering your own API to the outside world. `data-layer.md` covers the dashboard's own internal API contracts; `system-integration.md` covers internal feature-to-feature connectivity. This file is about the boundary between your dashboard and everything outside it.
 
+**Canonical scope:** external APIs, OAuth2 clients, webhooks (inbound and outbound), data sync, building a public API for third-party consumers. **See also:** `data-layer.md` for internal queries and mutations, `system-integration.md` for internal event bus and feature flags.
+
 ---
 
 ## Integration architecture

@@ -4,6 +4,8 @@ This file covers website headers and navigation — the top bar, nav links, mega
 
 Headers are the single most interacted-with UI region. Users touch them on every page. Get the header wrong — too tall, too cluttered, inaccessible, broken on mobile — and every page suffers. Get it right and the user never thinks about it.
 
+**Canonical scope:** public-site headers, mega menus, mobile nav, footer design, responsive header collapse. **See also:** `information-architecture.md` for the dashboard sidebar shell, `marketing-and-landing-pages.md` for hero and landing-page patterns.
+
 ---
 
 ## Header layout

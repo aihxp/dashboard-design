@@ -4,6 +4,8 @@ This file covers the design and UX of login pages and the full login-to-dashboar
 
 The single most important principle: **fast in, fast working.** Every second between "I want to use the dashboard" and "I'm using the dashboard" is a cost. Minimize screens, minimize fields, minimize thinking.
 
+**Canonical scope:** login page UX, signup flows, password reset, email verification, MFA screens, social login buttons. **See also:** `auth-and-rbac.md` for auth logic and RBAC, `security-deep-dive.md` for session security, `states-and-feedback.md` for loading and error state patterns.
+
 ---
 
 ## Login page layout

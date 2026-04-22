@@ -1,7 +1,7 @@
 ---
 name: production-ready
-description: "Build production-grade, end-to-end connected dashboards across any stack (React/Next/Vue/Svelte/Remix/Rails/Django/Laravel/etc.). Covers admin panels, analytics consoles, internal tools, operational control centers, SaaS back-offices. Triggers on: 'dashboard,' 'admin panel,' 'control panel,' 'back office,' 'internal tool,' 'analytics view,' 'reporting interface,' 'ops console,' 'metrics view,' 'KPI view,' or any multi-page interface with navigation, auth, and CRUD over domain data. Also triggers on requests to add sidebar nav, role-based access, user management, audit logs, charts over real data, filters, exports, or any 'logged-in area.' Enforces a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend or real local persistence, not stubbed with TODO, fake JSON, or 'hook this up later.'"
-version: 1.3.0
+description: "Build production-grade, end-to-end connected apps across any stack: dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers. Triggers on 'dashboard,' 'admin panel,' 'internal tool,' 'back office,' 'control panel,' 'analytics view,' or any multi-page interface with auth, navigation, and CRUD over domain data. Enforces vertical-slice discipline and a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend, not stubbed with TODO, fake JSON, or 'hook this up later.' Pairs with repo-ready for repo hygiene. Not for single components, marketing sites, or pure repo scaffolding. Full trigger list in README."
+version: 1.4.0
 updated: 2026-04-22
 changelog: CHANGELOG.md
 compatible_with:
@@ -51,6 +51,9 @@ Read `references/codebase-research.md` and run the mode detection protocol.
 - **Empty or boilerplate** routes to Mode A (Greenfield). Quick external-constraints scan, then proceed.
 - **Existing source code** routes to Mode B (Assessment). Run the full scan before step 1. Its output replaces guesswork and constrains the architecture step.
 - **User asked to audit/verify/harden** routes to Mode C (Audit). Verification-focused scan, produce a fix-it list, skip steps 1 through 6, go directly to fixing what's broken.
+- **Inheriting a half-built project or an off-the-shelf template** (Retool export, Appsmith, shadcn admin kit, another agent's unfinished work, a Vue-to-React migration, a WordPress-to-Rails port) routes to Mode D (Migration). Treat the existing code as scaffolding measured against the tier requirements, not as ground truth. Inventory three buckets: what to keep (meets the tier bar), what to rewrite (hollow or mis-patterned), what to discard (dead paths). Preserve only what earns its place.
+
+**Passes when:** a mode is declared, and the corresponding research output is produced (the block specified in `codebase-research.md` for that mode).
 
 ### Step 1. Pre-flight
 
@@ -59,6 +62,8 @@ Read `references/preflight-and-verification.md`. Answer the 12 questions in writ
 Once the domain is identified, read the matching section of `references/domain-considerations.md`. It carries domain-specific data-model traps, compliance requirements, and UX patterns that generic CRUD misses. Skipping this is how dashboards end up with float-based currency, single-entry accounting, or missing HIPAA audit logs.
 
 If the request is vague ("build me a dashboard"), do not interrogate the user. Pick the most plausible interpretation, state assumptions in one short paragraph, and proceed. See the "vague request interpretation" table in `references/domain-considerations.md`.
+
+**Passes when:** all 12 pre-flight questions are answered in writing, the domain is named, and any Tier 1 remaps from `domain-considerations.md` are stated explicitly in the answer to question 1.
 
 ### Step 2. Architecture note
 
@@ -72,7 +77,9 @@ Produce a short note (5 to 15 lines) covering:
 - **Threat model.** Three answers, one line each: (1) what does an attacker gain from this system (data, money, identity, control); (2) what is the highest-blast-radius mutation (who can `DELETE`, who can alter billing, who can impersonate); (3) where is each trust boundary (network edge, session, role, tenant). For regulated domains (healthcare, finance, legal, HR, government), add the compliance blast radius: what kind of incident would trigger a disclosure obligation. This is not a deep threat model; it is the minimum signal needed so the server-side checks in Step 4 aren't guesswork.
 - **Visual identity.** Archetype, palette, typography, radius, density, signature detail (see step 3).
 
-**In Mode B:** don't decide, document. Architecture note adopts what exists and adds only what's missing.
+**In Mode B or D:** don't decide, document. Architecture note adopts what exists and adds only what's missing.
+
+**Passes when:** the architecture note exists with every required bullet filled (stack, data source, auth model, permission model, route map, threat model, visual identity). Any missing bullet means the note is not done.
 
 ### Step 3. Derive the visual identity
 
@@ -83,6 +90,8 @@ Before any component code, commit to a visual personality derived from the domai
 3. Output the CSS design-token block and apply it globally.
 
 Two users asking for "a SaaS dashboard" must get two dashboards that look different. Shipping with unmodified shadcn/Radix/MUI defaults is the visual equivalent of `// TODO`.
+
+**Passes when:** the archetype is chosen, the 5 decisions are recorded in the architecture note, the CSS token block is applied globally, and at least one rendered component visibly inherits from `--color-primary` rather than a library default.
 
 ### Step 4. Build the foundation slice
 
@@ -113,6 +122,8 @@ For each feature, follow this recipe:
 8. **Decision record (ADR) if the slice made a non-obvious choice.** Three lines in `.production-ready/adr/NNN-slug.md`: what was decided, why, what was rejected and why. Skip for obvious decisions ("used the already-chosen ORM"). Write for decisions a future maintainer would have to reverse-engineer from code: "chose event sourcing over CRUD for this entity," "split `orders` and `order_items` as separate aggregates," "bypass the query layer for this report because it aggregates across tenants." The ADR is the only way the next human or agent inherits your reasoning rather than rediscovering it. Three lines. If you need more, you are over-documenting.
 
 Order of slices: most-used first, riskiest second, nice-to-haves last. If the user runs out of patience halfway through, the most important feature is still complete.
+
+**Passes when:** every recipe item is complete for the slice, the smoke test (create, edit, delete against the real data source) passes, and an ADR exists in `.production-ready/adr/` for any non-obvious choice the slice made.
 
 ### Step 5.1. Hollow-check protocol (after every slice)
 
@@ -158,9 +169,13 @@ bundle check 2>&1 | grep -i "could not find"
 
 **When to run:** after each slice (scan touched files only), and at each tier boundary (scan everything). Tier 4 requires zero hits at any severity.
 
+**Passes when:** the scan returns zero high-severity hits (and zero `GHOST:` hits at any severity) for the scope of the run.
+
 ### Step 6. Cross-cutting concerns
 
 After two or three slices, layer in: global search, notifications, preferences, theme toggle, exports, audit log viewer, profile page. Easier once real data flows.
+
+**Passes when:** at least one cross-cutting feature is live, wired to real data, and reachable from the shell. Two or three is better, but one is the minimum to declare Step 6 done for a given tier cycle.
 
 ### Step 7. Tests alongside each slice
 
@@ -170,6 +185,8 @@ A slice isn't done until it has tests. Read `references/testing-and-quality.md`.
 - Permission test confirming non-admin users are blocked.
 - Accessibility test (axe) on every new page.
 - **Contract test for cross-slice public signatures (graduated).** If the slice adds or changes a public API endpoint, server action, event payload, or exported type that another slice imports or calls, pin it with a schema-level contract test. Choose the style that fits the stack: OpenAPI snapshot for REST, zod/valibot `.parse()` round-trip for Node, TypeScript type-level test (`expectTypeOf`), or a recorded consumer contract (Pact). The test fails when the shape changes. If an intentional breaking change is needed, update the contract test *and* write an ADR explaining the alternatives rejected. Slices with no downstream consumer (a leaf feature no other slice imports) can skip this; the test becomes mandatory the moment a second slice depends on the signature. This is the only reliable guard against the silent-refactor failure mode where a rename or a `Promise`-wrap breaks a consumer three days later.
+
+**Passes when:** each slice has integration, permission, and axe tests; every cross-slice public signature has a contract test; and the full test suite is green.
 
 ### Step 8. Harden performance and security
 
@@ -181,9 +198,13 @@ Before verification, read `references/performance-and-security.md` and apply:
 - `npm audit` (or equivalent); fix critical and high.
 - No secrets in git; no server secrets leaking to the client bundle.
 
+**Passes when:** security headers return via curl or the browser inspector, the bundle is under the declared budget, rate limits reject the known abuse cases, `npm audit` (or equivalent) reports zero critical/high issues, and a search for common secret patterns in the client bundle comes up empty.
+
 ### Step 9. Verification
 
 Walk the verification checklist in `references/preflight-and-verification.md` and the security checklist in `references/performance-and-security.md`. If the repo also lacks CI, LICENSE, SECURITY.md, or release automation, invoke the `repo-ready` skill. Do not duplicate that work here.
+
+**Passes when:** every box on the pre-flight verification checklist and the security checklist is green, the `repo-ready` handoff has been made or declined with reason, and the final Tier boundary has been declared explicitly ("Tier N complete").
 
 ## Completion tiers
 

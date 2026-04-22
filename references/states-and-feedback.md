@@ -4,6 +4,8 @@ A dashboard is in one of four states for any async surface: **loading, empty, er
 
 Plus the feedback loop: every user action gets visible acknowledgment. If you click a button and nothing happens, the dashboard feels broken — even if the action succeeded server-side.
 
+**Canonical scope:** loading, empty, error, and loaded states; toasts; undo; offline indicators; inline error messages. **See also:** `ui-design-patterns.md` for component tokens and styling, `error-pages-and-offline.md` for full-page 404/500/offline surfaces.
+
 ## The four states rule
 
 Every page, panel, table, chart, or widget that loads data asynchronously needs all four states. Build them as a habit, not an afterthought.

@@ -2,6 +2,8 @@
 
 This file extends the security coverage beyond `auth-and-rbac.md` (login, sessions basics, RBAC, multi-tenant) and `performance-and-security.md` (CSP, HSTS, CORS, XSS, SQLi, rate limiting, basic dependency scanning, basic file uploads). Everything here goes deeper into areas those files don't cover.
 
+**Canonical scope:** session hardening, secrets management, incident response, advanced data protection (encryption at rest, PII handling, backup security). **See also:** `performance-and-security.md` for CSP, CORS, rate limits, and headers; `auth-and-rbac.md` for authorization logic and RBAC.
+
 ---
 
 ## Session security

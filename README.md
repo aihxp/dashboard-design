@@ -32,6 +32,42 @@ Add `SKILL.md` to your project rules or system prompt. Load reference files as n
 **Any agent with a plan-then-execute loop:**
 Upload `SKILL.md` and the relevant reference files to your project context. The skill produces structured output (tables, checklists, gap analyses) that any planner can consume. It's not tied to any specific agent runtime.
 
+## When Production Ready should trigger
+
+The short frontmatter description is tight on purpose, to speed up skill-routing decisions. The full trigger surface lives here.
+
+**Positive triggers (build or extend):**
+- "Dashboard," "admin panel," "control panel," "back office," "internal tool," "ops console."
+- "Analytics view," "analytics dashboard," "reporting interface," "reporting dashboard," "metrics view," "KPI view."
+- "Customer portal," "merchant dashboard," "operator console," "agent workspace."
+- "CRM," "CMS," "LMS," "ERP-lite," "helpdesk," "marketplace admin," "e-commerce admin," "HR admin," "medical admin," "property management dashboard."
+- Requests to build a "logged-in area," "user area," "authenticated section," or "multi-page interface with CRUD over domain data."
+- Feature-level requests inside an existing dashboard that touch auth, RBAC, multi-page nav, tables, charts, or audit trails.
+
+**Implied triggers (the word "dashboard" is never spoken):**
+- "Add a sidebar nav and routing for these pages."
+- "Wire up role-based access for admins and members."
+- "Build user management with invites, roles, and deactivation."
+- "Add an audit log of who did what and when."
+- "Show charts driven by real data in the database."
+- "Add filters, sorting, and CSV export to this table."
+- "Build a settings page that saves user preferences."
+
+**Mode triggers (from `codebase-research.md`):**
+- **Greenfield** (Mode A): empty repo or boilerplate only.
+- **Assessment** (Mode B): existing source files with routes, schema, components.
+- **Audit** (Mode C): user says "audit," "verify," "harden," "check," "review," or "is this production-ready."
+- **Migration** (Mode D): off-the-shelf template (Retool, Appsmith, shadcn admin kit), half-built prior-agent work, or cross-framework port.
+
+**Negative triggers (route elsewhere):**
+- Single component or single page ("add one chart," "build a landing page"). Skill is for multi-page systems.
+- Repo hygiene (README, LICENSE, CI, CONTRIBUTING, issue templates, release automation). Delegate to [repo-ready](https://github.com/aihxp/repo-ready).
+- Marketing site, blog, documentation site, or any frontend-only content surface.
+- Pure greenfield scaffolding where the user only wants the repo initialized and not app features built. That's `repo-ready`.
+- Data-science notebooks, research scripts, or CLI tools.
+
+**Pairing:** On Claude Code and other skill-invocation-aware harnesses, Production Ready automatically hands off repo-hygiene work to [repo-ready](https://github.com/aihxp/repo-ready) when it hits Step 9 (verification). On other harnesses, it surfaces the handoff to the user instead of inlining the work.
+
 ## The problem this solves
 
 AI agents build apps layer by layer: database, then API, then auth, then UI. This produces 80% completion on every layer and 0% completion on any actual feature. The result is a scaffold that *looks* done but does nothing.
