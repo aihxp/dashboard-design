@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.5.3 (2026-04-22)
+
+Documentation-only patch. Reflects the arrival of observe-ready v1.0.0 (https://github.com/aihxp/observe-ready) as a live sibling in the ready-suite. No behavioral changes to the skill.
+
+### Changed
+
+- **SUITE.md known-good versions table** updated: observe-ready now shows version 1.0.0 and the live repo URL instead of "Not yet released." deploy-ready bumped to 1.0.1 and stack-ready to 1.1.2 alongside this release for the same byte-identical sync.
+- **SKILL.md frontmatter version** bumped to 2.5.3. No content change beyond the version tag.
+
+### Why a patch, not a minor
+
+Same rationale as 2.5.2: the skill's behavior, frontmatter contract, and reference library are unchanged. Only the cross-sibling SUITE.md is touched to track a new sibling's release. Per the suite versioning discipline, patch-level is the honest bucket for documentary-only sibling-ship tracking.
+
+---
+
 ## v2.5.2 (2026-04-22)
 
 Documentation-only patch. Reflects the arrival of deploy-ready v1.0.0 (https://github.com/aihxp/deploy-ready) as a live sibling in the ready-suite. No behavioral changes to the skill.
