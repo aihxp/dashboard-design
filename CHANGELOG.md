@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.5.0 (2026-04-22)
+
+Retrofits production-ready to the **ready-suite interop standard**. Declares suite membership, wires upstream and downstream artifact handshakes, and ships `SUITE.md` at repo root that is byte-identical across every skill in the suite. No breaking changes; all additions. Positions production-ready as the building-tier core of a nine-skill suite spanning planning, building, and shipping.
+
+### Added
+
+- **Frontmatter suite fields.** New required fields: `suite: ready-suite`, `tier: building`, `upstream: [prd-ready, architecture-ready, roadmap-ready, stack-ready]`, `downstream: [deploy-ready, observe-ready]`. `pairs_with` retained for same-tier siblings (`repo-ready`). Makes the skill's suite position machine-readable for skill-aware harnesses.
+- **Suite membership section in SKILL.md.** One-line summary of all nine sibling skills organized by tier. Same content in every skill (loosely, via `SUITE.md`) so any entry point into the suite surfaces the whole map.
+- **Consumes from upstream section.** Documents which upstream artifacts production-ready reads and where: `.prd-ready/PRD.md` at Step 1, `.architecture-ready/ARCH.md` at Step 2, `.roadmap-ready/ROADMAP.md` at Steps 1 and 5, `.stack-ready/STACK.md` at Step 2. Absence is fine; the skill falls back to its own defaults.
+- **Produces for downstream section.** Documents the artifacts production-ready emits that deploy-ready and observe-ready consume: `.production-ready/STATE.md`, ADRs, route map, audit log schema, deferred-cta.md, open-questions block. Produced whether or not downstream skills are installed. Makes the suite extensible: install a downstream skill later and it already has its inputs.
+- **`SUITE.md` at repo root.** Single-page map of the nine-skill ready-suite: tier organization, dependency flow, install locations, composition principles, known-good version table. Intended to be byte-identical across every skill in the suite so users discover the whole suite through any entry point.
+
+### Changed
+
+- **README.md top paragraph** now frames production-ready as part of the ready-suite and links to `SUITE.md`, rather than only naming the repo-ready pairing.
+
+### Rationale
+
+The anti-pattern the suite must prevent is scope creep inside individual skills. The only way to prevent it at scale is to give the suite a minimal interop standard: declared membership, declared contracts between skills, identical cross-references. v2.5.0 establishes that standard in production-ready. Sibling skills (repo-ready today; stack-ready, deploy-ready, observe-ready, launch-ready, prd-ready, architecture-ready, roadmap-ready when built) will adopt the same standard, so every skill in the suite is visibly part of the same architecture.
+
+---
+
 ## v2.4.0 (2026-04-22)
 
 Closes the three remaining graveyard risks surfaced when auditing the deferred-CTA lifecycle work from v2.3.0. Every escape-hatch or deferred-work mechanism in the skill now has an entry schema, a tier-boundary review, and a Tier 4 closure gate. No more silent accumulation of unfinished work.

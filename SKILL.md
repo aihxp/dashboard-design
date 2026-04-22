@@ -1,17 +1,27 @@
 ---
 name: production-ready
 description: "Build production-grade, end-to-end connected apps across any stack: dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers. Triggers on 'dashboard,' 'admin panel,' 'internal tool,' 'back office,' 'control panel,' 'analytics view,' or any multi-page interface with auth, navigation, and CRUD over domain data. Enforces vertical-slice discipline and a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend, not stubbed with TODO, fake JSON, or 'hook this up later.' Pairs with repo-ready for repo hygiene. Not for single components, marketing sites, or pure repo scaffolding. Full trigger list in README."
-version: 2.4.0
+version: 2.5.0
 updated: 2026-04-22
 changelog: CHANGELOG.md
+suite: ready-suite
+tier: building
+upstream:
+  - prd-ready
+  - architecture-ready
+  - roadmap-ready
+  - stack-ready
+downstream:
+  - deploy-ready
+  - observe-ready
+pairs_with:
+  - repo-ready
 compatible_with:
   - claude-code
   - codex
   - cursor
   - windsurf
   - any-agent-with-skill-loading
-pairs_with:
-  - repo-ready
 ---
 
 # Production Ready
@@ -375,7 +385,7 @@ Maintain `.production-ready/STATE.md` as the map. Update it at every tier bounda
 # Production-Ready State
 
 ## Skill version
-Built under production-ready 2.4.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
+Built under production-ready 2.5.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
 
 ## Current tier
 Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].
@@ -430,6 +440,44 @@ The `Open questions blocking work` block is the same graveyard risk as `.product
 **Tier 4 closure gate.** Tier 4 (Hardened) cannot be declared complete while any question is `open`. Every entry must be `answered` or `dropped`. Shipping Hardened with open questions means shipping uncertainty.
 
 **Drift signal.** More than 5 live `open` questions is a signal the slice scope is drifting. Either the scope needs to shrink, or the slice cannot start until the user answers the decisions gating it.
+
+## Suite membership
+
+production-ready is the building-tier core of the **ready-suite**, a composable set of skills covering the full arc from idea to launch. See `SUITE.md` at the repo root for the full map. The relevant siblings at a glance:
+
+- **Planning tier:** `prd-ready` (what), `architecture-ready` (how), `roadmap-ready` (when), `stack-ready` (with what tools).
+- **Building tier:** `production-ready` (this skill, the app), `repo-ready` (the repo scaffolding).
+- **Shipping tier:** `deploy-ready` (ship it), `observe-ready` (keep it healthy), `launch-ready` (tell the world).
+
+Skills are loosely coupled: each stands alone, each composes with the others via well-defined artifacts. No skill routes through another; the harness is the router. Install what you need.
+
+## Consumes from upstream
+
+When the agent starts, it checks for upstream artifacts and pre-fills the pre-flight from them rather than asking the user to repeat decisions already made. Absence is fine; the skill falls back to its own defaults. The specific reads:
+
+| If present | production-ready reads it during | To pre-fill |
+|---|---|---|
+| `.prd-ready/PRD.md` | Step 1 (pre-flight) | Question 1 (who uses this, for what job), question 2 (domain entities), success criteria. |
+| `.architecture-ready/ARCH.md` | Step 2 (architecture note) | System-level architecture decisions (monolith vs. services, sync vs. async, data-layer shape) adopted wholesale; local architecture note becomes a delta, not a redecision. |
+| `.roadmap-ready/ROADMAP.md` | Step 1 and Step 5 (slice ordering) | Slice order aligned to milestone plan; CTAs whose chain falls outside the current milestone go directly to the deferred-cta.md list. |
+| `.stack-ready/STACK.md` | Step 2 (architecture note) | Stack bullet is not re-decided; it quotes STACK.md. Pre-flight question 3 (what's the stack) already has the answer. |
+
+If an upstream artifact *contradicts* what is in the existing code (Mode B/D), trust the code and note the drift. Upstream artifacts are historical records, not current-state overrides.
+
+## Produces for downstream
+
+production-ready emits the following artifacts for downstream skills to consume. Writing these is not optional for Tier 4; they are the contract with deploy-ready and observe-ready.
+
+| Artifact | Path | Consumed by |
+|---|---|---|
+| **Session state** | `.production-ready/STATE.md` | `deploy-ready` reads the current tier, the stack, and the last known-green build to scope the first deployment pipeline. |
+| **Decision records** | `.production-ready/adr/*.md` | `deploy-ready` reads ADRs that affect deploy (chosen DB, auth, session store). `observe-ready` reads ADRs that affect observability (audit log schema, event names, trace boundaries). |
+| **Route map** | Extracted from the app at Step 2 | `observe-ready` reads to configure per-route tracing and alerting. |
+| **Audit log schema** | From Tier 3 requirement #16 | `observe-ready` reads to wire audit events into log aggregation. |
+| **Deferred-CTA list** | `.production-ready/deferred-cta.md` | `deploy-ready` blocks on this being closed (all entries `resolved` or `dropped`) before the first production deploy. No half-wired CTAs in production. |
+| **Open-questions block** | Inside `STATE.md` | `deploy-ready` blocks on zero `open` questions before production deploy. |
+
+If any downstream skill is not installed, production-ready still produces these artifacts. They cost nothing to emit and make the suite extensible: install `deploy-ready` later and it already has everything it needs.
 
 ## Handoff: repo hygiene is not this skill's job
 
