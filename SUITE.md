@@ -8,11 +8,11 @@ This file is byte-identical across every skill in the suite. If you installed on
 
 ```
 PLANNING TIER                     BUILDING TIER                  SHIPPING TIER
-────────────────────────          ─────────────────              ──────────────────
-prd-ready           →             repo-ready          →          deploy-ready
-architecture-ready  →             production-ready    →          observe-ready
-roadmap-ready       →                                 →          launch-ready
-stack-ready         →
+------------------------          -----------------              ------------------
+prd-ready           ->            repo-ready          ->         deploy-ready
+architecture-ready  ->            production-ready    ->         observe-ready
+roadmap-ready       ->                                ->         launch-ready
+stack-ready         ->
 ```
 
 ## What each skill owns
@@ -32,7 +32,7 @@ stack-ready         →
 ## Dependency flow
 
 ```
-PRD → Architecture → Roadmap → Stack → (Repo || Production) → Deploy → Observe → Launch
+PRD -> Architecture -> Roadmap -> Stack -> (Repo || Production) -> Deploy -> Observe -> Launch
 ```
 
 Skills consume artifacts from upstream siblings and produce artifacts for downstream siblings. The handshake is documented per skill under "Consumes from upstream" and "Produces for downstream." Each skill degrades gracefully when upstream artifacts are missing: it falls back to its own defaults.
@@ -66,13 +66,13 @@ AI-generated apps fail in predictable ways: hollow buttons, placeholder READMEs,
 
 | Skill | Current version | Repo |
 |---|---|---|
-| **production-ready** | 2.5.1 | https://github.com/aihxp/production-ready |
+| **production-ready** | 2.5.2 | https://github.com/aihxp/production-ready |
 | **repo-ready** | See its CHANGELOG | https://github.com/aihxp/repo-ready |
-| **stack-ready** | 1.1.0 | https://github.com/aihxp/stack-ready |
+| **stack-ready** | 1.1.1 | https://github.com/aihxp/stack-ready |
+| **deploy-ready** | 1.0.0 | https://github.com/aihxp/deploy-ready |
 | **prd-ready** | Not yet released | (planned) |
 | **architecture-ready** | Not yet released | (planned) |
 | **roadmap-ready** | Not yet released | (planned) |
-| **deploy-ready** | Not yet released | (planned) |
 | **observe-ready** | Not yet released | (planned) |
 | **launch-ready** | Not yet released | (planned) |
 

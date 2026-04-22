@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.5.2 (2026-04-22)
+
+Documentation-only patch. Reflects the arrival of deploy-ready v1.0.0 (https://github.com/aihxp/deploy-ready) as a live sibling in the ready-suite. No behavioral changes to the skill.
+
+### Changed
+
+- **SUITE.md known-good versions table** updated: deploy-ready now shows version 1.0.0 and the live repo URL instead of "Not yet released." stack-ready bumped to 1.1.1 alongside this release for the same byte-identical sync.
+- **SUITE.md Unicode hygiene.** The tier-diagram box-drawing horizontals and arrow glyphs were replaced with ASCII hyphens and `->` to satisfy the suite's Unicode-dash-clean convention. The content of the table is unchanged; only the glyphs are normalized. Same change applied to every sibling's copy so the byte-identical invariant holds.
+
+### Why a patch, not a minor
+
+The skill's behavior, frontmatter contract, and reference library are unchanged. Only the cross-sibling SUITE.md is touched, to track a new sibling's release and normalize Unicode. Per the suite versioning discipline, patch-level is the honest bucket for documentary-only sibling-ship tracking.
+
+---
+
 ## v2.5.1 (2026-04-22)
 
 Documentation-only patch. Reflects the arrival of stack-ready v1.1.0 (https://github.com/aihxp/stack-ready) as a live sibling in the ready-suite. No behavioral changes to the skill.
