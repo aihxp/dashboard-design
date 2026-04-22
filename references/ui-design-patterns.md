@@ -777,11 +777,161 @@ How to catch drift:
 
 ---
 
+## Visual identity: the decision framework
+
+Every dashboard must have its own visual personality, derived from the user's prompt (the domain, the audience, the emotional register), not from randomness and never from component library defaults.
+
+AI-generated dashboards converge on the same look: white background, gray sidebar, blue primary, Inter font, 8px radius, shadcn defaults. After seeing three of them, they're indistinguishable. This is the visual equivalent of `const users = [{ name: "User 1" }]`: technically present, functionally hollow. A dashboard built for a hospital should not look identical to one built for a gaming company.
+
+### Step A. Pick an aesthetic archetype
+
+Read the user's domain, audience, and tone, then choose the closest match:
+
+| Archetype | Domains | Personality |
+|---|---|---|
+| **Clean corporate** | Finance, legal, insurance, government, enterprise SaaS | Trust, precision, neutrality. Navy/slate palette, sharp corners, serif or geometric sans headings. |
+| **Warm neutral** | HR, education, hospitality, non-profit, recruiting | Approachable, human, calm. Earth tones or warm grays, medium radius, friendly sans-serif. |
+| **Bold saturated** | Marketing, CRM, gaming, esports, social media | Energy, confidence, action. Vibrant primary, high-contrast accents, punchy headings, rounded UI. |
+| **Dark-first technical** | DevOps, cybersecurity, IoT, AI/ML, monitoring | Precision, control, immersion. Dark surfaces, monospace accents, sharp corners, terminal-inspired. |
+| **Soft modern** | Healthcare, wellness, consumer SaaS, productivity | Clean, gentle, trustworthy. Soft blues/greens, generous whitespace, rounded corners, light shadows. |
+| **High-contrast editorial** | Media, publishing, CMS, content platforms | Authority, readability, density. Strong typographic hierarchy, serif headings, tight grids. |
+| **Playful rounded** | Food service, consumer apps, community platforms | Fun, inviting, casual. Saturated pastels, large radius, bouncy micro-interactions, illustration-friendly. |
+| **Industrial minimal** | Logistics, construction, manufacturing, supply chain | Function-first, utilitarian, dense. Neutral palette, minimal decoration, compact spacing, strong borders. |
+| **Luxury restrained** | Real estate, premium SaaS, fashion, high-end retail | Sophistication, restraint, space. Muted palette, generous whitespace, thin fonts, subtle shadows. |
+| **Data-dense operational** | Analytics, trading, fleet management, telecom | Information density, scanability, speed. Compact layout, tabular data, monospace numbers, minimal chrome. |
+
+If the domain spans two archetypes (e.g., "premium analytics"), blend them. Take the palette from one and the density from the other. State the choice in the architecture note.
+
+### Step B. Make 5 concrete decisions
+
+Write these into the architecture note alongside the stack and route map.
+
+**Decision 1. Color palette.** Derive from the domain's emotional register:
+
+| Domain mood | Primary hue range | Example |
+|---|---|---|
+| Trust, stability (finance, healthcare, legal) | Blue 200–230, Slate 210–220 | `hsl(217 71% 45%)` |
+| Growth, nature (agriculture, sustainability) | Green 130–160 | `hsl(142 64% 38%)` |
+| Energy, urgency (gaming, marketing, sales) | Orange 15–30, Red 0–10 | `hsl(24 95% 53%)` |
+| Creativity, premium (media, design, luxury) | Purple 260–290, Rose 330–350 | `hsl(271 76% 53%)` |
+| Warmth, hospitality (HR, education, food) | Amber 35–50, Warm gray | `hsl(43 96% 56%)` |
+| Technology, precision (DevOps, IoT, cyber) | Cyan 180–200, Cool gray | `hsl(192 91% 36%)` |
+| Neutrality, authority (government, enterprise) | Slate 200–220, minimal accent | `hsl(215 16% 47%)` |
+
+Build the full palette from one primary:
+1. Pick the primary hue from the table above.
+2. Derive the secondary accent: +120° or +180° on the hue wheel, reduced saturation.
+3. Surface tones: desaturate the primary to 5–10% saturation for backgrounds.
+4. Sidebar: darken the primary to 15–20% lightness for dark sidebars, or use the surface tone for light sidebars.
+5. Semantic colors (success/warning/error/info) stay constant. Only adjust lightness to contrast with your surfaces.
+
+**Decision 2. Typography pairing.** Pick one pair from the table. Every pair is on Google Fonts and tested for dashboard readability.
+
+| Personality | Heading font | Body font | Best for |
+|---|---|---|---|
+| **Corporate precision** | DM Sans (500–700) | DM Sans (400) | Finance, legal, enterprise |
+| **Warm professional** | Nunito (600–700) | Nunito Sans (400) | HR, education, hospitality |
+| **Modern technical** | Space Grotesk (500–700) | IBM Plex Sans (400) | DevOps, analytics, developer tools |
+| **Editorial authority** | Fraunces (600) | Source Serif 4 (400) | Media, publishing, CMS |
+| **Soft consumer** | Plus Jakarta Sans (600–700) | Plus Jakarta Sans (400) | Consumer SaaS, productivity |
+| **Bold startup** | Outfit (600–700) | Inter (400) | Marketing, CRM, general SaaS |
+| **Playful friendly** | Quicksand (600–700) | Nunito Sans (400) | Food, community, consumer |
+| **Luxury restrained** | Cormorant Garamond (500) | Lato (400) | Real estate, premium, fashion |
+| **Industrial utility** | Barlow (600–700) | Barlow (400) | Logistics, construction, manufacturing |
+| **Data-dense mono** | JetBrains Mono (500–700) | Inter (400) | Trading, monitoring, cybersecurity |
+| **Clean geometric** | Satoshi (500–700) | General Sans (400) | Minimal SaaS, design tools |
+| **Humanist warmth** | Merriweather Sans (700) | Source Sans 3 (400) | Healthcare, wellness, non-profit |
+| **Tech-forward** | Sora (600) | DM Sans (400) | AI/ML, IoT, futuristic |
+| **Dense professional** | Figtree (600) | Figtree (400) | Analytics, reporting, dense data |
+
+If the user specifies a font or brand, use it. The table is for when no font is specified.
+
+**Decision 3. Border radius.**
+
+| Style | Values | Personality |
+|---|---|---|
+| **Sharp** | `--radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px;` | Corporate, technical, editorial, industrial |
+| **Medium** | `--radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;` | General SaaS, professional, most dashboards |
+| **Rounded** | `--radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;` | Consumer, playful, friendly, soft |
+| **Pill** | `--radius-sm: 12px; --radius-md: 16px; --radius-lg: 24px;` | Ultra-modern, opinionated, design-forward |
+
+Apply uniformly: buttons, cards, inputs, badges, dropdowns, modals all use the same scale. Inconsistent radius (round buttons + sharp cards) looks broken.
+
+**Decision 4. Density.**
+
+| Level | Row height | Gap | Padding | Best for |
+|---|---|---|---|---|
+| **Compact** | 32px | 8–12px | 12–16px | Data-heavy: analytics, trading, monitoring, tables with 50+ rows |
+| **Comfortable** | 40px | 16px | 16–24px | General SaaS, admin panels, most dashboards |
+| **Spacious** | 48px | 20–24px | 24–32px | Consumer-facing, onboarding-heavy, low data density |
+
+Density affects every surface: table rows, sidebar items, form fields, card padding, section gaps. Set it once via the spacing unit token and derive everything from it.
+
+**Decision 5. Signature detail.** One distinctive element that makes this dashboard recognizable. Pick one:
+
+- **Colored sidebar.** Sidebar uses a dark or tinted version of the primary color instead of neutral gray.
+- **Accent header bar.** A 3 to 4px colored bar at the top of the page or under the header.
+- **Card left-border.** Cards and panels have a colored left border (3 to 4px) using the primary or accent.
+- **Gradient sidebar.** Sidebar background is a subtle gradient from primary-dark to primary-darker.
+- **Tinted page headers.** Each section's header area has a light tint of the primary (5 to 10% opacity).
+- **Shadow depth.** Distinctive shadow treatment: deep layered (luxury), flat no-shadow (industrial), soft diffused (modern).
+- **Icon style.** Outlined thin (minimal), filled (bold), or duotone (premium), consistent across the entire dashboard.
+- **Sidebar dividers.** Thin lines, spacing gaps, or labeled section headers with different styling.
+- **Active nav indicator.** Left border accent, full background fill, or pill-shaped highlight.
+- **Number styling.** Tabular or monospace numbers in all data displays with distinct weight or color.
+
+### Step C. Output the design tokens
+
+Before building any components, create the CSS variable block and apply it globally:
+
+```css
+:root {
+  /* --- Visual identity: [archetype name] --- */
+  --color-primary: hsl(222 47% 31%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(222 47% 25%);
+  --color-accent: hsl(173 58% 39%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-background: hsl(220 14% 96%);
+  --color-surface: hsl(0 0% 100%);
+  --color-sidebar: hsl(222 47% 18%);
+  --color-sidebar-foreground: hsl(220 14% 90%);
+  --color-success: hsl(142 71% 35%);
+  --color-warning: hsl(38 92% 50%);
+  --color-error: hsl(0 84% 50%);
+  --color-info: hsl(210 92% 45%);
+  --font-heading: 'DM Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+  --spacing-unit: 16px; --row-height: 40px;
+}
+```
+
+Adjust every value to match the chosen archetype. This block is the source of truth. Every component references these tokens, never hardcoded colors or font stacks.
+
+### Applying tokens to common setups
+
+- **shadcn/ui plus Tailwind.** Override the CSS variables in `globals.css`. shadcn's theming already uses `--primary`, `--secondary`, etc. Map your identity tokens to their variable names. Change the font in `tailwind.config.ts` under `theme.extend.fontFamily`.
+- **Plain Tailwind.** Add the tokens to `:root` in your global CSS. Reference via `var(--color-primary)` in custom classes, or extend the Tailwind config to use them.
+- **CSS Modules or Vanilla CSS.** Same `:root` variables. Import the global stylesheet first.
+- **MUI, Chakra, or Mantine.** Create a custom theme object that maps to your token values. Pass it to the ThemeProvider at the root.
+
+### Visual identity anti-patterns
+
+- Using unmodified shadcn/ui default theme (the gray/blue one every AI uses)
+- Using Inter as both heading and body font with no variation
+- Using `hsl(222.2 47.4% 11.2%)` as primary (this is shadcn's literal default, which means you didn't customize)
+- Applying a color to the primary button but leaving everything else default
+- Picking a color palette but not applying it to the sidebar, header, and page backgrounds
+- Using different border radii on different component types (round buttons plus sharp cards)
+- Choosing "dark mode" as the personality instead of an actual aesthetic direction
+
+---
+
 ## Visual identity token sets
 
-These are 10 ready-to-use token sets — one per aesthetic archetype defined in `SKILL.md`. Copy the closest match, adjust to the specific project, and paste into your global stylesheet. Every component should reference these variables, never hardcoded values.
-
-The archetype is chosen in step 3 of the workflow based on the user's domain and audience. See `SKILL.md > Visual identity` for the decision framework.
+These are 10 ready-to-use token sets, one per aesthetic archetype from Step A above. Copy the closest match, adjust to the specific project, and paste into your global stylesheet. Every component should reference these variables, never hardcoded values.
 
 ### Clean Corporate
 

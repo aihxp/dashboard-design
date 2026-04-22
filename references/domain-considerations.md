@@ -821,6 +821,36 @@ Each domain section below has the full gotcha list, compliance requirements, exp
 
 ---
 
+## How to interpret a vague request
+
+Users rarely say "build me an admin panel with RBAC, audit logs, settings, user management, and a billing module." They say "I need a dashboard for my X." Pick the closest archetype below, then read the matching section earlier in this file during pre-flight.
+
+- **"Dashboard for my SaaS"** → multi-tenant admin: users, organizations, billing, usage, settings, audit
+- **"Internal tool for my team"** → CRUD on the team's domain entities, with simple shared auth, lighter RBAC
+- **"Analytics dashboard"** → KPI cards + 4–6 charts + a filter bar + exports; auth optional but recommended
+- **"Operational dashboard" / "control panel"** → real-time data, health indicators, action buttons (restart, deploy, ack), audit
+- **"Customer portal"** → end-user-facing: their data only, billing/subscription, support, settings
+- **"Reporting dashboard"** → tables-heavy, scheduled reports, exports to CSV/PDF, filters, drill-down
+- **"CMS" / "blog admin"** → content types, draft/publish workflow, media management, SEO, versioning
+- **"E-commerce admin" / "store manager"** → products/variants, orders, inventory, fulfillment, returns
+- **"AI dashboard" / "LLM admin"** → models, prompts, conversations, token/cost tracking, evaluation pipelines
+- **"Helpdesk" / "support dashboard"** → tickets, SLAs, queues, canned responses, customer context
+- **"CRM" / "sales dashboard"** → contacts, deals, pipeline stages, campaigns, forecasting
+- **"HR dashboard" / "people admin"** → employees, payroll, leave, benefits, performance reviews
+- **"Medical" / "healthcare admin"** → patients, encounters, prescriptions, claims, HIPAA compliance
+- **"Marketplace admin"** → two-sided (buyers + sellers), disputes, commissions, trust/safety
+- **"Gaming admin" / "esports"** → players, matches, virtual economy, anti-cheat, seasons
+- **"Restaurant" / "POS admin"** → menus with modifiers, orders, table management, kitchen display
+- **"Property management"** → units, leases, tenants, maintenance, owner reporting
+- **"Logistics" / "fleet management"** → shipments, vehicles, routes, drivers, real-time tracking
+- **"Legal" / "law firm"** → matters, time billing (0.1-hour increments), trust accounting, conflicts
+- **"Construction" / "field services"** → jobs, crews, permits, inspections, offline-first mobile
+- **"Education" / "LMS"** → courses, enrollments, gradebook, assessments, student progress
+
+If the dashboard spans multiple domains (e.g., SaaS that includes billing → SaaS + Financial), read both sections. Build the foundation slice the same way regardless, then specialize the feature slices to the archetype.
+
+---
+
 ## Cross-cutting patterns
 
 Several patterns emerged across all 33 domains. If your domain isn't listed above, check whether these apply — they almost certainly do:

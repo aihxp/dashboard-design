@@ -1,15 +1,17 @@
 # Production Ready
 
-> **An AI skill for any coding agent — Claude Code, Codex, Cursor, Windsurf, Copilot, or your own.**
+> **An AI skill for any coding agent: Claude Code, Codex, Cursor, Windsurf, Copilot, or your own.**
 
 Stop shipping apps that fall apart on first click.
 
-AI-generated apps — dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers — look finished until someone tries to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. Ten seconds of clicking reveals the truth: it's a screenshot, not a tool.
+AI-generated apps (dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers) look finished until someone tries to use them. Buttons that don't save. Charts hardcoded to fake JSON. Login pages that accept anything. Sidebar links that 404. Settings pages with no persistence. Ten seconds of clicking reveals the truth: it's a screenshot, not a tool.
 
-Production Ready is a **skill** — a structured AI instruction set that any coding agent can consume. It ensures every feature ships wired end-to-end: real auth, real data, real permissions, real states, real feedback — across any stack and any industry.
+Production Ready is a **skill**, a structured AI instruction set that any coding agent can consume. It ensures every feature ships wired end-to-end: real auth, real data, real permissions, real states, real feedback, across any stack and any industry.
+
+> **Pairs with [repo-ready](https://github.com/aihxp/repo-ready).** The companion skill that owns repo scaffolding (README, LICENSE, CI/CD, release automation). Production Ready owns the *app*; repo-ready owns the *repo*. They compose, they don't overlap.
 
 <p align="center">
-<strong>36 reference files</strong> &nbsp;·&nbsp; <strong>33 industry verticals</strong> &nbsp;·&nbsp; <strong>24 production requirements</strong> &nbsp;·&nbsp; <strong>4 shippable tiers</strong>
+<strong>37 reference files</strong> &nbsp;·&nbsp; <strong>33 industry verticals</strong> &nbsp;·&nbsp; <strong>24 production requirements</strong> &nbsp;·&nbsp; <strong>4 shippable tiers</strong>
 </p>
 
 ## Install
@@ -24,35 +26,35 @@ git clone https://github.com/aihxp/production-ready.git ~/.claude/skills/product
 git clone https://github.com/aihxp/production-ready.git ~/.codex/skills/production-ready
 ```
 
-**Cursor / Windsurf / other agents:**
+**Cursor, Windsurf, or other agents:**
 Add `SKILL.md` to your project rules or system prompt. Load reference files as needed.
 
 **Any agent with a plan-then-execute loop:**
-Upload `SKILL.md` and the relevant reference files to your project context. The skill produces structured output (tables, checklists, gap analyses) that any planner can consume — it's not tied to any specific agent runtime.
+Upload `SKILL.md` and the relevant reference files to your project context. The skill produces structured output (tables, checklists, gap analyses) that any planner can consume. It's not tied to any specific agent runtime.
 
 ## The problem this solves
 
-AI agents build apps layer by layer — database, then API, then auth, then UI. This produces 80% completion on every layer and 0% completion on any actual feature. The result is a scaffold that *looks* done but does nothing.
+AI agents build apps layer by layer: database, then API, then auth, then UI. This produces 80% completion on every layer and 0% completion on any actual feature. The result is a scaffold that *looks* done but does nothing.
 
-Production Ready enforces **vertical-slice discipline**: build one feature completely — schema, API, permissions, UI, states, tests — before touching the next. When a feature is done, a real person can do a real job with it.
+Production Ready enforces **vertical-slice discipline**: build one feature completely (schema, API, permissions, UI, states, tests) before touching the next. When a feature is done, a real person can do a real job with it.
 
 ## How it works
 
 ```
-Step 0  Research     → Detect project state (greenfield / existing / audit)
-Step 1  Pre-flight   → 12 questions that prevent incompatible decisions
-Step 2  Architecture → Stack, auth model, permission model, route map
-Step 3  Identity     → Derive unique visual personality from the domain
-Step 4  Foundation   → Auth, RBAC, shell, seed data, one working page
-Step 5  Features     → Each feature wired end-to-end with all states
-Step 5.1 Hollow check → Automated scan catches TODOs and fake data mid-build
-Step 6  Cross-cutting → Search, notifications, settings, exports, audit log
-Step 7  Tests        → Auth flow, CRUD, permissions, accessibility
-Step 8  Harden       → Security headers, performance budget, bundle size
-Step 9  Verify       → 20-point smoke test before shipping
+Step 0  Research     Detect project state (greenfield / existing / audit)
+Step 1  Pre-flight   12 questions that prevent incompatible decisions
+Step 2  Architecture Stack, auth model, permission model, route map
+Step 3  Identity     Derive unique visual personality from the domain
+Step 4  Foundation   Auth, RBAC, shell, seed data, one working page
+Step 5  Features     Each feature wired end-to-end with all states
+Step 5.1 Hollow check Automated scan catches TODOs and fake data mid-build
+Step 6  Cross-cutting Search, notifications, settings, exports, audit log
+Step 7  Tests        Auth flow, CRUD, permissions, accessibility
+Step 8  Harden       Security headers, performance budget, bundle size
+Step 9  Verify       20-point smoke test before shipping
 ```
 
-Each step maps to a **completion tier** — the app is shippable at every checkpoint, not just at the end.
+Each step maps to a **completion tier**. The app is shippable at every checkpoint, not just at the end.
 
 ## Three entry modes
 
@@ -61,8 +63,8 @@ Not just for new projects.
 | Mode | Trigger | Output |
 |---|---|---|
 | **Greenfield** | Empty directory | Full scaffolding from zero |
-| **Assessment** | Existing codebase | 7-part scan → gap analysis → targeted todos |
-| **Audit** | "Verify this app" | Assessment + checklist → severity-sorted fix-it list |
+| **Assessment** | Existing codebase | 7-part scan, gap analysis, targeted todos |
+| **Audit** | "Verify this app" | Assessment plus checklist, severity-sorted fix-it list |
 
 The research output is a structured document any agent's planner can consume to generate precise, gap-filling tasks instead of generic ones.
 
@@ -75,7 +77,7 @@ The research output is a structured document any agent's planner can consume to 
 | 1 | **Foundation** | Sign in, see real data, create/edit/delete one entity, sign out |
 | 2 | **Functional** | Role-based access, all states handled, settings that save, profile page |
 | 3 | **Polished** | Audit trail, keyboard accessible, responsive to mobile, cross-cutting features wired |
-| 4 | **Hardened** | Tested, secure, verified, zero hollow indicators — ready to ship |
+| 4 | **Hardened** | Tested, secure, verified, zero hollow indicators, ready to ship |
 
 The agent declares each tier complete at its checkpoint. For existing codebases, the research phase determines the current tier and works toward the next one.
 
@@ -84,14 +86,14 @@ The agent declares each tier complete at its checkpoint. For existing codebases,
 | What AI agents typically ship | What Production Ready enforces |
 |---|---|
 | `const mockUsers = [...]` in a component | Data from the real persistence layer via query hooks |
-| `onClick={() => console.log("clicked")}` | Real mutation → cache invalidation → success toast |
+| `onClick={() => console.log("clicked")}` | Real mutation, cache invalidation, success toast |
 | Login that accepts any credentials | Hashed passwords, sessions, server-side route guards |
 | "Coming soon" pages in the sidebar | Every nav link routes to a real, rendered page |
 | Charts that re-randomize on refresh | Charts driven by real data from the data layer |
-| Empty table with no guidance | Empty state with explanation + CTA |
-| `// TODO: add validation` | Client + server validation with inline field errors |
+| Empty table with no guidance | Empty state with explanation and CTA |
+| `// TODO: add validation` | Client plus server validation with inline field errors |
 | Permissions checked only in the UI | Server enforces every mutation; UI reflects as courtesy |
-| Every app looks the same | Visual identity derived from domain context — unique colors, typography, personality |
+| Every app looks the same | Visual identity derived from domain context: unique colors, typography, personality |
 
 ## 33 industry verticals
 
@@ -123,28 +125,28 @@ Generic CRUD misses domain-specific landmines. The skill carries gotchas, compli
 </details>
 
 **Examples of what domain knowledge prevents:**
-- **Healthcare** — building without HIPAA audit logging of every PHI access
-- **Financial** — using `float` for money instead of integer cents
-- **E-commerce** — modeling inventory as a counter instead of a ledger
-- **SaaS** — missing `WHERE org_id = ?` on every query (tenant data leak)
-- **Construction** — missing AIA G702/G703 payment applications
+- **Healthcare.** Building without HIPAA audit logging of every PHI access.
+- **Financial.** Using `float` for money instead of integer cents.
+- **E-commerce.** Modeling inventory as a counter instead of a ledger.
+- **SaaS.** Missing `WHERE org_id = ?` on every query (tenant data leak).
+- **Construction.** Missing AIA G702/G703 payment applications.
 
 ## Works with any stack
 
 Pattern-based, not framework-specific:
 
-- **React / Next.js** + TypeScript + Prisma + Auth.js + shadcn/ui + TanStack Query
-- **SvelteKit** + TypeScript + Convex/Drizzle + Auth.js + Tailwind
-- **Vue / Nuxt** + TypeScript + Drizzle + shadcn-vue
-- **Rails** + Hotwire/Turbo + Devise
-- **Django** + HTMX + django-allauth
-- **Laravel** + Inertia + Breeze
+- **React / Next.js** plus TypeScript, Prisma, Auth.js, shadcn/ui, TanStack Query
+- **SvelteKit** plus TypeScript, Convex or Drizzle, Auth.js, Tailwind
+- **Vue / Nuxt** plus TypeScript, Drizzle, shadcn-vue
+- **Rails** plus Hotwire/Turbo, Devise
+- **Django** plus HTMX, django-allauth
+- **Laravel** plus Inertia, Breeze
 
 ...or anything else. The guidance translates.
 
 ## Reference library
 
-36 files, loaded on demand. A typical project reads 4–8, never all 36.
+37 files, loaded on demand. A typical project reads 4 to 8, never all 37.
 
 <details>
 <summary>View the full reference library</summary>
@@ -155,11 +157,12 @@ Pattern-based, not framework-specific:
 | `codebase-research.md` | Project state detection, greenfield/assessment/audit modes, codebase scan protocol |
 | **Foundation** | |
 | `preflight-and-verification.md` | 12 pre-flight questions, verification checklist, smoke test |
+| `naming.md` | Cross-layer naming conventions (DB, API, UI, events, permissions, tests) |
 | `information-architecture.md` | 7 layout patterns, navigation, sidebar, responsive |
 | `auth-and-rbac.md` | Passkeys, magic links, RBAC, multi-tenant, impersonation |
 | `data-layer.md` | Server Components, API contracts, queries, mutations, caching |
 | **UI & UX** | |
-| `ui-design-patterns.md` | Components, typography, spacing, tokens, visual identity token sets |
+| `ui-design-patterns.md` | Components, typography, spacing, tokens, visual identity decision framework |
 | `data-visualization.md` | Charts, KPIs, tables, accessibility, sparklines |
 | `states-and-feedback.md` | Loading, empty, error, toasts, undo, offline |
 | `workflows-and-actions.md` | Forms, onboarding, drag-and-drop, approval workflows |
@@ -169,7 +172,7 @@ Pattern-based, not framework-specific:
 | `error-pages-and-offline.md` | 404/403/500/503 pages, maintenance mode, PWA offline |
 | `file-management-and-uploads.md` | Upload UX, chunked uploads, image crop, file previews |
 | **Features** | |
-| `settings-and-configuration.md` | User/org/system settings, admin panel, multi-tenant |
+| `settings-and-configuration.md` | User, org, system settings, admin panel, multi-tenant |
 | `notifications-and-email.md` | In-app, email, push, SMS, Slack, delivery tracking |
 | `payments-and-billing.md` | Checkout, subscriptions, invoicing, refunds, PCI |
 | `reporting.md` | PDF/Excel generation, scheduling, large datasets |
@@ -177,7 +180,7 @@ Pattern-based, not framework-specific:
 | **Integration** | |
 | `system-integration.md` | Service layer, event bus, cache invalidation, feature flags |
 | `api-and-integrations.md` | OAuth2, webhooks, data sync, building your own API |
-| `internationalization.md` | i18n, RTL, date/number formatting, translation workflows |
+| `internationalization.md` | i18n, RTL, date and number formatting, translation workflows |
 | **Specialized** | |
 | `ai-product-patterns.md` | Streaming, RAG, prompt management, eval, cost control |
 | `testing-and-quality.md` | E2E, component, load, contract, visual regression testing |
@@ -201,7 +204,7 @@ Pattern-based, not framework-specific:
 
 ## Contributing
 
-Gaps, missing domains, outdated guidance — contributions welcome. Open an issue or PR.
+Gaps, missing domains, outdated guidance: contributions welcome. Open an issue or PR.
 
 ## License
 

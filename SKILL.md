@@ -1,269 +1,172 @@
 ---
 name: production-ready
-description: "Build production-grade, end-to-end connected dashboards — admin panels, analytics consoles, internal tools, operational control centers, SaaS back-offices — across any stack (React/Next/Vue/Svelte/Remix/Rails/Django/Laravel/etc.). Use this skill whenever the user asks for a 'dashboard,' 'admin panel,' 'control panel,' 'back office,' 'internal tool,' 'analytics view,' 'reporting interface,' 'ops console,' 'metrics view,' 'KPI view,' or describes building any multi-page interface that displays domain data with navigation, auth, and CRUD — even if the word 'dashboard' is never spoken. Triggers also include requests to add a sidebar nav, role-based access, user management, audit logs, charts/graphs over real data, filters, exports, settings pages, or any 'logged-in area' of an app. This skill enforces a no-scaffold-no-placeholder rule — every feature shipped must be wired end-to-end to a real backend (or a real local persistence layer), not stubbed with TODO, fake JSON, or 'you can hook this up later' comments."
+description: "Build production-grade, end-to-end connected dashboards across any stack (React/Next/Vue/Svelte/Remix/Rails/Django/Laravel/etc.). Covers admin panels, analytics consoles, internal tools, operational control centers, SaaS back-offices. Triggers on: 'dashboard,' 'admin panel,' 'control panel,' 'back office,' 'internal tool,' 'analytics view,' 'reporting interface,' 'ops console,' 'metrics view,' 'KPI view,' or any multi-page interface with navigation, auth, and CRUD over domain data. Also triggers on requests to add sidebar nav, role-based access, user management, audit logs, charts over real data, filters, exports, or any 'logged-in area.' Enforces a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend or real local persistence, not stubbed with TODO, fake JSON, or 'hook this up later.'"
 ---
 
 # Production Ready
 
-This skill exists to solve one specific failure mode: AI-generated dashboards that *look* finished but are hollow. Buttons that don't save. Filters that don't filter. "Settings" pages with no persistence. Login screens that accept anything. Charts hardcoded to fake JSON. Sidebars with five items where four route to 404. The user runs the result and within ten seconds discovers it's a museum, not a tool.
+This skill exists to solve one specific failure mode. AI-generated dashboards that *look* finished but are hollow. Buttons that don't save. Filters that don't filter. Charts hardcoded to fake JSON. Sidebars where half the links 404. Login screens that accept anything. The user runs it, and within ten seconds discovers it's a museum, not a tool.
 
-The job here is the opposite: ship a dashboard where every visible element is connected to something real. If a button is on the screen, clicking it does the thing. If a chart is on the screen, it reflects actual data from the actual store. If there's a "users" page, you can actually create, edit, delete, and assign roles to users — and those changes persist across reloads.
+The job here is the opposite. Ship a dashboard where every visible element is connected to something real. If a button is on the screen, clicking it does the thing. If a chart is on the screen, it reflects actual data. If there's a "users" page, you can actually create, edit, delete, and assign roles, and those changes persist across reloads.
 
-This is harder than it sounds, because dashboards are *systems*, not screens. A dashboard touches the data model, the API, auth, RBAC, navigation, state, caching, forms, charts, empty states, error states, audit, and exports — and if any one of those layers is faked, the whole thing collapses into a demo. This skill provides the discipline to build all of them.
+This is harder than it sounds because dashboards are *systems*, not screens. A dashboard touches the data model, the API, auth, RBAC, navigation, state, caching, forms, charts, empty states, error states, audit, and exports. If any one layer is faked, the whole thing collapses into a demo.
 
 ## Core principle: vertical slices, not horizontal layers
 
-Do not build the dashboard layer-by-layer (database → API → auth → routes → UI → charts). That path produces 80% completion on every layer and 0% completion on any actual feature. Instead, build it feature-by-feature as **vertical slices**:
+Do not build the dashboard layer-by-layer (database, then API, then auth, then routes, then UI, then charts). That path produces 80% completion on every layer and 0% completion on any actual feature. Instead, build **vertical slices**:
 
 > One feature at a time, end-to-end, working, before moving on.
 
-A vertical slice for "user management" means: schema migration → API endpoints → permission checks → service layer → query hooks → list page → detail page → create/edit form → delete confirmation → empty state → error state → loading state → audit log entry → tested with two seeded users — *all done* before touching the next feature. When the slice is complete, an actual person can do an actual job with it.
+A vertical slice for "user management" means: schema migration, API endpoints, permission checks, service layer, query hooks, list page, detail page, create/edit form, delete confirmation, empty and error and loading states, audit log entry, tested with seeded users, *all done* before touching the next feature. When the slice is complete, an actual person can do an actual job with it.
 
 This principle is non-negotiable. It is the single biggest determinant of whether the output is a working dashboard or a scaffold.
 
-## When this skill triggers, do this in order
+## When this skill does NOT apply
+
+Route elsewhere if the request is:
+- **Single-component or single-page** ("add one chart," "build a landing page"). This skill is for multi-page systems.
+- **Repo hygiene** (README, LICENSE, CI, CONTRIBUTING, issue templates, release automation). Delegate to the `repo-ready` skill.
+- **Marketing site, blog, or docs site.** Frontend-only content sites do not have the auth, data, RBAC, and audit surface this skill enforces.
+- **Greenfield repo scaffolding only.** If the user wants "set up my repo," that's `repo-ready`. This skill takes over once app features are being built.
+
+## Workflow
 
 Follow this sequence. Skipping steps is how dashboards end up hollow.
 
-### 0. Detect project state and research (mandatory)
+### Step 0. Detect project state and research
 
-Before anything else, determine what you're working with. Read **`references/codebase-research.md`** and run the mode detection protocol.
+Read `references/codebase-research.md` and run the mode detection protocol.
 
-- **Empty directory or boilerplate-only?** → Mode A (Greenfield). Run lightweight checks for external constraints (existing API, deployment config, design docs), then proceed to step 1.
-- **Existing codebase with source files?** → Mode B (Assessment). Run the full codebase scan before step 1. The scan output replaces guesswork in the pre-flight and constrains the architecture step.
-- **User asked to audit/verify/harden?** → Mode C (Audit). Run the verification-focused scan and produce a fix-it list. Skip steps 1–6 and go directly to fixing what's broken.
+- **Empty or boilerplate** routes to Mode A (Greenfield). Quick external-constraints scan, then proceed.
+- **Existing source code** routes to Mode B (Assessment). Run the full scan before step 1. Its output replaces guesswork and constrains the architecture step.
+- **User asked to audit/verify/harden** routes to Mode C (Audit). Verification-focused scan, produce a fix-it list, skip steps 1 through 6, go directly to fixing what's broken.
 
-The research output is a structured document any agent's planner can consume. Do not skip this — building on an existing codebase without reading it first is how you end up with two auth libraries, two design systems, and incompatible conventions.
+### Step 1. Pre-flight
 
-### 1. Run the pre-flight (mandatory)
+Read `references/preflight-and-verification.md`. Answer the 12 questions in writing. In Mode B, pre-fill answers from the assessment output and focus on the gaps.
 
-Before writing a single line of code, read **`references/preflight-and-verification.md`** and answer the questions in it. The pre-flight establishes: what the dashboard is *for*, who uses it, what the stack is, what the data source is, what auth model exists, what already exists vs. what must be built, and what "done" looks like. You cannot build a connected dashboard without this — you'd be guessing at every fork.
+Once the domain is identified, read the matching section of `references/domain-considerations.md`. It carries domain-specific data-model traps, compliance requirements, and UX patterns that generic CRUD misses. Skipping this is how dashboards end up with float-based currency, single-entry accounting, or missing HIPAA audit logs.
 
-Once you've identified the domain (question #1), read the matching section in **`references/domain-considerations.md`**. It covers 31 verticals with domain-specific data model traps, compliance requirements, and UX patterns that generic CRUD misses. Skipping this is how dashboards end up with float-based currency, single-entry accounting, or missing HIPAA audit logs.
+If the request is vague ("build me a dashboard"), do not interrogate the user. Pick the most plausible interpretation, state assumptions in one short paragraph, and proceed. See the "vague request interpretation" table in `references/domain-considerations.md`.
 
-If the user's request is vague ("build me a dashboard"), do not invent a domain. Pick the single most plausible interpretation, state your assumptions in one short paragraph, and proceed. Do not pepper the user with twenty questions. One pass of stated assumptions is enough; they'll redirect if needed.
+### Step 2. Architecture note
 
-If the research phase (step 0) produced an assessment output, use it to pre-fill pre-flight answers. The stack is already decided (question 3). The data source is already known (question 4). The auth model is already in place (question 5). The route map already exists (question 7). What already exists is already inventoried (question 9). Focus the pre-flight on the gaps: what's missing, what's hollow, what needs to be added.
+Produce a short note (5 to 15 lines) covering:
 
-### 2. Decide the architecture in writing
+- **Stack.** Framework, language, ORM/DB, auth provider, styling, state library, chart library.
+- **Data source.** Real DB, existing API, or local persistence that behaves like real (SQLite plus Prisma, Convex, Supabase, Postgres in Docker). Never in-memory state or hardcoded JSON.
+- **Auth model.** Sessions vs. JWT, where the user record lives, how roles attach.
+- **Permission model.** RBAC role list and the resource by action matrix.
+- **Route map.** Every page, parent to child nesting.
+- **Visual identity.** Archetype, palette, typography, radius, density, signature detail (see step 3).
 
-Produce a short architecture note (5–15 lines, inline in the chat or as a top-of-file comment) covering:
+**In Mode B:** don't decide, document. Architecture note adopts what exists and adds only what's missing.
 
-- **Stack** — framework, language, ORM/DB, auth provider, styling, state library, chart library
-- **Data source** — real DB? existing API? if neither exists yet, what local persistence will simulate "real" (SQLite + Prisma, Postgres in Docker, Convex, Supabase, etc.)
-- **Auth model** — sessions vs. JWT, where the user record lives, how roles attach to users
-- **Permission model** — RBAC role list and the resource × action matrix (see `references/auth-and-rbac.md`)
-- **Route map** — every page that will exist, with parent → child nesting
+### Step 3. Derive the visual identity
 
-**In assessment mode (existing codebase):** Do not decide the architecture — document it. The research output already contains the stack, auth model, permission model, and route map. Your architecture note adopts what exists and adds only what's missing. The note becomes: "Existing: [what the research found]. Adding: [what the gap analysis identified]."
+Before any component code, commit to a visual personality derived from the domain, not from component-library defaults. Read `references/ui-design-patterns.md` and work through its "Visual identity" decision framework:
 
-Showing this up front prevents the most common failure: building three pages with three incompatible auth assumptions and discovering it on page four.
+1. Pick an aesthetic archetype from the 10 in that file.
+2. Make 5 decisions: color palette, typography pairing, border radius, density, signature detail.
+3. Output the CSS design-token block and apply it globally.
 
-### 3. Derive the visual identity (mandatory)
+Two users asking for "a SaaS dashboard" must get two dashboards that look different. Shipping with unmodified shadcn/Radix/MUI defaults is the visual equivalent of `// TODO`.
 
-Before writing any component code, commit to the dashboard's visual personality. Two users asking for "a SaaS dashboard" should get two dashboards that look different — different palette, different typography, different feel. The visual direction is derived from the prompt, not randomized.
+### Step 4. Build the foundation slice
 
-**Step A — Pick an aesthetic archetype.** Read the user's domain, audience, and tone, then choose the closest match:
+Always the same, always first:
 
-| Archetype | Domains | Personality |
-|---|---|---|
-| **Clean corporate** | Finance, legal, insurance, government, enterprise SaaS | Trust, precision, neutrality. Navy/slate palette, sharp corners, serif or geometric sans headings. |
-| **Warm neutral** | HR, education, hospitality, non-profit, recruiting | Approachable, human, calm. Earth tones or warm grays, medium radius, friendly sans-serif. |
-| **Bold saturated** | Marketing, CRM, gaming, esports, social media | Energy, confidence, action. Vibrant primary, high-contrast accents, punchy headings, rounded UI. |
-| **Dark-first technical** | DevOps, cybersecurity, IoT, AI/ML, monitoring | Precision, control, immersion. Dark surfaces, monospace accents, sharp corners, terminal-inspired. |
-| **Soft modern** | Healthcare, wellness, consumer SaaS, productivity | Clean, gentle, trustworthy. Soft blues/greens, generous whitespace, rounded corners, light shadows. |
-| **High-contrast editorial** | Media, publishing, CMS, content platforms | Authority, readability, density. Strong typographic hierarchy, serif headings, tight grids. |
-| **Playful rounded** | Food service, consumer apps, community platforms | Fun, inviting, casual. Saturated pastels, large radius, bouncy micro-interactions, illustration-friendly. |
-| **Industrial minimal** | Logistics, construction, manufacturing, supply chain | Function-first, utilitarian, dense. Neutral palette, minimal decoration, compact spacing, strong borders. |
-| **Luxury restrained** | Real estate, premium SaaS, fashion, high-end retail | Sophistication, restraint, space. Muted palette, generous whitespace, thin fonts, subtle shadows. |
-| **Data-dense operational** | Analytics, trading, fleet management, telecom | Information density, scanability, speed. Compact layout, tabular data, monospace numbers, minimal chrome. |
+1. Project bootstrapped, runs locally.
+2. Design tokens applied globally. Fonts loaded. Every component inherits from tokens.
+3. Database or persistence up, migrations applied, seed script with at least one admin and 5 to 20 realistic rows per main entity.
+4. Auth working: login, logout, session persistence, password hashing (argon2 or bcrypt, never plain, never sha256), middleware that gates protected routes server-side.
+5. RBAC working: at least two roles, server-side permission checks, a way to verify what a non-admin sees.
+6. Shell layout: header (logo top-left, user menu top-right), sidebar nav, content area, breadcrumbs, responsive collapse. Tokens applied, not default theme.
+7. One real protected page reachable end-to-end.
 
-If the domain spans two archetypes (e.g., "premium analytics"), blend them — take the palette from one and the density from the other. State the choice in the architecture note.
+**Proof test before declaring Tier 1:** run the app, sign in as admin, see the landing page with real data, visit a CRUD page, create, edit, delete, sign out, sign in as non-admin, confirm different UI and 403 on forbidden mutations, reload, confirm data persists. Inspect one button and verify its color traces to `--color-primary`, not a library default. If this loop works, Tier 1 is complete. Run the hollow check.
 
-**Step B — Make 5 concrete decisions.** Write these into the architecture note alongside the stack and route map:
+### Step 5. Build feature slices
 
-1. **Color palette** — one primary, one secondary accent, semantic colors (success/warning/error/info), surface tones (background, card, sidebar). Derive from the domain mood, not from component library defaults. State specific HSL or hex values.
-2. **Typography pairing** — a heading font and a body font. Choose from the pairing table in the visual identity section below. Never default to Inter/system-ui for both.
-3. **Border radius** — sharp (2–4px: corporate, technical), medium (6–8px: general SaaS), or rounded (12–16px: playful, consumer). Apply uniformly to buttons, cards, inputs, badges.
-4. **Density** — compact (32px row height, 12px gaps: data-heavy), comfortable (40px row height, 16px gaps: general), or spacious (48px row height, 24px gaps: consumer).
-5. **Signature detail** — one element that makes this dashboard visually memorable. Examples: gradient sidebar, colored section headers, accent left-border on cards, tinted header bar, distinctive icon set, shadow depth, sidebar divider style.
+For each feature, follow this recipe:
 
-**Step C — Output the design tokens.** Before building any components, create the CSS variable block and apply it globally:
+1. Schema or migration if new entities.
+2. Seed data.
+3. Server: list (paginate, filter, sort), detail, create, update, delete, all with permission checks.
+4. Client: query hooks for read, mutation hooks for write, cache invalidation.
+5. Pages: list (empty, loading, error states), detail, create/edit form (client and server validation, submission states, success and error feedback), delete confirmation.
+6. Audit: every mutation writes an audit log entry.
+7. Smoke test: walk create, edit, delete manually before declaring the slice done.
 
-```css
-:root {
-  /* --- Visual identity: [archetype name] --- */
-  /* Primary */
-  --color-primary: hsl(222 47% 31%);
-  --color-primary-foreground: hsl(0 0% 100%);
-  --color-primary-hover: hsl(222 47% 25%);
-  
-  /* Secondary accent */
-  --color-accent: hsl(173 58% 39%);
-  --color-accent-foreground: hsl(0 0% 100%);
-  
-  /* Surfaces */
-  --color-background: hsl(220 14% 96%);
-  --color-surface: hsl(0 0% 100%);
-  --color-sidebar: hsl(222 47% 18%);
-  --color-sidebar-foreground: hsl(220 14% 90%);
-  
-  /* Semantic */
-  --color-success: hsl(142 71% 35%);
-  --color-warning: hsl(38 92% 50%);
-  --color-error: hsl(0 84% 50%);
-  --color-info: hsl(210 92% 45%);
-  
-  /* Typography */
-  --font-heading: 'DM Sans', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  
-  /* Shape */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-full: 9999px;
-  
-  /* Density */
-  --spacing-unit: 16px;
-  --row-height: 40px;
-}
-```
+Order of slices: most-used first, riskiest second, nice-to-haves last. If the user runs out of patience halfway through, the most important feature is still complete.
 
-Adjust every value to match the chosen archetype. This block is the source of truth — every component references these tokens, never hardcoded colors or font stacks.
+### Step 5.1. Hollow-check protocol (after every slice)
 
-### 4. Build the foundation slice first
-
-The foundation slice is always the same and must come first:
-
-1. Project bootstrapped, runs locally
-2. **Design tokens applied globally** — the CSS variable block from step 3 (visual identity) is in the global stylesheet. Fonts loaded. Every component inherits from tokens, not hardcoded values.
-3. Database/persistence layer up, migrations applied, seed script with at least one admin user and 5–20 rows of realistic sample data per main entity
-4. Auth working — login, logout, session persistence, password hashing, "you must be logged in to see anything" middleware
-5. RBAC working — at least two roles (`admin`, `member`), middleware that checks permissions on every protected route, a way to test "what does a non-admin see?"
-6. Shell layout working — header with logo + user menu, sidebar nav, content area, breadcrumbs, responsive collapse. **The shell reflects the chosen visual identity** — sidebar color, heading font, border radius, density — not generic component library defaults.
-7. One real protected page reachable end-to-end (the dashboard home, even if it just shows "Welcome, {user.name}")
-
-Do not move past the foundation until you can: run the app, sign in as the admin, sign out, sign in as a non-admin, and see different things. This is the proof the foundation is real.
-
-**→ Tier 1 checkpoint.** If the foundation slice is complete and the CRUD entity works end-to-end, declare Tier 1 (Foundation) complete. Run the hollow check protocol before declaring Tier 1 complete. See the completion tiers section below.
-
-### 5. Build feature slices
-
-For each feature (user management, the orders table, billing, settings, etc.), build the full vertical slice. The recipe:
-
-1. Schema/migration if new entities are needed
-2. Seed data if the entity is new
-3. Server-side: list endpoint (with pagination, filtering, sorting), detail endpoint, create, update, delete — all with permission checks
-4. Client-side: query hooks for read, mutation hooks for write, with cache invalidation
-5. Pages: list page (with empty/loading/error states), detail page, create/edit form (with validation, submission states, success/error feedback), delete confirmation
-6. Audit: every mutation writes an audit log entry
-7. Smoke test: do the create→edit→delete loop manually before declaring the slice done
-
-The order of feature slices should be: most-used feature first, riskiest feature second, "nice to have" features last. If the user runs out of patience halfway through, they should still have the most important feature working completely.
-
-### 5.1. Hollow check protocol (runs after every slice)
-
-After completing each feature slice and at each tier checkpoint, run this scan before proceeding. It takes 30 seconds and catches hollows while they're cheap to fix.
-
-**The scan:**
+Runs in 30 seconds, catches hollows while they're cheap to fix. Adapt the patterns to your stack.
 
 ```
-grep -rn "// TODO\|// FIXME\|// HACK\|// TEMP" src/
-grep -rn "() => {}\|onClick={() => {}" src/ --include="*.tsx" --include="*.ts"
-grep -rn "Coming soon\|Not implemented\|TBD\|WIP" src/
-grep -rn "mockData\|fakeData\|dummyData\|lorem\|Lorem" src/
-grep -rn "Math\.random()" src/ --include="*.tsx" --include="*.ts"
+# TypeScript / JavaScript
+grep -rnE "// (TODO|FIXME|HACK|TEMP)" src/
+grep -rnE "(\(\)\s*=>\s*\{\s*\}|onClick=\{\(\)\s*=>\s*\{\s*\}\})" src/ --include="*.tsx" --include="*.ts"
 grep -rn "console\.log" src/ --include="*.tsx" --include="*.ts"
+grep -rnE "(mock|fake|dummy)Data\b|Lorem|lorem ipsum" src/
+grep -rn "Math\.random()" src/
+
+# Python (Django, FastAPI, Flask)
+grep -rnE "# (TODO|FIXME|XXX)" . --include="*.py"
+grep -rn "raise NotImplementedError" . --include="*.py"
+grep -rn "^\s*pass\s*#" . --include="*.py"
+
+# Ruby (Rails)
+grep -rnE "# (TODO|FIXME)" app/ lib/
+grep -rn "raise ['\"]TODO" app/ lib/
+grep -rn "binding\.pry\|byebug\|debugger" app/ lib/
+
+# PHP (Laravel)
+grep -rnE "// (TODO|FIXME)" app/ resources/
+grep -rn "dd(\|dump(\|var_dump(" app/ resources/
+
+# Universal
+grep -rnE "Coming soon|Not implemented|Placeholder|TBD|WIP" .
 ```
 
-These are the B7 hollow indicator patterns from `references/codebase-research.md`.
+**Rule:** zero high-severity hits before the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now. Legitimate `console.error` or structured logger calls in catch blocks are fine; raw `console.log`, `dd()`, or `binding.pry` in production paths are not.
 
-**The rule:** Zero high-severity hits before starting the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now — not "later." Low-severity hits (console.log in a catch block for intentional error logging) can be noted and batched for cleanup at the tier checkpoint.
+**When to run:** after each slice (scan touched files only), and at each tier boundary (scan everything). Tier 4 requires zero hits at any severity.
 
-**When to run:**
-- After each feature slice completes — scan only the files touched in that slice
-- At each tier checkpoint — scan the entire `src/` directory
-- The Tier 4 checkpoint requires zero hits of any severity
+### Step 6. Cross-cutting concerns
 
-### 6. Layer in cross-cutting concerns
+After two or three slices, layer in: global search, notifications, preferences, theme toggle, exports, audit log viewer, profile page. Easier once real data flows.
 
-After two or three feature slices, add the cross-cutting layer: global search, notifications, user preferences/settings, theme toggle, exports, audit log viewer, profile page. These are easier to do once you have real data flowing — building them on top of empty pages is wasted effort.
+### Step 7. Tests alongside each slice
 
-**→ Tier 2 checkpoint** after feature slices are done (RBAC, states, validation, settings, profile all working). **→ Tier 3 checkpoint** after cross-cutting concerns are wired (audit log, accessibility, responsive, breadcrumbs). Run the hollow check protocol at each checkpoint.
+A slice isn't done until it has tests. Read `references/testing-and-quality.md`. Minimum per slice:
 
-### 7. Write tests alongside each slice
+- Integration test walking the CRUD flow end-to-end.
+- Permission test confirming non-admin users are blocked.
+- Accessibility test (axe) on every new page.
 
-A vertical slice isn't done until it has tests. Read `references/testing-and-quality.md` before writing the first test. At minimum, each slice should have:
+### Step 8. Harden performance and security
 
-- An integration test that walks the CRUD flow end-to-end
-- A permission test that confirms non-admin users are correctly blocked
-- An accessibility test (axe) on every new page
+Before verification, read `references/performance-and-security.md` and apply:
 
-Don't delay testing until "after the build." A dashboard without tests is a dashboard that breaks silently the next time someone changes a query key or a permission rule.
+- Security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy).
+- Bundle budget (code-split, lazy-load heavy libs).
+- Rate limiting on login, mutations, uploads, exports.
+- `npm audit` (or equivalent); fix critical and high.
+- No secrets in git; no server secrets leaking to the client bundle.
 
-### 8. Harden performance and security
+### Step 9. Verification
 
-Before the verification pass, read `references/performance-and-security.md` and apply the relevant hardening:
-
-- Set security headers (CSP, HSTS, X-Frame-Options)
-- Verify bundle size is under budget (code-split, lazy-load heavy libraries)
-- Confirm rate limiting on login, mutations, uploads, and exports
-- Run `npm audit` (or equivalent) and fix critical/high vulnerabilities
-- Check that no secrets are in git and no server secrets leak to the client bundle
-
-### 9. Run the verification checklist
-
-Before declaring the dashboard "done," walk the verification checklist in `references/preflight-and-verification.md` and the security checklist in `references/performance-and-security.md`. They catch the specific failure modes that make dashboards feel hollow or insecure: dead links, fake data, permissions you forgot to check, missing empty states, console errors, XSS vectors, missing headers, etc.
-
-**→ Tier 4 checkpoint.** Tests pass, security headers set, verification checklist green, zero hollow indicators. The hollow check protocol must return zero hits at any severity level. The dashboard is ship-ready.
+Walk the verification checklist in `references/preflight-and-verification.md` and the security checklist in `references/performance-and-security.md`. If the repo also lacks CI, LICENSE, SECURITY.md, or release automation, invoke the `repo-ready` skill. Do not duplicate that work here.
 
 ## Completion tiers
 
-A full dashboard has 24 requirements across 4 tiers. An agent rarely finishes all 24 in one session — and a half-built everything is worse than a fully-built subset. These tiers define meaningful checkpoints where the dashboard is *real* at its current scope.
+24 requirements across 4 tiers. The agent aims for the highest tier the session allows. Declare each tier explicitly at its boundary. Never leave a tier half-done. Finish the current slice and declare the last complete tier.
 
-### Decision tree: where to start, where to stop
+In Mode B, the research output's gap analysis maps directly to unfulfilled tier requirements. Determine the current tier, then work toward the next.
 
-```
-START
-│
-├─ Is this a new project (greenfield)?
-│   │
-│   YES → Build from Tier 1
-│   │     ├─ Session has capacity for more? → Continue to Tier 2
-│   │     ├─ Session has capacity for more? → Continue to Tier 3
-│   │     └─ Session has capacity for more? → Continue to Tier 4
-│   │
-│   NO → Existing codebase (assessment mode)
-│        │
-│        ├─ Does auth work + real data + one CRUD entity?
-│        │   NO  → Tier 1 incomplete. Fix foundation gaps first.
-│        │   YES ↓
-│        │
-│        ├─ RBAC + states + validation + settings + profile?
-│        │   NO  → Tier 2 incomplete. Fill these gaps.
-│        │   YES ↓
-│        │
-│        ├─ Audit log + accessibility + responsive + cross-cutting?
-│        │   NO  → Tier 3 incomplete. Add polish layer.
-│        │   YES ↓
-│        │
-│        └─ Tests + security headers + verification green?
-│            NO  → Tier 4 incomplete. Harden.
-│            YES → Dashboard is complete.
-│
-├─ Is this an audit?
-│   │
-│   YES → Run Mode C research → Determine current tier
-│         → Produce fix-it list for next tier's unmet requirements
-│
-STOP at any tier boundary — each tier is shippable.
-```
-
-**At each tier boundary, stop and declare the tier complete.** The user decides whether to continue to the next tier or ship what exists. Every tier produces a dashboard that works — not a scaffold that "just needs a few more things."
-
-### Tier 1: Foundation (steps 0–4)
+### Tier 1: Foundation (8)
 
 The dashboard runs, authenticates, and shows real data. One person can do one real job with it.
 
@@ -272,74 +175,58 @@ The dashboard runs, authenticates, and shows real data. One person can do one re
 | 1 | **Real auth.** Login rejects bad credentials, stores a session, gates every protected route server-side. |
 | 2 | **Real data.** Seeded into a real persistence layer. Reloads persist. Two browsers see consistent state. |
 | 3 | **A shell.** Header (logo top-left, user menu top-right), persistent sidebar, content area. |
-| 4 | **Working navigation.** Every sidebar link goes somewhere real. Active state highlights current page. |
-| 5 | **A landing page.** Route after login shows something useful — KPI cards, a chart, or an activity feed. Not lorem ipsum. |
-| 6 | **At least one full CRUD entity.** List, detail, create, edit, delete — all wired, all persisted. |
+| 4 | **Working navigation.** Every sidebar link routes somewhere real. Active state highlights current page. |
+| 5 | **A landing page.** Route after login shows something useful: KPI cards, a chart, or an activity feed. Not lorem ipsum. |
+| 6 | **At least one full CRUD entity.** List, detail, create, edit, delete, wired and persisted. |
 | 7 | **A logout button** that actually invalidates the session. |
-| 8 | **A visual identity.** Design tokens applied — colors, typography, radius, density. Not default component library styling. |
+| 8 | **A visual identity.** Design tokens applied: palette, typography, radius, density. Not default component-library styling. |
 
-**Proof test:** Run the app → sign in → see the landing page with real data → navigate to the CRUD page → create a record → edit it → delete it → sign out → sign back in → data persists. If this loop works, Tier 1 is complete.
+### Tier 2: Functional (7)
 
-### Tier 2: Functional (steps 5–6)
-
-The dashboard handles multiple features, roles, and edge cases. A team can use it daily.
+Multiple features, roles, edge cases. A team can use it daily.
 
 | # | Requirement |
 |---|---|
 | 9 | **Real RBAC.** At least two roles. Server-side permission checks on every mutation. UI hides unauthorized actions as courtesy, never as security. |
 | 10 | **Loading, empty, and error states** for every async surface. Specific, not generic spinners. |
-| 11 | **Form validation.** Client-side for instant feedback, server-side for truth. Inline field-level errors. |
+| 11 | **Form validation.** Client for instant feedback, server for truth. Inline field-level errors. |
 | 12 | **Success and error feedback.** Toasts or banners after every mutation. Never silent. |
 | 13 | **Pagination, sorting, filtering** on any table that could exceed 25 rows. State preserved in URL. |
 | 14 | **A settings page** that actually saves. |
-| 15 | **A user profile / account page** the logged-in user can edit. |
+| 15 | **A user profile or account page** the logged-in user can edit. |
 
-**Proof test:** Sign in as admin → do everything. Sign in as non-admin → confirm restricted access, server returns 403 on forbidden mutations. Empty a table → see the empty state with a CTA. Submit a form with bad data → see inline errors. Save settings → reload → settings persist.
+### Tier 3: Polished (5)
 
-### Tier 3: Polished (steps 6–7)
-
-The dashboard handles cross-cutting concerns and is accessible. Ready for internal use or beta.
+Cross-cutting concerns and accessibility. Ready for internal use or beta.
 
 | # | Requirement |
 |---|---|
 | 16 | **An audit log** of who did what, when. |
-| 17 | **Keyboard accessibility.** Every interactive element reachable by Tab. Focus styles visible. No keyboard traps. |
+| 17 | **Keyboard accessibility.** Every interactive element Tab-reachable. Focus styles visible. No keyboard traps. |
 | 18 | **Responsive layout.** Works at 1440, 1024, 768, 375. Sidebar collapses to drawer on mobile. |
-| 19 | **Breadcrumbs** on nested pages. Sub-menus expand/collapse and remember state. |
-| 20 | **Cross-cutting concerns** wired: search, exports, notifications, or theme toggle (whichever the domain needs). |
+| 19 | **Breadcrumbs** on nested pages. Sub-menus expand and collapse, and remember state. |
+| 20 | **Cross-cutting concerns wired:** search, exports, notifications, or theme toggle, whichever the domain needs. |
 
-**Proof test:** Resize to 375px → the layout holds and is usable. Tab through the entire page → every element reachable. Check the audit log → see a record of recent mutations. Export a table → get a real file.
-
-### Tier 4: Hardened (steps 8–9)
+### Tier 4: Hardened (4)
 
 Ship-ready. Tested, secure, verified.
 
 | # | Requirement |
 |---|---|
-| 21 | **Tests.** Auth flow, one CRUD flow, one permission denial, axe accessibility on every page. |
-| 22 | **Security headers.** CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. No secrets in git. Rate limiting on login and mutations. |
-| 23 | **Verification checklist passed.** The full checklist from `references/preflight-and-verification.md` walked and green. |
-| 24 | **No hollow indicators.** Zero TODOs, zero console.logs, zero hardcoded data, zero empty handlers in production paths. |
+| 21 | **Tests.** Auth flow, one CRUD flow, one permission denial, axe on every page. |
+| 22 | **Security headers.** CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. No secrets in git. Rate limits on login and mutations. |
+| 23 | **Verification checklist passed.** Full checklist from `references/preflight-and-verification.md` walked and green. |
+| 24 | **No hollow indicators.** Zero TODOs, zero raw `console.log`, `dd()`, or `binding.pry` in production paths, zero hardcoded data, zero empty handlers. |
 
-**Proof test:** `npm run build` succeeds clean. `npm run test` passes. `npm run lint` passes. Open DevTools → zero red errors, zero failed requests. The verification checklist is 100% green.
+**Proof test:** build succeeds clean, tests pass, lint passes, DevTools shows zero red errors and zero failed requests. If the repo lacks CI, LICENSE, or release automation, hand off to `repo-ready`.
 
-### How tiers work in practice
+## The "have-nots": things that disqualify the dashboard at any tier
 
-- **The agent always aims for the highest tier the session allows.** Don't stop at Tier 1 if there's context and time to reach Tier 2.
-- **Declare the completed tier explicitly** when reaching a boundary: "Tier 1 (Foundation) is complete. The dashboard authenticates, shows real data, and supports full CRUD on [entity]. Continuing to Tier 2."
-- **Never leave a tier half-done.** If you're in the middle of Tier 2 and running out of context, finish the current feature slice and declare Tier 1 complete with a note on what Tier 2 items remain.
-- **The "have-nots" apply at every tier.** No TODOs, no fake data, no empty handlers — even at Tier 1. Each tier is *real* at its scope, not scaffolded.
-- **In assessment mode (existing codebase):** Determine which tier the codebase currently satisfies, then work toward the next one. The research output's gap analysis maps directly to unfulfilled tier requirements.
+If any of these appear, the dashboard fails the no-scaffold rule and must be fixed:
 
-*The completion tiers above ARE the full requirements list. Tier 4 complete = all 24 requirements present. The "have-nots" below apply at every tier.*
-
-## The "have nots" — things that disqualify the dashboard
-
-If any of these appear, the dashboard fails the no-scaffold rule and must be fixed before stopping:
-
-- `// TODO`, `// implement later`, `// hook up to API`, `// FIXME` in any file
-- `console.log` left in production code paths
-- Hardcoded arrays of fake data inside React components (data must come from the data layer)
+- `// TODO`, `# TODO`, `// FIXME`, `# implement later`, `// hook up to API` in any file
+- Raw `console.log`, `dd()`, `binding.pry`, `var_dump()`, or debug `print()` left in production paths
+- Hardcoded arrays of fake data inside components (data must come from the data layer)
 - `Math.random()` driving any chart or KPI
 - `alert()` or `prompt()` for user interaction
 - "Coming soon" pages or disabled nav items
@@ -349,294 +236,50 @@ If any of these appear, the dashboard fails the no-scaffold rule and must be fix
 - Routes in the sidebar that 404
 - Charts that re-randomize on every render
 - Login pages that accept any credentials
-- Any "demo mode" or "this is a placeholder" copy visible to the user
-- Inline styles for what should be design tokens (when the project has a design system)
+- Any "demo mode" or "placeholder" copy visible to the user
 - Components named `ExampleX`, `DemoY`, `TestZ` shipped to the user
-- Dependency on a service the user hasn't been told they need to set up
+- Unmodified shadcn/Radix/MUI default theme visible to the user
 
-When you catch yourself about to write any of these, stop and do the real version instead. The real version is almost always 10–30 more lines of code, not 10x more.
+When you catch yourself about to write any of these, do the real version instead. The real version is almost always 10 to 30 more lines, not 10x more.
 
-## The "dos"
+## Reference files: load on demand
 
-- **Do** seed the database with realistic data. Not `User 1, User 2, User 3` — real-looking names, real-looking emails, realistic timestamps, realistic distributions. Faker libraries exist; use them.
-- **Do** put the logo top-left and the user menu top-right. This is where every user's eyes look. Deviating is a costly novelty.
-- **Do** group nav items by frequency of use, not alphabetically. Daily-use items at the top, monthly-use in the middle, settings at the bottom.
-- **Do** use a server-state library (TanStack Query, SWR, RTK Query, Apollo, urql, or framework-native equivalents) for any non-trivial dashboard. Hand-rolling `useEffect + fetch + useState` for each page is how dashboards get inconsistent and slow.
-- **Do** invalidate caches after mutations so the list reflects what just happened. This is the #1 "feels broken" bug.
-- **Do** show optimistic updates for actions where the success rate is >95% (toggles, simple edits). Roll back on error.
-- **Do** debounce search inputs (250–400ms) and cancel in-flight requests when a new one starts.
-- **Do** persist table state (sort, filter, page) in the URL query string so reloads and shares work.
-- **Do** put primary actions in the same place on every page (top-right of the page header is the convention).
-- **Do** use a single design token system (CSS variables or a theme object). One source of truth for color, spacing, radius, font.
-- **Do** pick a chart library and stick to it for the whole dashboard. Mixing Recharts, Chart.js, and ApexCharts is visual chaos.
-- **Do** show data freshness ("Updated 2 min ago") on dashboards that use cached or polled data. Users need to know if they're looking at stale state.
-- **Do** make destructive actions require confirmation, and make the confirmation type the resource name for irreversible ones.
-
-## The "don'ts"
-
-- **Don't** invent a brand-new layout pattern. Sidebar-left + topbar + content is a convention because it works. Reinvent only when the domain demands it.
-- **Don't** put more than 7 items in the top level of the sidebar. Group the rest under sections or move them to settings.
-- **Don't** use a pie chart with more than 4 slices. Use a horizontal bar chart instead.
-- **Don't** use 3D charts. Ever.
-- **Don't** use rainbow palettes for sequential data. Use a single-hue gradient.
-- **Don't** display more than 4 KPI cards above the fold on the landing page. More than that and they become wallpaper.
-- **Don't** auto-refresh the entire dashboard on a timer unless the use case is operational/realtime monitoring. Let the user pull-to-refresh or use targeted polling per widget.
-- **Don't** use modals for anything that needs more than ~5 form fields. Use a side drawer or a dedicated page.
-- **Don't** hide critical information behind tooltips. Tooltips are for clarification, not primary content.
-- **Don't** use icons without labels in primary navigation. Icon-only nav is for power users who already know the app.
-- **Don't** ship a dashboard without testing it on a small viewport. The mobile breakage is always worse than you think.
-- **Don't** trust client-supplied IDs in mutations. The server resolves the current user from the session, not from the request body.
-- **Don't** use default component library themes unchanged. Every dashboard should have its own color palette and typography pairing derived from its domain. Shipping with unmodified shadcn/Radix/MUI defaults is the visual equivalent of `// TODO`.
-- **Don't** use Inter, Roboto, or system-ui as the only font across the entire dashboard. Pair a distinctive heading font with a readable body font. Typography is the single biggest differentiator between "generic AI output" and "designed product."
-
-## Naming conventions
-
-Inconsistent naming is how a dashboard ends up with `getUserData`, `fetchUserInfo`, and `loadUserDetails` all doing the same thing. Pick a convention per layer and enforce it everywhere.
-
-### Code naming
-
-| Layer | Convention | Examples |
-|---|---|---|
-| **Files and directories** | `kebab-case`, colocated by feature | `orders/OrderList.tsx`, `orders/OrderList.test.tsx`, `orders/use-orders.ts` |
-| **Type/schema files** | Suffix with role when not obvious | `order.types.ts`, `order.schema.ts`, `order.constants.ts`, `order.seed.ts` |
-| **Components** | `PascalCase`, noun-based | `UserTable`, `OrderDetail`, `CreateCustomerForm` |
-| **Functions / hooks** | `camelCase`, verb-first | `createUser`, `updateOrder`, `useUsers`, `useOrderById` |
-| **Service functions** | `camelCase`, verb + entity | `updateUserRole`, `deleteProject`, `inviteMember` |
-| **Booleans** | `is/has/can/should` prefix (reads as a question) | `isActive`, `hasPermission`, `canEdit`, `shouldRetry` |
-| **Database tables** | `snake_case`, plural | `users`, `orders`, `audit_logs`, `order_items` |
-| **Database columns** | `snake_case`, FK = `{singular}_id` | `created_at`, `user_id`, `is_active`, `total_amount` |
-| **Junction tables** | Domain name if it has extra columns, alphabetical if pure join | `team_memberships` (has `role`), `roles_users` (pure IDs) |
-| **Indexes** | `{table}_{columns}_{type}` | `orders_customer_id_idx`, `users_email_key`, `orders_pkey` |
-| **Migrations** | Timestamp + imperative verb | `20260411_add_status_to_orders.ts`, `20260412_create_audit_logs.ts` |
-| **Enum values (DB)** | `snake_case` lowercase | `active`, `pending_review`, `archived` (not `ACTIVE`) |
-| **API endpoints** | Plural nouns, max 1 level nesting | `/api/users/:id/orders` (fine), `/api/users/:id/orders/:oid/items` (promote to `/api/order-items/:id`) |
-| **API action endpoints** | Sub-resource verb for non-CRUD | `POST /orders/:id/refund`, `POST /users/:id/invite` |
-| **API query params** | Match your JSON response casing | `?sortBy=createdAt` (if JSON is camelCase), `?sort_by=created_at` (if snake_case) |
-| **API error codes** | `snake_case` lowercase | `card_declined`, `rate_limit_exceeded`, `validation_error` |
-| **Environment variables** | `SCREAMING_SNAKE_CASE` | `DATABASE_URL`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_API_URL` |
-| **Events** | `entity.verb_past_tense` | `user.created`, `order.fulfilled`, `billing.payment_failed` |
-| **Permissions** | `resource:action` | `users:read`, `users:delete`, `billing:edit`, `audit_log:read` |
-| **Query keys** | Array starting with entity name | `['users']`, `['users', id]`, `['users', 'list', filters]` |
-| **CSS / design tokens** | Semantic names, not literal | `--color-primary` (not `--color-blue-500`), `--button-primary-bg` |
-| **Feature flags** | `kebab-case` | `ai-ticket-routing`, `new-billing-page`, `dark-mode-v2` |
-| **TypeScript types** | `PascalCase`, no `I` prefix | `User`, `OrderStatus`, `CreateUserInput` (not `IUser`) |
-| **Zod schemas** | `camelCase` + `Schema` suffix, derive type | `userSchema` → `type User = z.infer<typeof userSchema>` |
-| **Enums** | `PascalCase` name, `PascalCase` members | `enum OrderStatus { Pending, Shipped, Delivered }` |
-| **i18n keys** | Dot-separated, by feature + component | `checkout.paymentForm.submitButton`, `orders.emptyState.title` |
-| **Test files** | Colocated, `.test.ts` (or `.spec.ts` — pick one) | `OrderList.test.tsx` next to `OrderList.tsx` |
-| **Test IDs** | `data-testid`, kebab-case | `data-testid="order-list-search-input"` |
-| **Git branches** | `{type}/{ticket}-{description}` | `feature/PROJ-123-add-order-filters`, `fix/PROJ-456-login-redirect` |
-| **Commits** | Conventional commits | `feat(orders): add bulk export to CSV`, `fix(auth): handle expired sessions` |
-| **Tags** | Semver with `v` prefix | `v1.0.0`, `v1.2.3-beta.1` |
-
-### Navigation and UI naming
-
-| Element | Convention | Right | Wrong |
-|---|---|---|---|
-| **Top-level nav labels** | Plural nouns for collections, singular for singletons | "Customers", "Orders", "Settings" | "Manage Customers", "Order List" |
-| **Nav casing** | Pick sentence case or title case — never mix | "Audit log" everywhere | "Audit log" here, "Audit Log" there |
-| **Sub-nav items** | More specific nouns | "All customers", "Segments" | "Customer list", "Customer segments" |
-| **Page titles** | Match the nav label exactly | Sidebar: "Orders" → page: "Orders" | Sidebar: "Orders" → page: "Order Management" |
-| **Breadcrumbs** | Match nav labels, not internal names | "Customers / Acme Corp" | "customer-list / cust_123" |
-| **URL slugs** | `kebab-case`, plural for collections | `/customers`, `/customers/:id` | `/customerList`, `/customer/view/:id` |
-| **Action buttons** | Verb + noun | "Create Customer", "Export Report" | "New", "Submit", "Go" |
-| **Status labels** | One vocabulary, used everywhere | "Active / Inactive" everywhere | "Active" here, "Enabled" there |
-| **Empty/loading text** | Specific noun, not generic | "No customers yet" | "No data", "No results" |
-| **Error messages** | What happened + what to do | "Email already exists. Try signing in." | "Error", "Invalid input" |
-| **Toast messages** | Past tense confirmation | "Customer created" | "Success!" |
-| **Confirmation dialogs** | Verb + specific noun as title | "Delete 3 customers?" | "Are you sure?", "Confirm" |
-| **Settings sections** | Domain grouping, not alphabetical | General, Security, Billing | API, Billing, General |
-| **Mobile nav labels** | Same words as desktop, drop to icon-only at narrow widths | Icon-only at 375px | Different words on mobile vs desktop |
-
-### Casing boundary rule
-
-Database is `snake_case`. API contract is either `camelCase` (JS-native) or `snake_case` (Stripe-style) — pick one. Transform at the serialization boundary (one place, not ad-hoc). The client receives the API casing and uses it as-is. Never transform casing inside business logic.
-
-### Naming anti-patterns
-
-Avoid these — they cause confusion in every dashboard codebase:
-
-- **`IUser`** — don't prefix interfaces with `I`. Use `User` for both interfaces and types.
-- **Abbreviations** — `usr`, `btn`, `msg`, `tbl`, `val`, `cnt`, `tmp`. Use full words. Only `id`, `url`, `api` are universally understood.
-- **Context-free names** — `data`, `info`, `item`, `value`, `result`, `payload`. What data? What item? Be specific: `activeUsers`, `orderTotal`.
-- **God-suffix names** — `UserManager`, `OrderHandler`, `DataProcessor`, `ApiUtils`. These indicate too many responsibilities. Break into smaller named concepts.
-- **Inconsistent collection naming** — `getUserList` vs `getOrders` vs `fetchAllProducts`. Pick one pattern.
-- **Negated booleans** — `isNotActive`, `isDisabled`. Creates double-negative confusion (`if (!isNotActive)`). Use the positive form: `isActive`, `isEnabled`.
-- **Redundant context** — inside `OrderService`, use `create()` not `createOrder()`. Inside a `User` class, `getName()` not `getUserName()`.
-
-The single most important naming rule: **the same concept has the same name in every layer.** If the sidebar says "Customers," the page title says "Customers," the breadcrumb says "Customers," the API endpoint is `/api/customers`, the database table is `customers`, the query key is `['customers']`, the event is `customer.created`, and the permission is `customers:read`. One word, everywhere.
-
-## Visual identity — no two dashboards look the same
-
-Every dashboard built with this skill must have its own visual personality. The personality is derived from the user's prompt — the domain, the audience, the emotional register — not from randomness and never from component library defaults.
-
-### Why this matters
-
-AI-generated dashboards converge on the same look: white background, gray sidebar, blue primary, Inter font, 8px radius, shadcn defaults. After seeing three of them, they're indistinguishable. This is the visual equivalent of `const users = [{ name: "User 1" }]` — technically present, functionally hollow. A dashboard built for a hospital should not look identical to one built for a gaming company.
-
-### The 5-decision framework
-
-These five decisions are made in step 3 of the workflow ("Derive the visual identity") and documented in the architecture note. Every component built afterward references these decisions through design tokens.
-
-**Decision 1 — Color palette**
-
-Derive the palette from the domain's emotional register:
-
-| Domain mood | Primary hue range | Example |
-|---|---|---|
-| Trust, stability (finance, healthcare, legal) | Blue 200–230, Slate 210–220 | `hsl(217 71% 45%)` |
-| Growth, nature (agriculture, sustainability) | Green 130–160 | `hsl(142 64% 38%)` |
-| Energy, urgency (gaming, marketing, sales) | Orange 15–30, Red 0–10 | `hsl(24 95% 53%)` |
-| Creativity, premium (media, design, luxury) | Purple 260–290, Rose 330–350 | `hsl(271 76% 53%)` |
-| Warmth, hospitality (HR, education, food) | Amber 35–50, Warm gray | `hsl(43 96% 56%)` |
-| Technology, precision (DevOps, IoT, cyber) | Cyan 180–200, Cool gray | `hsl(192 91% 36%)` |
-| Neutrality, authority (government, enterprise) | Slate 200–220, minimal accent | `hsl(215 16% 47%)` |
-
-**How to build the full palette from one primary:**
-1. Pick the primary hue from the table above
-2. Derive the secondary accent: +120° or +180° on the hue wheel, reduced saturation
-3. Surface tones: desaturate the primary to 5-10% saturation for backgrounds
-4. Sidebar: darken the primary to 15-20% lightness for dark sidebars, or use the surface tone for light sidebars
-5. Semantic colors stay constant (green/amber/red/blue for success/warning/error/info) — only adjust lightness to contrast with your surfaces
-
-**Decision 2 — Typography pairing**
-
-Pick one pair from this table. Every pair is available on Google Fonts and tested for dashboard readability.
-
-| Personality | Heading font | Body font | Best for |
-|---|---|---|---|
-| **Corporate precision** | DM Sans (500–700) | DM Sans (400) | Finance, legal, enterprise |
-| **Warm professional** | Nunito (600–700) | Nunito Sans (400) | HR, education, hospitality |
-| **Modern technical** | Space Grotesk (500–700) | IBM Plex Sans (400) | DevOps, analytics, developer tools |
-| **Editorial authority** | Fraunces (600) | Source Serif 4 (400) | Media, publishing, CMS |
-| **Soft consumer** | Plus Jakarta Sans (600–700) | Plus Jakarta Sans (400) | Consumer SaaS, productivity |
-| **Bold startup** | Outfit (600–700) | Inter (400) | Marketing, CRM, general SaaS |
-| **Playful friendly** | Quicksand (600–700) | Nunito Sans (400) | Food, community, consumer |
-| **Luxury restrained** | Cormorant Garamond (500) | Lato (400) | Real estate, premium, fashion |
-| **Industrial utility** | Barlow (600–700) | Barlow (400) | Logistics, construction, manufacturing |
-| **Data-dense mono** | JetBrains Mono (500–700) | Inter (400) | Trading, monitoring, cybersecurity |
-| **Clean geometric** | Satoshi (500–700) | General Sans (400) | Minimal SaaS, design tools |
-| **Humanist warmth** | Merriweather Sans (700) | Source Sans 3 (400) | Healthcare, wellness, non-profit |
-| **Tech-forward** | Sora (600) | DM Sans (400) | AI/ML, IoT, futuristic |
-| **Dense professional** | Figtree (600) | Figtree (400) | Analytics, reporting, dense data |
-
-**Rule:** If the user specifies a font or brand, use it. The table is for when no font is specified.
-
-**Decision 3 — Border radius**
-
-| Style | Values | Personality |
-|---|---|---|
-| **Sharp** | `--radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px;` | Corporate, technical, editorial, industrial |
-| **Medium** | `--radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;` | General SaaS, professional, most dashboards |
-| **Rounded** | `--radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;` | Consumer, playful, friendly, soft |
-| **Pill** | `--radius-sm: 12px; --radius-md: 16px; --radius-lg: 24px;` | Ultra-modern, opinionated, design-forward |
-
-Apply uniformly: buttons, cards, inputs, badges, dropdowns, modals all use the same scale. Inconsistent radius (round buttons + sharp cards) looks broken.
-
-**Decision 4 — Density**
-
-| Level | Row height | Gap | Padding | Best for |
-|---|---|---|---|---|
-| **Compact** | 32px | 8–12px | 12–16px | Data-heavy: analytics, trading, monitoring, tables with 50+ rows |
-| **Comfortable** | 40px | 16px | 16–24px | General SaaS, admin panels, most dashboards |
-| **Spacious** | 48px | 20–24px | 24–32px | Consumer-facing, onboarding-heavy, low data density |
-
-Density affects every surface: table rows, sidebar items, form fields, card padding, section gaps. Set it once via the spacing unit token and derive everything from it.
-
-**Decision 5 — Signature detail**
-
-One distinctive visual element that makes this specific dashboard recognizable. Pick one:
-
-- **Colored sidebar** — sidebar uses a dark or tinted version of the primary color instead of neutral gray
-- **Accent header bar** — a 3-4px colored bar at the top of the page or under the header
-- **Card left-border** — cards and panels have a colored left border (3-4px) using the primary or accent
-- **Gradient sidebar** — sidebar background is a subtle gradient from primary-dark to primary-darker
-- **Tinted page headers** — each section's header area has a light tint of the primary (5-10% opacity)
-- **Shadow depth** — distinctive shadow treatment: deep layered shadows (luxury) vs flat no-shadow (industrial) vs soft diffused (modern)
-- **Icon style** — outlined thin (minimal) vs filled (bold) vs duotone (premium) — consistent across the entire dashboard
-- **Sidebar dividers** — distinctive section separators: thin lines, spacing gaps, or labeled section headers with different styling
-- **Active nav indicator** — the sidebar active state: left border accent, full background fill, or pill-shaped highlight
-- **Number styling** — tabular/monospace numbers in all data displays with a distinct font weight or color treatment
-
-### Applying tokens to common setups
-
-**shadcn/ui + Tailwind:** Override the CSS variables in `globals.css`. shadcn's theming already uses `--primary`, `--secondary`, etc. Map your identity tokens to their variable names. Change the font in `tailwind.config.ts` under `theme.extend.fontFamily`.
-
-**Plain Tailwind:** Add the tokens to `:root` in your global CSS. Reference via `var(--color-primary)` in custom classes or extend the Tailwind config to use them.
-
-**CSS Modules / Vanilla CSS:** Same `:root` variables. Import the global stylesheet first.
-
-**MUI / Chakra / Mantine:** Create a custom theme object that maps to your token values. Pass it to the ThemeProvider at the root.
-
-### Visual identity anti-patterns
-
-- Using unmodified shadcn/ui default theme (the gray/blue one every AI uses)
-- Using Inter as both heading and body font with no variation
-- Using `hsl(222.2 47.4% 11.2%)` as primary (this is shadcn's literal default — it means you didn't customize)
-- Applying a color to the primary button but leaving everything else default
-- Picking a color palette but not applying it to the sidebar, header, and page backgrounds
-- Using different border radii on different component types (round buttons + sharp cards)
-- Choosing "dark mode" as the personality instead of an actual aesthetic direction
-
-## Reference files — load on demand
-
-The body above is enough to start building. For depth on a specific domain, load the matching reference file. Read each file *before* implementing that layer, not after — the cost of re-doing a layer is much higher than the cost of reading 300 lines.
+The body above is enough to start. Load each reference *before* implementing that layer, not after.
 
 | Reference file | When to load |
 |---|---|
-| `references/codebase-research.md` | **Always** — start of every session |
-| `references/preflight-and-verification.md` | **Always** — start + end |
-| `references/domain-considerations.md` | **Always** — during pre-flight, after identifying domain |
-| `references/information-architecture.md` | **Tier 1** — shell, nav, layout |
-| `references/auth-and-rbac.md` | **Tier 1** — login, sessions, roles, permissions |
-| `references/data-layer.md` | **Tier 1** — API, queries, mutations, caching |
-| `references/ui-design-patterns.md` | **Tier 1** — components, tokens, visual identity |
-| `references/states-and-feedback.md` | **Tier 2** — loading, empty, error, toasts |
-| `references/workflows-and-actions.md` | **Tier 2** — forms, bulk actions, exports |
-| `references/settings-and-configuration.md` | **Tier 2** — settings hierarchy, data model |
-| `references/analytics-and-telemetry.md` | **Tier 3** — audit log, event tracking |
-| `references/system-integration.md` | **Tier 3** — service layer, event bus, feature flags |
-| `references/testing-and-quality.md` | **Tier 4** — test strategy, integration tests |
-| `references/performance-and-security.md` | **Tier 4** — CSP, CORS, rate limiting, bundle size |
-| `references/security-deep-dive.md` | **Tier 4** — session hardening, secrets, incident response |
-| `references/data-visualization.md` | **On demand** — charts, KPIs, tables |
-| `references/payments-and-billing.md` | **On demand** — checkout, subscriptions, PCI |
-| `references/internationalization.md` | **On demand** — i18n, RTL, translation |
-| `references/notifications-and-email.md` | **On demand** — multi-channel notifications |
-| `references/reporting.md` | **On demand** — report generation, PDF/Excel |
-| `references/api-and-integrations.md` | **On demand** — external APIs, webhooks |
-| `references/ai-product-patterns.md` | **On demand** — AI/LLM features |
+| `codebase-research.md` | **Always.** Start of every session |
+| `preflight-and-verification.md` | **Always.** Start and end |
+| `domain-considerations.md` | **Always.** During pre-flight, after identifying domain |
+| `naming.md` | **Tier 1.** When naming anything cross-layer (tables, APIs, nav, events, permissions) |
+| `information-architecture.md` | **Tier 1.** Shell, nav, layout |
+| `auth-and-rbac.md` | **Tier 1.** Login, sessions, roles, permissions |
+| `data-layer.md` | **Tier 1.** API, queries, mutations, caching |
+| `ui-design-patterns.md` | **Tier 1.** Components, tokens, visual identity decision framework |
+| `states-and-feedback.md` | **Tier 2.** Loading, empty, error, toasts |
+| `workflows-and-actions.md` | **Tier 2.** Forms, bulk actions, exports |
+| `settings-and-configuration.md` | **Tier 2.** Settings hierarchy, data model |
+| `analytics-and-telemetry.md` | **Tier 3.** Audit log, event tracking |
+| `system-integration.md` | **Tier 3.** Service layer, event bus, feature flags |
+| `testing-and-quality.md` | **Tier 4.** Test strategy, integration tests |
+| `performance-and-security.md` | **Tier 4.** CSP, CORS, rate limiting, bundle size |
+| `security-deep-dive.md` | **Tier 4.** Session hardening, secrets, incident response |
+| `data-visualization.md` | **On demand.** Charts, KPIs, tables |
+| `payments-and-billing.md` | **On demand.** Checkout, subscriptions, PCI |
+| `internationalization.md` | **On demand.** i18n, RTL, translation |
+| `notifications-and-email.md` | **On demand.** Multi-channel notifications |
+| `reporting.md` | **On demand.** Report generation, PDF and Excel |
+| `api-and-integrations.md` | **On demand.** External APIs, webhooks |
+| `ai-product-patterns.md` | **On demand.** AI and LLM features |
 
-## How to interpret a vague request
+## Handoff: repo hygiene is not this skill's job
 
-The user rarely says "build me an admin panel with RBAC, audit logs, settings, user management, and a billing module." They say "I need a dashboard for my X." Interpret as follows:
+If the work needs README, LICENSE, SECURITY.md, CONTRIBUTING, CI pipelines, issue or PR templates, branch protection, dependency scanning, CODEOWNERS, or release automation, delegate to `repo-ready`. The two skills compose: production-ready owns the app wiring; repo-ready owns the repo scaffolding. Do not duplicate either.
 
-- "Dashboard for my SaaS" → multi-tenant admin: users, organizations, billing, usage, settings, audit
-- "Internal tool for my team" → CRUD on the team's domain entities, with simple shared auth, lighter RBAC
-- "Analytics dashboard" → KPI cards + 4–6 charts + a filter bar + exports; auth optional but recommended
-- "Operational dashboard" / "control panel" → real-time data, health indicators, action buttons (restart, deploy, ack), audit
-- "Customer portal" → end-user-facing: their data only, billing/subscription, support, settings
-- "Reporting dashboard" → tables-heavy, scheduled reports, exports to CSV/PDF, filters, drill-down
-- "CMS" / "blog admin" → content types, draft/publish workflow, media management, SEO, versioning
-- "E-commerce admin" / "store manager" → products/variants, orders, inventory, fulfillment, returns
-- "AI dashboard" / "LLM admin" → models, prompts, conversations, token/cost tracking, evaluation pipelines
-- "Helpdesk" / "support dashboard" → tickets, SLAs, queues, canned responses, customer context
-- "CRM" / "sales dashboard" → contacts, deals, pipeline stages, campaigns, forecasting
-- "HR dashboard" / "people admin" → employees, payroll, leave, benefits, performance reviews
-- "Medical" / "healthcare admin" → patients, encounters, prescriptions, claims, HIPAA compliance
-- "Marketplace admin" → two-sided (buyers + sellers), disputes, commissions, trust/safety
-- "Gaming admin" / "esports" → players, matches, virtual economy, anti-cheat, seasons
-- "Restaurant" / "POS admin" → menus with modifiers, orders, table management, kitchen display
-- "Property management" → units, leases, tenants, maintenance, owner reporting
-- "Logistics" / "fleet management" → shipments, vehicles, routes, drivers, real-time tracking
-- "Legal" / "law firm" → matters, time billing (0.1-hour increments), trust accounting, conflicts
-- "Construction" / "field services" → jobs, crews, permits, inspections, offline-first mobile
-- "Education" / "LMS" → courses, enrollments, gradebook, assessments, student progress
-
-Pick the closest archetype (or combine if the dashboard spans domains), then read the matching section in `references/domain-considerations.md` during pre-flight. Build the foundation slice the same way regardless, then specialize the feature slices to the archetype.
+**If your harness exposes a skill-invocation tool** (e.g., Claude Code's Skill tool), invoke `repo-ready` directly when the handoff trigger fires. **Otherwise**, surface the handoff to the user: "This step needs `repo-ready`. Install it or handle the repo hygiene layer separately." Do not attempt to generate CI, LICENSE, or release automation inline from this skill.
 
 ## Keep going until it's actually done
 
-Dashboards have a long tail. The instinct to stop at "the main pages exist" is wrong — the main pages existing is roughly 40% of the work. The remaining 60% is: empty states, error states, validation, permissions on every mutation, the audit log, the settings page, the profile page, the logout flow, the responsive breakpoints, the keyboard tab order, the loading skeletons, the success toasts, the cache invalidation, the seed data, and the verification pass. Budget for all of it. A "done" dashboard is one a real person can hand to a colleague without a list of caveats.
+The main pages existing is roughly 40% of the work. The remaining 60% is empty states, error states, validation, permissions on every mutation, the audit log, the settings page, the profile page, the logout flow, the responsive breakpoints, the keyboard tab order, the loading skeletons, the success toasts, the cache invalidation, the seed data, and the verification pass. Budget for all of it.
 
-When in doubt about whether to keep going: open the dashboard yourself and try to do the user's actual job with it. The first thing you can't do is the next thing to build.
+A "done" dashboard is one a real person can hand to a colleague without a list of caveats. When in doubt, open the dashboard and try to do the user's actual job with it. The first thing you can't do is the next thing to build.
