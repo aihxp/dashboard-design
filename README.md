@@ -38,6 +38,23 @@ AI agents build apps layer by layer: database, then API, then auth, then UI. Thi
 
 Production Ready enforces **vertical-slice discipline**: build one feature completely (schema, API, permissions, UI, states, tests) before touching the next. When a feature is done, a real person can do a real job with it.
 
+## Vibe coding vs. vibe engineering
+
+Andrej Karpathy coined "vibe coding" in February 2025: generate code with an LLM, accept it, move on without reading it. When that works, it's magic. When it doesn't, you get the incidents in the news:
+
+- **Moltbook** leaked 1.5M API keys and 35k user emails because row-level security was never enabled (2025).
+- **Lovable** shipped an inverted access-control bug across 170+ production apps (CVE-2025-48757).
+- **Base44** had a platform-wide authentication bypass.
+- A **Replit agent** wiped a production database during a declared code freeze (1,206 executive records, 1,196 company records).
+- **Veracode 2025** tested 100+ LLMs: 45% of generated code had vulnerabilities; 86% failure rate on XSS.
+- **Socket 2025:** 20% of AI-suggested packages don't exist (slopsquatting is now a named attack vector).
+- **METR 2025:** experienced developers were 19% *slower* with AI while believing they were 20% faster.
+- **Stack Overflow 2025:** 66% cite "almost right, but not quite" as their top AI frustration; trust in AI accuracy dropped from 40% to 29% year-over-year.
+
+Simon Willison coined the counterweight: **"vibe engineering."** Same AI leverage, but with tests, review, planning, threat models, and decision records. That's what this skill enforces.
+
+If you want code the author (the model) doesn't have to understand, this is the wrong skill. If you want code that survives the next six months without you, it's the right one.
+
 ## How it works
 
 ```
@@ -81,19 +98,28 @@ The research output is a structured document any agent's planner can consume to 
 
 The agent declares each tier complete at its checkpoint. For existing codebases, the research phase determines the current tier and works toward the next one.
 
-## What it catches
+## What this skill prevents
 
-| What AI agents typically ship | What Production Ready enforces |
+Mapped against real, documented AI coding failures:
+
+| Real incident / research finding | What Production Ready enforces that would have caught it |
 |---|---|
-| `const mockUsers = [...]` in a component | Data from the real persistence layer via query hooks |
-| `onClick={() => console.log("clicked")}` | Real mutation, cache invalidation, success toast |
-| Login that accepts any credentials | Hashed passwords, sessions, server-side route guards |
-| "Coming soon" pages in the sidebar | Every nav link routes to a real, rendered page |
-| Charts that re-randomize on refresh | Charts driven by real data from the data layer |
-| Empty table with no guidance | Empty state with explanation and CTA |
-| `// TODO: add validation` | Client plus server validation with inline field errors |
-| Permissions checked only in the UI | Server enforces every mutation; UI reflects as courtesy |
-| Every app looks the same | Visual identity derived from domain context: unique colors, typography, personality |
+| **Moltbook (2025):** 1.5M keys leaked because RLS was never enabled | Step 2 threat model names every trust boundary; Tier 1 requires server-side auth; "permissions checked only on client" is an explicit disqualifier |
+| **Lovable CVE-2025-48757:** inverted access control across 170+ apps | Tier 2 RBAC requires server-side checks on every mutation, mapped back to the threat model |
+| **Base44 platform auth bypass** | Same as above |
+| **Replit agent wiped prod DB during code freeze** | Destructive commands without confirmation and backup are an explicit disqualifier |
+| **Slopsquatting (Socket 2025):** 20% of AI-suggested packages are ghosts | Step 4 requires pre-install verification of every unfamiliar dependency; hollow-check scans `package.json` for unpublished names |
+| **Veracode 2025:** 45% of AI code has vulnerabilities, 86% XSS failure | Tier 4 security headers, rate limits, `npm audit`; threat model drives per-slice permission checks |
+| **METR 2025:** experienced devs 19% slower with AI | Tier proof tests force real end-to-end verification over dopamine; vertical slices produce working features instead of parallel half-done layers |
+| **Stack Overflow 2025:** 66% cite "almost right, but not quite" | Hollow-check protocol + smoke tests per slice catch wiring-level wrongness before it compounds |
+| **Context entropy (Pragmatic Engineer):** vibe projects hit a wall around 3 months | `.production-ready/STATE.md` session state file + ADR-per-non-obvious-decision preserve context across sessions and handoffs |
+| **Generic "AI slop" UI** (every app looks like shadcn defaults) | Visual identity framework with 10 archetypes, typography pairings, and explicit anti-patterns ("unmodified shadcn/Radix/MUI theme visible to the user") |
+| **`const mockUsers = [...]` in components** | Seeded real persistence; hardcoded fake data is an explicit disqualifier |
+| **`onClick={() => console.log("clicked")}`** | Explicit disqualifier at any tier |
+| **"Coming soon" sidebar links** | Every nav link must route to a real page; explicit disqualifier |
+| **Charts that re-randomize on refresh** | `Math.random()` driving any chart or KPI is an explicit disqualifier |
+| **Login that accepts any credentials** | Tier 1 proof test requires failed-login rejection |
+| **`// TODO: add validation`** | Hollow-check scans catch TODOs across JS/TS, Python, Ruby, PHP |
 
 ## 33 industry verticals
 

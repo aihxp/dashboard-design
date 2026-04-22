@@ -58,6 +58,7 @@ Produce a short note (5 to 15 lines) covering:
 - **Auth model.** Sessions vs. JWT, where the user record lives, how roles attach.
 - **Permission model.** RBAC role list and the resource by action matrix.
 - **Route map.** Every page, parent to child nesting.
+- **Threat model.** Three answers, one line each: (1) what does an attacker gain from this system (data, money, identity, control); (2) what is the highest-blast-radius mutation (who can `DELETE`, who can alter billing, who can impersonate); (3) where is each trust boundary (network edge, session, role, tenant). For regulated domains (healthcare, finance, legal, HR, government), add the compliance blast radius: what kind of incident would trigger a disclosure obligation. This is not a deep threat model; it is the minimum signal needed so the server-side checks in Step 4 aren't guesswork.
 - **Visual identity.** Archetype, palette, typography, radius, density, signature detail (see step 3).
 
 **In Mode B:** don't decide, document. Architecture note adopts what exists and adds only what's missing.
@@ -77,14 +78,15 @@ Two users asking for "a SaaS dashboard" must get two dashboards that look differ
 Always the same, always first:
 
 1. Project bootstrapped, runs locally.
-2. Design tokens applied globally. Fonts loaded. Every component inherits from tokens.
-3. Database or persistence up, migrations applied, seed script with at least one admin and 5 to 20 realistic rows per main entity.
-4. Auth working: login, logout, session persistence, password hashing (argon2 or bcrypt, never plain, never sha256), middleware that gates protected routes server-side.
-5. RBAC working: at least two roles, server-side permission checks, a way to verify what a non-admin sees.
-6. Shell layout: header (logo top-left, user menu top-right), sidebar nav, content area, breadcrumbs, responsive collapse. Tokens applied, not default theme.
-7. One real protected page reachable end-to-end.
+2. **Verify every dependency exists before installing.** AI suggestions produce ghost packages roughly 20% of the time (Socket, 2025). Before running `npm install`, `pip install`, `bundle add`, `composer require`, or equivalent, confirm for each unfamiliar package: (a) it actually exists on the registry; (b) the publisher name matches what you expect (`@tanstack/react-query` is real, `@tansatck/react-query` is a squat); (c) weekly download count is non-trivial (1k plus is a sane floor for serious deps). A quick check: `npm view <pkg> name maintainers` or the registry's web page. Reject ghost packages. Never install a registry name an LLM produced without this check. See `references/performance-and-security.md` for the supply-chain deep dive.
+3. Design tokens applied globally. Fonts loaded. Every component inherits from tokens.
+4. Database or persistence up, migrations applied, seed script with at least one admin and 5 to 20 realistic rows per main entity.
+5. Auth working: login, logout, session persistence, password hashing (argon2 or bcrypt, never plain, never sha256), middleware that gates protected routes server-side.
+6. RBAC working: at least two roles, server-side permission checks, a way to verify what a non-admin sees. Every check maps back to a trust boundary from the Step 2 threat model.
+7. Shell layout: header (logo top-left, user menu top-right), sidebar nav, content area, breadcrumbs, responsive collapse. Tokens applied, not default theme.
+8. One real protected page reachable end-to-end.
 
-**Proof test before declaring Tier 1:** run the app, sign in as admin, see the landing page with real data, visit a CRUD page, create, edit, delete, sign out, sign in as non-admin, confirm different UI and 403 on forbidden mutations, reload, confirm data persists. Inspect one button and verify its color traces to `--color-primary`, not a library default. If this loop works, Tier 1 is complete. Run the hollow check.
+**Proof test before declaring Tier 1:** run the app, sign in as admin, see the landing page with real data, visit a CRUD page, create, edit, delete, sign out, sign in as non-admin, confirm different UI and 403 on forbidden mutations, reload, confirm data persists. Inspect one button and verify its color traces to `--color-primary`, not a library default. Confirm every dependency in `package.json` (or equivalent) is a real, published package with a known publisher. If this loop works, Tier 1 is complete. Run the hollow check.
 
 ### Step 5. Build feature slices
 
@@ -92,11 +94,12 @@ For each feature, follow this recipe:
 
 1. Schema or migration if new entities.
 2. Seed data.
-3. Server: list (paginate, filter, sort), detail, create, update, delete, all with permission checks.
+3. Server: list (paginate, filter, sort), detail, create, update, delete, all with permission checks that map to the threat model's trust boundaries.
 4. Client: query hooks for read, mutation hooks for write, cache invalidation.
 5. Pages: list (empty, loading, error states), detail, create/edit form (client and server validation, submission states, success and error feedback), delete confirmation.
 6. Audit: every mutation writes an audit log entry.
 7. Smoke test: walk create, edit, delete manually before declaring the slice done.
+8. **Decision record (ADR) if the slice made a non-obvious choice.** Three lines in `.production-ready/adr/NNN-slug.md`: what was decided, why, what was rejected and why. Skip for obvious decisions ("used the already-chosen ORM"). Write for decisions a future maintainer would have to reverse-engineer from code: "chose event sourcing over CRUD for this entity," "split `orders` and `order_items` as separate aggregates," "bypass the query layer for this report because it aggregates across tenants." The ADR is the only way the next human or agent inherits your reasoning rather than rediscovering it. Three lines. If you need more, you are over-documenting.
 
 Order of slices: most-used first, riskiest second, nice-to-haves last. If the user runs out of patience halfway through, the most important feature is still complete.
 
@@ -128,9 +131,19 @@ grep -rn "dd(\|dump(\|var_dump(" app/ resources/
 
 # Universal
 grep -rnE "Coming soon|Not implemented|Placeholder|TBD|WIP" .
+
+# Ghost dependency check (run after any package add)
+# npm / pnpm / yarn
+jq -r '.dependencies, .devDependencies | keys[]?' package.json 2>/dev/null | while read -r pkg; do
+  npm view "$pkg" name > /dev/null 2>&1 || echo "GHOST: $pkg not published on npm"
+done
+# Python
+pip install --dry-run -r requirements.txt 2>&1 | grep -i "could not find"
+# Ruby
+bundle check 2>&1 | grep -i "could not find"
 ```
 
-**Rule:** zero high-severity hits before the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now. Legitimate `console.error` or structured logger calls in catch blocks are fine; raw `console.log`, `dd()`, or `binding.pry` in production paths are not.
+**Rule:** zero high-severity hits before the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now. Legitimate `console.error` or structured logger calls in catch blocks are fine; raw `console.log`, `dd()`, or `binding.pry` in production paths are not. Any `GHOST:` hit is always high-severity: stop, remove the package, re-verify the real name, re-install.
 
 **When to run:** after each slice (scan touched files only), and at each tier boundary (scan everything). Tier 4 requires zero hits at any severity.
 
@@ -239,6 +252,9 @@ If any of these appear, the dashboard fails the no-scaffold rule and must be fix
 - Any "demo mode" or "placeholder" copy visible to the user
 - Components named `ExampleX`, `DemoY`, `TestZ` shipped to the user
 - Unmodified shadcn/Radix/MUI default theme visible to the user
+- Installing a package without confirming it exists on the registry with a real publisher (slopsquatting protection)
+- A non-obvious architectural decision made with no corresponding ADR in `.production-ready/adr/`
+- Running a destructive command (`rm -rf`, `DROP TABLE`, `git push --force`, `prisma migrate reset`) without an explicit confirmation step and a known backup
 
 When you catch yourself about to write any of these, do the real version instead. The real version is almost always 10 to 30 more lines, not 10x more.
 
@@ -271,6 +287,53 @@ The body above is enough to start. Load each reference *before* implementing tha
 | `reporting.md` | **On demand.** Report generation, PDF and Excel |
 | `api-and-integrations.md` | **On demand.** External APIs, webhooks |
 | `ai-product-patterns.md` | **On demand.** AI and LLM features |
+
+## Session state and handoff
+
+Long builds span sessions. Without a state file, every resume rediscovers context from the code and drops the decisions made in earlier sessions. The second diagnosis of context-entropy failures (Pragmatic Engineer, r/ExperiencedDevs) is always the same: "the AI's context window can only see fragments, and developers have no map to find a stable version."
+
+Maintain `.production-ready/STATE.md` as the map. Update it at every tier boundary, every session end, and whenever the harness compacts context. Read it first on resume. If it conflicts with the code, trust the code and update the file.
+
+**Template:**
+
+```markdown
+# Production-Ready State
+
+## Current tier
+Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].
+
+## Slices completed
+- [x] users (Tier 1, completed 2026-04-18)
+- [x] orders (Tier 2, completed 2026-04-20)
+- [ ] billing (in progress, started 2026-04-22)
+
+## Active architectural decisions
+- Stack: Next.js 15 + Prisma + SQLite (dev) / Postgres (prod) + Better Auth + shadcn/ui + Tailwind + TanStack Query + Recharts
+- Auth: session-based, httpOnly cookie, argon2 password hash
+- RBAC: roles = [owner, admin, member], server-enforced via middleware + row-level ownership checks
+- Visual identity: Clean corporate archetype, DM Sans, 8px radius, comfortable density, accent-header-bar signature
+- Threat model: tenant isolation is the critical boundary; highest-blast-radius op is cross-tenant `DELETE` in admin panel
+
+## ADRs written
+- 001-prisma-over-drizzle.md
+- 002-session-cookie-not-jwt.md
+- 003-audit-log-as-append-only-table.md
+
+## Open questions blocking work
+- Stripe vs. Lemon Squeezy for billing (user to decide before slice starts)
+
+## Next slice
+Billing. Needs: Stripe webhook endpoint, `subscription` + `invoice` schema, plan-change flow, dunning emails.
+
+## Last session note
+[2026-04-22] Finished orders audit log. Skipped analytics page for now (Tier 3 item). Hollow check clean. Ghost dep check clean.
+```
+
+**Rules:**
+- STATE.md is the contract with the next session. If it is out of date, the next session will do the wrong thing.
+- At every `/compact`, `/clear`, or context reset, update STATE.md first. Do not rely on the agent's memory.
+- The `Active architectural decisions` block is the short version of the ADR corpus. Agents reading STATE.md on resume should not need to open every ADR to know the stack.
+- Never delete STATE.md. If an entry is wrong, correct it in place with a dated note.
 
 ## Handoff: repo hygiene is not this skill's job
 
