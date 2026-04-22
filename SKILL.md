@@ -1,7 +1,7 @@
 ---
 name: production-ready
 description: "Build production-grade, end-to-end connected apps across any stack: dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers. Triggers on 'dashboard,' 'admin panel,' 'internal tool,' 'back office,' 'control panel,' 'analytics view,' or any multi-page interface with auth, navigation, and CRUD over domain data. Enforces vertical-slice discipline and a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend, not stubbed with TODO, fake JSON, or 'hook this up later.' Pairs with repo-ready for repo hygiene. Not for single components, marketing sites, or pure repo scaffolding. Full trigger list in README."
-version: 2.3.0
+version: 2.4.0
 updated: 2026-04-22
 changelog: CHANGELOG.md
 compatible_with:
@@ -177,11 +177,11 @@ grep -rnE "useMutation\(\{[^}]*mutationFn" src/ --include="*.tsx" --include="*.t
 grep -rnE "<form(\s[^>]*)?>" src/ --include="*.tsx" --include="*.jsx" | grep -v "onSubmit\|action=" || true
 ```
 
-**Rule:** zero high-severity hits before the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now. Legitimate `console.error` or structured logger calls in catch blocks are fine; raw `console.log`, `dd()`, or `binding.pry` in production paths are not. Any `GHOST:` hit is always high-severity: stop, remove the package, re-verify the real name, re-install. **CTA flow hits are heuristic, not automatic failures.** Navigation destinations need to be cross-checked against the route map; empty dialog/drawer shells are sometimes intentional placeholders for late-binding children, and some mutations invalidate caches elsewhere. Treat CTA hits as a manual-audit list: for each, confirm the chain completes. Any chain that does not complete is a half-wired CTA and blocks the slice.
+**Rule:** zero hits before the next slice. No severity ladder, no batching "for cleanup later." If the scan finds a TODO you wrote ten minutes ago, fix it now. There is one narrow exclusion: legitimate `console.error` or structured logger calls in catch blocks are not hits and do not need to be cleaned up. Raw `console.log`, `dd()`, `binding.pry`, `dump()`, and `var_dump()` in production paths always are, and always block. Any `GHOST:` hit is always a failure: stop, remove the package, re-verify the real name, re-install. **CTA flow hits are heuristic, not automatic failures.** Navigation destinations need to be cross-checked against the route map; empty dialog/drawer shells are sometimes intentional placeholders for late-binding children, and some mutations invalidate caches elsewhere. Treat CTA hits as a manual-audit list: for each, confirm the chain completes. Any chain that does not complete is a half-wired CTA and blocks the slice.
 
-**When to run:** after each slice (scan touched files only), and at each tier boundary (scan everything). Tier 4 requires zero hits at any severity.
+**When to run:** after each slice (scan touched files only), and at each tier boundary (scan everything).
 
-**Passes when:** the scan returns zero high-severity hits (and zero `GHOST:` hits at any severity) for the scope of the run.
+**Passes when:** the scan returns zero hits for the scope of the run, with the single exclusion above (logger calls in catch blocks).
 
 ### Step 6. Cross-cutting concerns
 
@@ -274,7 +274,7 @@ Ship-ready. Tested, secure, verified.
 | 21 | **Tests.** Auth flow, one CRUD flow, one permission denial, axe on every page, and a contract test for every public API signature, server action, or exported type that crosses slice boundaries. |
 | 22 | **Security headers.** CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. No secrets in git. Rate limits on login and mutations. |
 | 23 | **Verification checklist passed.** Full checklist from `references/preflight-and-verification.md` walked and green. |
-| 24 | **No hollow indicators.** Zero TODOs, zero raw `console.log`, `dd()`, or `binding.pry` in production paths, zero hardcoded data, zero empty handlers, zero live entries in `.production-ready/deferred-cta.md` (every entry must be `resolved` or `dropped`). |
+| 24 | **No hollow indicators and no open work.** Zero TODOs, zero raw `console.log`, `dd()`, or `binding.pry` in production paths, zero hardcoded data, zero empty handlers, zero live entries in `.production-ready/deferred-cta.md` (every entry `resolved` or `dropped`), zero `open` questions in STATE.md, and for Mode D projects, zero unshipped `rewrite` items in the migration disposition inventory (every item `shipped` or explicitly `reclassified-as-dropped` with an ADR). |
 
 **Proof test:** build succeeds clean, tests pass, lint passes, DevTools shows zero red errors and zero failed requests. If the repo lacks CI, LICENSE, or release automation, hand off to `repo-ready`.
 
@@ -375,7 +375,7 @@ Maintain `.production-ready/STATE.md` as the map. Update it at every tier bounda
 # Production-Ready State
 
 ## Skill version
-Built under production-ready 2.3.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
+Built under production-ready 2.4.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
 
 ## Current tier
 Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].
@@ -398,7 +398,7 @@ Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].
 - 003-audit-log-as-append-only-table.md
 
 ## Open questions blocking work
-- Stripe vs. Lemon Squeezy for billing (user to decide before slice starts)
+- [open, target: billing slice] Stripe vs. Lemon Squeezy. Blocks: billing schema and webhook endpoint cannot be written without the choice.
 
 ## Next slice
 Billing. Needs: Stripe webhook endpoint, `subscription` + `invoice` schema, plan-change flow, dunning emails.
@@ -412,6 +412,24 @@ Billing. Needs: Stripe webhook endpoint, `subscription` + `invoice` schema, plan
 - At every `/compact`, `/clear`, or context reset, update STATE.md first. Do not rely on the agent's memory.
 - The `Active architectural decisions` block is the short version of the ADR corpus. Agents reading STATE.md on resume should not need to open every ADR to know the stack.
 - Never delete STATE.md. If an entry is wrong, correct it in place with a dated note.
+
+### Open-questions lifecycle
+
+The `Open questions blocking work` block is the same graveyard risk as `.production-ready/deferred-cta.md`: an escape hatch with no exit. Apply the same discipline.
+
+**Entry schema.** Every question must name:
+- **Status:** one of `open` (awaiting answer), `answered` (with the answer recorded inline, then promoted to the architectural-decisions block or an ADR on the next update), `dropped` (one-line reason). Dropped entries stay in the file for audit history.
+- **Target:** the named slice or tier boundary where the question must be answered.
+- **Blocks:** what the question prevents. Specific, not vague. "Billing schema and webhook endpoint cannot be written without the choice" is specific. "We need to decide later" is not.
+
+**Tier-boundary review.** At every tier boundary, walk the block entry by entry:
+- Answered questions: promote the answer to the architectural-decisions block (if it shifts the stack or permission model) or to an ADR (if it made a non-obvious trade-off), then close the entry by marking `answered` with the resolution date.
+- Open questions whose blocker is unchanged: append a check date. Questions stuck `open` across two tier boundaries are a signal the work needs to stall until the user decides, or the question should be `dropped` if the feature it blocks can be cut.
+- Dropped questions: write a one-line reason. They stay in the file so future agents and humans see the decision history, not a mystery gap.
+
+**Tier 4 closure gate.** Tier 4 (Hardened) cannot be declared complete while any question is `open`. Every entry must be `answered` or `dropped`. Shipping Hardened with open questions means shipping uncertainty.
+
+**Drift signal.** More than 5 live `open` questions is a signal the slice scope is drifting. Either the scope needs to shrink, or the slice cannot start until the user answers the decisions gating it.
 
 ## Handoff: repo hygiene is not this skill's job
 

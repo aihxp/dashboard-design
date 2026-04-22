@@ -539,6 +539,18 @@ Phase 4 (Tier 4 harden): [items].
 
 The plan is the todo. The key discipline: **no item crosses from "rewrite" to "keep" without an ADR explaining why it now meets the tier bar.** This prevents the common migration failure where scope creeps and half-done template code gets blessed as "good enough."
 
+### Migration closure gate
+
+The disposition inventory has the same graveyard risk as `.production-ready/deferred-cta.md` and the STATE.md open-questions block: a phased list with no forcing function. Without closure, a migration inherits 40 `rewrite` items, ships 20 in the first pass, and the remaining 20 quietly persist as unshipped scaffolding while the project looks progressing.
+
+**Item schema.** Every `rewrite` item in the inventory must carry a status: `planned` (not yet started), `in-progress` (active in the current slice), `shipped` (the replacement code is in place and meets the tier bar), or `reclassified-as-dropped` (decided not to rewrite; the original code stays or the feature is cut). Every `reclassified-as-dropped` item must have an accompanying ADR explaining why the earlier rewrite judgment was reversed.
+
+**Tier-boundary review.** At every tier boundary (Tier 1 to 2, 2 to 3, 3 to 4), walk the inventory. For each `planned` or `in-progress` item, confirm it is scheduled into a named slice. Items that cross two tier boundaries still in `planned` status are either the next slice's mandatory content or deserve to be reclassified.
+
+**Tier 4 closure gate.** Mode D projects cannot declare Tier 4 (Hardened) while any `rewrite` item is `planned` or `in-progress`. Every inventory item must be `shipped` or `reclassified-as-dropped`. The migration is not complete while half of the inherited scaffold remains half-replaced.
+
+**File-growth signal.** If the inventory starts with more than 25 `rewrite` items, the migration is not a migration. It is a rewrite dressed as a migration, and the better path is to declare that openly, preserve only the `keep` items as seed data and conventions, and restart the app as a greenfield Mode A project.
+
 ## Research-to-planning bridge
 
 The research output feeds the next step in the workflow differently per mode.

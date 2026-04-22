@@ -1,5 +1,31 @@
 # Changelog
 
+## v2.4.0 (2026-04-22)
+
+Closes the three remaining graveyard risks surfaced when auditing the deferred-CTA lifecycle work from v2.3.0. Every escape-hatch or deferred-work mechanism in the skill now has an entry schema, a tier-boundary review, and a Tier 4 closure gate. No more silent accumulation of unfinished work.
+
+### Added
+
+- **STATE.md open-questions lifecycle.** The `Open questions blocking work` block now requires the same three-field schema (status, target slice, specific blocker) as `.production-ready/deferred-cta.md`. Vague blockers like "later" fail the slice's Passes-when gate. Answered questions get promoted to the architectural-decisions block or an ADR. Tier 4 cannot be declared while any question is `open`.
+- **Mode D migration closure gate** (`codebase-research.md`). The disposition inventory now requires per-item status (`planned`, `in-progress`, `shipped`, `reclassified-as-dropped`). Every reclassification requires an ADR. Tier 4 cannot be declared while any `rewrite` item is `planned` or `in-progress`. Inventories starting with more than 25 `rewrite` items are a signal the project is a rewrite dressed as a migration and should restart as Mode A greenfield.
+
+### Changed
+
+- **Hollow-check rule tightened to zero hits at any severity.** The prior rule accepted "zero high-severity hits" with an implicit low-severity tolerance that agents could use as an escape hatch. The rule is now "zero hits" with a single narrow exclusion: legitimate `console.error` or structured logger calls in catch blocks. Everything else blocks the slice.
+- **Tier 4 requirement #24 expanded** from "no hollow indicators" to "no hollow indicators and no open work." Now explicitly disqualifies: zero `open` questions in STATE.md, zero unshipped `rewrite` items in the Mode D migration inventory, plus the existing TODOs, raw debug output, hardcoded data, empty handlers, and live `deferred-cta.md` entries.
+- **STATE.md template example** updated to demonstrate the open-questions entry schema in practice.
+
+### Why this matters
+
+Before v2.4.0, a project could reach Tier 4 with:
+- A pile of "we'll decide later" questions sitting in STATE.md.
+- A pile of low-severity hollow-check hits "batched for cleanup."
+- A pile of unshipped `rewrite` items in a Mode D migration inventory.
+
+All three looked like progress (the file was tidy, the build was green, the tier tests passed) while actually masking unfinished work. v2.4.0 closes those loops.
+
+---
+
 ## v2.3.0 (2026-04-22)
 
 Closes the lifecycle loop for the v2.2.0 half-wired CTA rule. v2.2.0 defined the *entry* into `.production-ready/deferred-cta.md` (one of three escape hatches when a chain cannot ship in the current slice) but did not define the *exit*. Left as-is, the deferred list accumulates as a junk drawer of forgotten buttons. This release adds a strict entry schema, a tier-boundary review rule, a Tier 4 closure gate, parallel tracking for disabled-with-reason CTAs, and an audit cadence that keeps the file honest over time.
