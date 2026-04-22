@@ -1,7 +1,7 @@
 ---
 name: production-ready
 description: "Build production-grade, end-to-end connected apps across any stack: dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers. Triggers on 'dashboard,' 'admin panel,' 'internal tool,' 'back office,' 'control panel,' 'analytics view,' or any multi-page interface with auth, navigation, and CRUD over domain data. Enforces vertical-slice discipline and a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend, not stubbed with TODO, fake JSON, or 'hook this up later.' Pairs with repo-ready for repo hygiene. Not for single components, marketing sites, or pure repo scaffolding. Full trigger list in README."
-version: 2.2.0
+version: 2.3.0
 updated: 2026-04-22
 changelog: CHANGELOG.md
 compatible_with:
@@ -120,7 +120,7 @@ For each feature, follow this recipe:
 6. Audit: every mutation writes an audit log entry.
 7. Smoke test: walk create, edit, delete manually before declaring the slice done.
 8. **Decision record (ADR) if the slice made a non-obvious choice.** Three lines in `.production-ready/adr/NNN-slug.md`: what was decided, why, what was rejected and why. Skip for obvious decisions ("used the already-chosen ORM"). Write for decisions a future maintainer would have to reverse-engineer from code: "chose event sourcing over CRUD for this entity," "split `orders` and `order_items` as separate aggregates," "bypass the query layer for this report because it aggregates across tenants." The ADR is the only way the next human or agent inherits your reasoning rather than rediscovering it. Three lines. If you need more, you are over-documenting.
-9. **CTA flow completeness audit.** For every interactive element the slice added (button, link, form submit, menu item, drawer trigger, toolbar action), walk the full chain it initiates, not just the leaf handler. Every chain must end at a real user-visible outcome: a page that renders, a record that persists, a toast that confirms, a list that refreshes, a drawer that shows real content. The leaf `onClick` being non-empty is *not* the gate. The chain completing is the gate. The five half-wired shapes to catch: (a) navigation to a route the app does not register; (b) a dialog, drawer, or sheet whose body is an empty shell; (c) a mutation that fires but never invalidates the cache, toasts, or redirects, leaving the user uncertain it worked; (d) a dispatched action with no matching handler or reducer; (e) a form whose `onSubmit` is wired but whose handler ignores the response or leaves the form in a success-indistinguishable-from-failure state. If a CTA depends on something not yet built, build it in this slice, because the slice is defined by the feature, not by the happy-path component. If that is genuinely impossible (the flow is blocked on a third-party integration the user has not provisioned, for example), pick exactly one of these three before shipping, never a fourth: **(i) remove the CTA** from the UI, **(ii) disable the CTA** with a visible reason the user can read at a glance (tooltip-only reasons do not count), or **(iii) log the CTA as deferred** in `.production-ready/deferred-cta.md` with its location, intended chain, current blocker, and the slice that will ship it. Half-wired CTAs in the UI are a slice failure.
+9. **CTA flow completeness audit.** For every interactive element the slice added (button, link, form submit, menu item, drawer trigger, toolbar action), walk the full chain it initiates, not just the leaf handler. Every chain must end at a real user-visible outcome: a page that renders, a record that persists, a toast that confirms, a list that refreshes, a drawer that shows real content. The leaf `onClick` being non-empty is *not* the gate. The chain completing is the gate. The five half-wired shapes to catch: (a) navigation to a route the app does not register; (b) a dialog, drawer, or sheet whose body is an empty shell; (c) a mutation that fires but never invalidates the cache, toasts, or redirects, leaving the user uncertain it worked; (d) a dispatched action with no matching handler or reducer; (e) a form whose `onSubmit` is wired but whose handler ignores the response or leaves the form in a success-indistinguishable-from-failure state. If a CTA depends on something not yet built, build it in this slice, because the slice is defined by the feature, not by the happy-path component. If that is genuinely impossible (the flow is blocked on a third-party integration the user has not provisioned, for example), pick exactly one of these three before shipping, never a fourth: **(i) remove the CTA** from the UI, **(ii) disable the CTA** with a visible reason the user can read at a glance (tooltip-only reasons do not count), or **(iii) log the CTA as deferred** in `.production-ready/deferred-cta.md` using the entry schema and lifecycle rules specified in the "Deferred CTA lifecycle" section below. An entry that skips any required field (or names a vague blocker like "later") fails the slice's Passes-when gate. Half-wired CTAs in the UI are a slice failure.
 
 Order of slices: most-used first, riskiest second, nice-to-haves last. If the user runs out of patience halfway through, the most important feature is still complete.
 
@@ -274,7 +274,7 @@ Ship-ready. Tested, secure, verified.
 | 21 | **Tests.** Auth flow, one CRUD flow, one permission denial, axe on every page, and a contract test for every public API signature, server action, or exported type that crosses slice boundaries. |
 | 22 | **Security headers.** CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. No secrets in git. Rate limits on login and mutations. |
 | 23 | **Verification checklist passed.** Full checklist from `references/preflight-and-verification.md` walked and green. |
-| 24 | **No hollow indicators.** Zero TODOs, zero raw `console.log`, `dd()`, or `binding.pry` in production paths, zero hardcoded data, zero empty handlers. |
+| 24 | **No hollow indicators.** Zero TODOs, zero raw `console.log`, `dd()`, or `binding.pry` in production paths, zero hardcoded data, zero empty handlers, zero live entries in `.production-ready/deferred-cta.md` (every entry must be `resolved` or `dropped`). |
 
 **Proof test:** build succeeds clean, tests pass, lint passes, DevTools shows zero red errors and zero failed requests. If the repo lacks CI, LICENSE, or release automation, hand off to `repo-ready`.
 
@@ -303,6 +303,33 @@ If any of these appear, the dashboard fails the no-scaffold rule and must be fix
 - A **half-wired CTA**: a button, link, form submit, menu item, or drawer trigger whose *chain* does not complete to a real user-visible outcome. The leaf handler being non-empty is not enough. Shapes that disqualify: navigation to a route the app does not register; a dialog, drawer, or sheet that renders empty; a mutation that fires but never invalidates cache, toasts, or redirects; a dispatched action with no handler or reducer; a form whose submit handler ignores the response. If the chain cannot ship in the current slice, remove the CTA, disable it with a visible reason, or log it in `.production-ready/deferred-cta.md`. Never ship it half-wired.
 
 When you catch yourself about to write any of these, do the real version instead. The real version is almost always 10 to 30 more lines, not 10x more.
+
+## Deferred CTA lifecycle
+
+The deferred-CTA escape hatch from Step 5 item 9 exists so slices can ship when a chain is legitimately blocked on external work. Without a closure discipline, the deferred list becomes a junk drawer of forgotten buttons. These rules give it a forcing function.
+
+**Entry schema.** Every row in `.production-ready/deferred-cta.md` must have all of the following. Entries missing any field fail the slice's Passes-when gate.
+
+| Field | Required content |
+|---|---|
+| **Location** | File path, component name, and the role the CTA plays in the UI (for example `src/features/billing/PlanCard.tsx: "Change Plan" primary button`). |
+| **Intended chain** | What the chain is supposed to do, end-to-end, in one sentence. "Opens a plan-picker drawer, calls `POST /api/billing/change-plan`, shows a proration summary, redirects to the settings page with a success toast." |
+| **Blocker** | The specific reason it cannot ship in the current slice. "Stripe is not yet provisioned in this environment" is specific. "Later" or "needs more work" is not. Vague blockers fail the schema. |
+| **Target slice or milestone** | The named slice or Tier boundary where this is expected to ship. "Billing slice, Tier 2" or "After Stripe provisioning, before Tier 3 boundary." |
+| **Status** | One of `deferred` (not started), `in-progress` (active work in the current slice), `resolved` (the chain shipped, close the entry), `dropped` (decided not to build, with a one-line reason). |
+
+**Tier-boundary review.** At every tier boundary (Tier 1 → 2, 2 → 3, 3 → 4), walk `deferred-cta.md` entry by entry before declaring the new tier complete:
+- If the blocker is resolved, ship the CTA *in the current tier cycle*. It rides into whatever slice its chain belongs to, not as a separate slice.
+- If the blocker is still real, leave the entry in place and append a check date. An entry that has sat `deferred` across two tier boundaries with no progress is a scope signal: either the feature is real and deserves a slice, or it was never needed and should be `dropped`.
+- If the CTA was a mistake (scope creep that never deserved a button), mark it `dropped` with a one-line reason. Dropped entries stay in the file for audit history.
+
+**Tier 4 closure gate.** Tier 4 (Hardened) cannot be declared complete while any entry in `deferred-cta.md` is `deferred` or `in-progress`. Every entry must be `resolved` or `dropped`. This is the same discipline as "zero TODOs at Tier 4": deferred CTAs are TODOs the user can see, and shipping them live is the failure mode the skill exists to prevent.
+
+**Disabled-with-reason CTAs parallel the deferred list.** If a CTA is disabled pending future work (the user sees the button but cannot click it), it must also appear in `deferred-cta.md` with the same schema. A permanently disabled CTA that is gated by plan tier, feature flag, or subscription is *not* a deferred CTA. That is a feature-gate, which is a legitimate pattern. The difference: a feature-gate is the final state; a deferred-disabled is a temporary state with a target slice to ship.
+
+**Removal is clean and silent.** A removed CTA does not need tracking. Git history holds it if anyone wants to restore. One exception: if the CTA was visible in a *prior released* version, prefer disable-plus-track over silent removal. Silent removal of a button users have seen is a UX regression; disabling it with a visible reason ("Temporarily unavailable while we rebuild this flow") plus a deferred entry is the honest path.
+
+**Audit cadence for the file itself.** `deferred-cta.md` is append-and-update, not edit-and-forget. Every entry accumulates check dates at each tier boundary, producing an honest history. If the file grows beyond 10 live `deferred` entries, that is a signal the slice scope is drifting: the slice should probably be broken up or features cut.
 
 ## Reference files: load on demand
 
@@ -348,7 +375,7 @@ Maintain `.production-ready/STATE.md` as the map. Update it at every tier bounda
 # Production-Ready State
 
 ## Skill version
-Built under production-ready 2.2.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
+Built under production-ready 2.3.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
 
 ## Current tier
 Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].

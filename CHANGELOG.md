@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.3.0 (2026-04-22)
+
+Closes the lifecycle loop for the v2.2.0 half-wired CTA rule. v2.2.0 defined the *entry* into `.production-ready/deferred-cta.md` (one of three escape hatches when a chain cannot ship in the current slice) but did not define the *exit*. Left as-is, the deferred list accumulates as a junk drawer of forgotten buttons. This release adds a strict entry schema, a tier-boundary review rule, a Tier 4 closure gate, parallel tracking for disabled-with-reason CTAs, and an audit cadence that keeps the file honest over time.
+
+### Added
+
+- **New "Deferred CTA lifecycle" section in SKILL.md.** Placed immediately after the have-nots, before the reference files. Covers five rules: entry schema, tier-boundary review, Tier 4 closure gate, disabled-parallel tracking, and removal exception.
+- **Entry schema** (five required fields per row: location, intended chain, specific blocker, target slice or milestone, status). Entries missing any field, or naming a vague blocker, fail the slice's Passes-when gate.
+- **Status vocabulary** (`deferred`, `in-progress`, `resolved`, `dropped`). Drop-with-reason entries stay in the file for audit history.
+- **Tier-boundary review rule.** At every tier boundary, walk the file entry by entry. Ship resolved-blocker items in the current tier cycle. Append check dates for items whose blocker is still real. An entry that sits `deferred` across two tier boundaries without progress is a scope signal and should be rescoped or dropped.
+- **Tier 4 closure gate.** Tier 4 (Hardened) cannot be declared complete while any entry is `deferred` or `in-progress`. Every entry must be `resolved` or `dropped` before declaring ship-ready. Same discipline as "zero TODOs at Tier 4": deferred CTAs are TODOs the user can see.
+- **Disabled-parallel rule.** A disabled-with-visible-reason CTA that is pending future work must also have a `deferred-cta.md` entry. Feature-gates (plan tier, subscription, flag) are a separate permanent pattern and do not require tracking.
+- **Removal exception.** Removed CTAs do not need tracking, with one exception: a CTA visible in a prior *released* version should prefer disable-plus-track over silent removal to avoid UX regression surprise.
+- **File-growth audit signal.** More than 10 live `deferred` entries is a signal the slice scope is drifting; the slice should be broken up or features cut.
+
+### Changed
+
+- **Step 5 item 9 escape hatch (iii)** now references the Deferred CTA lifecycle section by name rather than inlining the fields. This keeps the recipe tight and gives the lifecycle rules a single canonical home.
+- **Tier 4 requirement #24** now explicitly includes "zero live entries in `.production-ready/deferred-cta.md` (every entry must be `resolved` or `dropped`)" alongside the existing TODO, console.log, hardcoded-data, and empty-handler disqualifiers.
+
+---
+
 ## v2.2.0 (2026-04-22)
 
 Names and catches a failure mode that existing linters miss: the **half-wired CTA**. A button, link, form, or drawer trigger whose leaf handler is non-empty but whose chain dead-ends one or two hops in (navigation to an unregistered route, empty modal bodies, mutations that never invalidate caches or toast, dispatched actions with no handler, forms that submit into the void). Research-backed: no existing term owned the naming lane (Smashing, CXL, UX Planet own "ghost button" for the visual term; "Potemkin UI" is too generic), and no linter currently catches chain-level failures (the closest is `next-type-safe-routes` at compile time). Repair-as-a-service businesses (VibeCheetah, FixBrokenAIApps) have emerged specifically around this failure pattern, confirming the market signal.
