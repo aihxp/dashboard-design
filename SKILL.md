@@ -1,7 +1,7 @@
 ---
 name: production-ready
 description: "Build production-grade, end-to-end connected apps across any stack: dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers. Triggers on 'dashboard,' 'admin panel,' 'internal tool,' 'back office,' 'control panel,' 'analytics view,' or any multi-page interface with auth, navigation, and CRUD over domain data. Enforces vertical-slice discipline and a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend, not stubbed with TODO, fake JSON, or 'hook this up later.' Pairs with repo-ready for repo hygiene. Not for single components, marketing sites, or pure repo scaffolding. Full trigger list in README."
-version: 2.1.0
+version: 2.2.0
 updated: 2026-04-22
 changelog: CHANGELOG.md
 compatible_with:
@@ -106,7 +106,7 @@ Always the same, always first:
 7. Shell layout: header (logo top-left, user menu top-right), sidebar nav, content area, breadcrumbs, responsive collapse. Tokens applied, not default theme.
 8. One real protected page reachable end-to-end.
 
-**Proof test before declaring Tier 1:** run the app, sign in as admin, see the landing page with real data, visit a CRUD page, create, edit, delete, sign out, sign in as non-admin, confirm different UI and 403 on forbidden mutations, reload, confirm data persists. Inspect one button and verify its color traces to `--color-primary`, not a library default. Confirm every dependency in `package.json` (or equivalent) is a real, published package with a known publisher. If this loop works, Tier 1 is complete. Run the hollow check.
+**Proof test before declaring Tier 1:** run the app, sign in as admin, see the landing page with real data, visit a CRUD page, create, edit, delete, sign out, sign in as non-admin, confirm different UI and 403 on forbidden mutations, reload, confirm data persists. Inspect one button and verify its color traces to `--color-primary`, not a library default. Confirm every dependency in `package.json` (or equivalent) is a real, published package with a known publisher. **Click every primary and secondary CTA on every page the slice touches, including drawer triggers, menu items, and form submits. Each must complete its chain to a real user-visible outcome. A 404 on navigation, an empty modal or drawer, a silent mutation with no cache invalidation or toast, or a form that submits into the void is a Tier 1 failure.** If this loop works, Tier 1 is complete. Run the hollow check.
 
 ### Step 5. Build feature slices
 
@@ -120,10 +120,11 @@ For each feature, follow this recipe:
 6. Audit: every mutation writes an audit log entry.
 7. Smoke test: walk create, edit, delete manually before declaring the slice done.
 8. **Decision record (ADR) if the slice made a non-obvious choice.** Three lines in `.production-ready/adr/NNN-slug.md`: what was decided, why, what was rejected and why. Skip for obvious decisions ("used the already-chosen ORM"). Write for decisions a future maintainer would have to reverse-engineer from code: "chose event sourcing over CRUD for this entity," "split `orders` and `order_items` as separate aggregates," "bypass the query layer for this report because it aggregates across tenants." The ADR is the only way the next human or agent inherits your reasoning rather than rediscovering it. Three lines. If you need more, you are over-documenting.
+9. **CTA flow completeness audit.** For every interactive element the slice added (button, link, form submit, menu item, drawer trigger, toolbar action), walk the full chain it initiates, not just the leaf handler. Every chain must end at a real user-visible outcome: a page that renders, a record that persists, a toast that confirms, a list that refreshes, a drawer that shows real content. The leaf `onClick` being non-empty is *not* the gate. The chain completing is the gate. The five half-wired shapes to catch: (a) navigation to a route the app does not register; (b) a dialog, drawer, or sheet whose body is an empty shell; (c) a mutation that fires but never invalidates the cache, toasts, or redirects, leaving the user uncertain it worked; (d) a dispatched action with no matching handler or reducer; (e) a form whose `onSubmit` is wired but whose handler ignores the response or leaves the form in a success-indistinguishable-from-failure state. If a CTA depends on something not yet built, build it in this slice, because the slice is defined by the feature, not by the happy-path component. If that is genuinely impossible (the flow is blocked on a third-party integration the user has not provisioned, for example), pick exactly one of these three before shipping, never a fourth: **(i) remove the CTA** from the UI, **(ii) disable the CTA** with a visible reason the user can read at a glance (tooltip-only reasons do not count), or **(iii) log the CTA as deferred** in `.production-ready/deferred-cta.md` with its location, intended chain, current blocker, and the slice that will ship it. Half-wired CTAs in the UI are a slice failure.
 
 Order of slices: most-used first, riskiest second, nice-to-haves last. If the user runs out of patience halfway through, the most important feature is still complete.
 
-**Passes when:** every recipe item is complete for the slice, the smoke test (create, edit, delete against the real data source) passes, and an ADR exists in `.production-ready/adr/` for any non-obvious choice the slice made.
+**Passes when:** every recipe item is complete for the slice, the smoke test (create, edit, delete against the real data source) passes, the CTA flow completeness audit returns zero half-wired CTAs (or every exception is logged in `.production-ready/deferred-cta.md`), and an ADR exists in `.production-ready/adr/` for any non-obvious choice the slice made.
 
 ### Step 5.1. Hollow-check protocol (after every slice)
 
@@ -163,9 +164,20 @@ done
 pip install --dry-run -r requirements.txt 2>&1 | grep -i "could not find"
 # Ruby
 bundle check 2>&1 | grep -i "could not find"
+
+# CTA flow completeness (catches half-wired buttons / dead chains)
+# Navigation destinations: flag router.push / navigate to routes the app may not register.
+# These are candidates for cross-checking against the route map, not automatic failures.
+grep -rnE "(router\.(push|navigate|replace)|useNavigate\(\)|navigate)\((\`|['\"])/" src/ --include="*.tsx" --include="*.ts"
+# Empty dialog / drawer / sheet shells: common in shadcn/Radix/MUI stubs.
+grep -rnE "<(Dialog|Drawer|Sheet|Modal|Popover)(Content)?[^>]*>\s*</(Dialog|Drawer|Sheet|Modal|Popover)(Content)?>" src/ --include="*.tsx" --include="*.jsx"
+# Mutations without onSuccess / invalidation: likely silent-fire.
+grep -rnE "useMutation\(\{[^}]*mutationFn" src/ --include="*.tsx" --include="*.ts" -A 10 | grep -B 1 -E "^\s*\}\)" | grep -v "onSuccess\|invalidate"
+# Forms without onSubmit:
+grep -rnE "<form(\s[^>]*)?>" src/ --include="*.tsx" --include="*.jsx" | grep -v "onSubmit\|action=" || true
 ```
 
-**Rule:** zero high-severity hits before the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now. Legitimate `console.error` or structured logger calls in catch blocks are fine; raw `console.log`, `dd()`, or `binding.pry` in production paths are not. Any `GHOST:` hit is always high-severity: stop, remove the package, re-verify the real name, re-install.
+**Rule:** zero high-severity hits before the next slice. If the scan finds a TODO you wrote ten minutes ago, fix it now. Legitimate `console.error` or structured logger calls in catch blocks are fine; raw `console.log`, `dd()`, or `binding.pry` in production paths are not. Any `GHOST:` hit is always high-severity: stop, remove the package, re-verify the real name, re-install. **CTA flow hits are heuristic, not automatic failures.** Navigation destinations need to be cross-checked against the route map; empty dialog/drawer shells are sometimes intentional placeholders for late-binding children, and some mutations invalidate caches elsewhere. Treat CTA hits as a manual-audit list: for each, confirm the chain completes. Any chain that does not complete is a half-wired CTA and blocks the slice.
 
 **When to run:** after each slice (scan touched files only), and at each tier boundary (scan everything). Tier 4 requires zero hits at any severity.
 
@@ -288,6 +300,7 @@ If any of these appear, the dashboard fails the no-scaffold rule and must be fix
 - Installing a package without confirming it exists on the registry with a real publisher (slopsquatting protection)
 - A non-obvious architectural decision made with no corresponding ADR in `.production-ready/adr/`
 - Running a destructive command (`rm -rf`, `DROP TABLE`, `git push --force`, `prisma migrate reset`) without an explicit confirmation step and a known backup
+- A **half-wired CTA**: a button, link, form submit, menu item, or drawer trigger whose *chain* does not complete to a real user-visible outcome. The leaf handler being non-empty is not enough. Shapes that disqualify: navigation to a route the app does not register; a dialog, drawer, or sheet that renders empty; a mutation that fires but never invalidates cache, toasts, or redirects; a dispatched action with no handler or reducer; a form whose submit handler ignores the response. If the chain cannot ship in the current slice, remove the CTA, disable it with a visible reason, or log it in `.production-ready/deferred-cta.md`. Never ship it half-wired.
 
 When you catch yourself about to write any of these, do the real version instead. The real version is almost always 10 to 30 more lines, not 10x more.
 
@@ -335,7 +348,7 @@ Maintain `.production-ready/STATE.md` as the map. Update it at every tier bounda
 # Production-Ready State
 
 ## Skill version
-Built under production-ready 2.1.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
+Built under production-ready 2.2.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
 
 ## Current tier
 Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].

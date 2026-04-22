@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.2.0 (2026-04-22)
+
+Names and catches a failure mode that existing linters miss: the **half-wired CTA**. A button, link, form, or drawer trigger whose leaf handler is non-empty but whose chain dead-ends one or two hops in (navigation to an unregistered route, empty modal bodies, mutations that never invalidate caches or toast, dispatched actions with no handler, forms that submit into the void). Research-backed: no existing term owned the naming lane (Smashing, CXL, UX Planet own "ghost button" for the visual term; "Potemkin UI" is too generic), and no linter currently catches chain-level failures (the closest is `next-type-safe-routes` at compile time). Repair-as-a-service businesses (VibeCheetah, FixBrokenAIApps) have emerged specifically around this failure pattern, confirming the market signal.
+
+### Added
+
+- **Step 5 recipe item 9: CTA flow completeness audit.** Every interactive element the slice adds must have its full chain walked, not just its leaf handler. The chain must end at a real user-visible outcome: a rendered page, a persisted record, a confirmation toast, a refreshed list, a drawer with real content. Five half-wired shapes called out explicitly. Defines three and only three escape hatches when the chain cannot ship in the current slice: remove the CTA, disable with a visible reason, or log as deferred in `.production-ready/deferred-cta.md`.
+- **Tier 1 proof test extension.** "Click every primary and secondary CTA on every page the slice touches, including drawer triggers, menu items, and form submits. Each must complete its chain to a real user-visible outcome. A 404 on navigation, an empty modal or drawer, a silent mutation with no cache invalidation or toast, or a form that submits into the void is a Tier 1 failure."
+- **New have-not: half-wired CTA.** Explicit disqualifier at any tier. Leaf handler non-empty is not sufficient.
+- **Hollow-check protocol extended with CTA chain grep.** Four new patterns: navigation destinations for route-map cross-checking, empty dialog/drawer/sheet shells, mutations without `onSuccess` or cache invalidation, and forms without `onSubmit` or `action`. Flagged as heuristic (manual audit against the route map), not automatic failures, to avoid false positives on legitimate late-binding patterns.
+
+### Changed
+
+- **Step 5 "Passes when" gate** now requires the CTA flow completeness audit to return zero half-wired CTAs (or every exception logged in `.production-ready/deferred-cta.md`).
+- Hollow-check `Rule:` paragraph clarifies that CTA flow hits are heuristic and produce a manual-audit list, distinct from automatic high-severity hits like ghost packages or TODOs.
+
+---
+
 ## v2.1.0 (2026-04-22)
 
 Incident-aligned rollup. Closes the dominant AI-coding complaint gaps surfaced by industry research (METR 2025, Veracode 2025, Socket slopsquatting, Stack Overflow 2025, and the 2025 incidents at Moltbook, Lovable, Base44, Replit) and adds the operational discipline for multi-session, multi-slice, multi-domain work. No breaking changes; existing workflows continue to work and inherit stricter gates.
