@@ -8,7 +8,7 @@ AI-generated apps (dashboards, admin panels, internal tools, SaaS back-offices, 
 
 Production Ready is a **skill**, a structured AI instruction set that any coding agent can consume. It ensures every feature ships wired end-to-end: real auth, real data, real permissions, real states, real feedback, across any stack and any industry.
 
-> **Part of the [ready-suite](SUITE.md)** — a composable set of AI skills covering the full arc from idea to launch (planning, building, shipping). Production Ready is the building-tier core. See [`SUITE.md`](SUITE.md) for the full map. Companion skill [repo-ready](https://github.com/aihxp/repo-ready) handles repo scaffolding (README, LICENSE, CI/CD, release automation). Production Ready owns the *app*; repo-ready owns the *repo*. They compose, they don't overlap.
+> **Part of the [ready-suite](SUITE.md)**, a composable set of AI skills covering the full arc from idea to launch (planning, building, shipping). Production Ready is the building-tier core. See [`SUITE.md`](SUITE.md) for the full map. Live siblings today: [stack-ready](https://github.com/aihxp/stack-ready) picks the right tools for the job (planning tier), and [repo-ready](https://github.com/aihxp/repo-ready) handles repo scaffolding (building tier). Production Ready owns the *app*; stack-ready owns the *decision about what to build with*; repo-ready owns the *repo*. They compose, they don't overlap.
 
 <p align="center">
 <strong>37 reference files</strong> &nbsp;·&nbsp; <strong>33 industry verticals</strong> &nbsp;·&nbsp; <strong>24 production requirements</strong> &nbsp;·&nbsp; <strong>4 shippable tiers</strong>

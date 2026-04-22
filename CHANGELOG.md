@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.5.1 (2026-04-22)
+
+Documentation-only patch. Reflects the arrival of stack-ready v1.1.0 (https://github.com/aihxp/stack-ready) as a live sibling in the ready-suite. No behavioral changes to the skill.
+
+### Changed
+
+- **SUITE.md known-good versions table** updated: stack-ready now shows version 1.1.0 and the live repo URL instead of "Not yet released." This file is intended to stay byte-identical across suite siblings, so the update will ship to every suite repo as each one releases.
+- **README.md suite callout** extended to name stack-ready alongside repo-ready as live siblings today, with a one-line scope statement for each (stack-ready owns the decision about what to build with; repo-ready owns the repo; production-ready owns the app).
+
+### Why a patch, not a minor
+
+The skill's behavior, frontmatter contract, and reference library are unchanged. Only outward-facing documentation references a new sibling's existence. Per the suite versioning discipline, patch-level is the honest bucket for documentary-only sibling-ship tracking.
+
+---
+
 ## v2.5.0 (2026-04-22)
 
 Retrofits production-ready to the **ready-suite interop standard**. Declares suite membership, wires upstream and downstream artifact handshakes, and ships `SUITE.md` at repo root that is byte-identical across every skill in the suite. No breaking changes; all additions. Positions production-ready as the building-tier core of a nine-skill suite spanning planning, building, and shipping.
