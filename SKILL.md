@@ -1,6 +1,17 @@
 ---
 name: production-ready
 description: "Build production-grade, end-to-end connected dashboards across any stack (React/Next/Vue/Svelte/Remix/Rails/Django/Laravel/etc.). Covers admin panels, analytics consoles, internal tools, operational control centers, SaaS back-offices. Triggers on: 'dashboard,' 'admin panel,' 'control panel,' 'back office,' 'internal tool,' 'analytics view,' 'reporting interface,' 'ops console,' 'metrics view,' 'KPI view,' or any multi-page interface with navigation, auth, and CRUD over domain data. Also triggers on requests to add sidebar nav, role-based access, user management, audit logs, charts over real data, filters, exports, or any 'logged-in area.' Enforces a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend or real local persistence, not stubbed with TODO, fake JSON, or 'hook this up later.'"
+version: 1.3.0
+updated: 2026-04-22
+changelog: CHANGELOG.md
+compatible_with:
+  - claude-code
+  - codex
+  - cursor
+  - windsurf
+  - any-agent-with-skill-loading
+pairs_with:
+  - repo-ready
 ---
 
 # Production Ready
@@ -158,6 +169,7 @@ A slice isn't done until it has tests. Read `references/testing-and-quality.md`.
 - Integration test walking the CRUD flow end-to-end.
 - Permission test confirming non-admin users are blocked.
 - Accessibility test (axe) on every new page.
+- **Contract test for cross-slice public signatures (graduated).** If the slice adds or changes a public API endpoint, server action, event payload, or exported type that another slice imports or calls, pin it with a schema-level contract test. Choose the style that fits the stack: OpenAPI snapshot for REST, zod/valibot `.parse()` round-trip for Node, TypeScript type-level test (`expectTypeOf`), or a recorded consumer contract (Pact). The test fails when the shape changes. If an intentional breaking change is needed, update the contract test *and* write an ADR explaining the alternatives rejected. Slices with no downstream consumer (a leaf feature no other slice imports) can skip this; the test becomes mandatory the moment a second slice depends on the signature. This is the only reliable guard against the silent-refactor failure mode where a rename or a `Promise`-wrap breaks a consumer three days later.
 
 ### Step 8. Harden performance and security
 
@@ -226,7 +238,7 @@ Ship-ready. Tested, secure, verified.
 
 | # | Requirement |
 |---|---|
-| 21 | **Tests.** Auth flow, one CRUD flow, one permission denial, axe on every page. |
+| 21 | **Tests.** Auth flow, one CRUD flow, one permission denial, axe on every page, and a contract test for every public API signature, server action, or exported type that crosses slice boundaries. |
 | 22 | **Security headers.** CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. No secrets in git. Rate limits on login and mutations. |
 | 23 | **Verification checklist passed.** Full checklist from `references/preflight-and-verification.md` walked and green. |
 | 24 | **No hollow indicators.** Zero TODOs, zero raw `console.log`, `dd()`, or `binding.pry` in production paths, zero hardcoded data, zero empty handlers. |
@@ -288,6 +300,8 @@ The body above is enough to start. Load each reference *before* implementing tha
 | `api-and-integrations.md` | **On demand.** External APIs, webhooks |
 | `ai-product-patterns.md` | **On demand.** AI and LLM features |
 
+Skill version and change history live in `CHANGELOG.md`. When resuming a project, confirm the skill version your session loaded matches the version recorded in `.production-ready/STATE.md`. A skill update between sessions may change hollow-check patterns, add tier requirements, or shift items between tiers (especially for regulated domains). If the versions differ, re-run the hollow check and re-read the changed sections before continuing.
+
 ## Session state and handoff
 
 Long builds span sessions. Without a state file, every resume rediscovers context from the code and drops the decisions made in earlier sessions. The second diagnosis of context-entropy failures (Pragmatic Engineer, r/ExperiencedDevs) is always the same: "the AI's context window can only see fragments, and developers have no map to find a stable version."
@@ -298,6 +312,9 @@ Maintain `.production-ready/STATE.md` as the map. Update it at every tier bounda
 
 ```markdown
 # Production-Ready State
+
+## Skill version
+Built under production-ready 1.3.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
 
 ## Current tier
 Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].

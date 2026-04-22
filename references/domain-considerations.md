@@ -4,7 +4,29 @@ This file covers the domain-specific landmines for 33 common dashboard verticals
 
 **How to use this file:** During pre-flight (question #1: "who uses this, for what job?"), identify which domain archetype matches. Read that section before designing the schema or writing the first migration. The gotchas listed here are things that generic CRUD misses — they're the landmines, not the full terrain.
 
-If the dashboard spans multiple domains (e.g., a SaaS that includes billing — that's SaaS + Financial), read both sections.
+If the dashboard spans multiple domains (e.g., a SaaS that includes billing, which is SaaS plus Financial), read both sections.
+
+## Tier remap for regulated domains
+
+The default tier ladder (Foundation, Functional, Polished, Hardened) assumes an internal tool where accessibility and audit are "ready for beta" concerns. In regulated domains, some Tier 3 items are Tier 1 legal obligations. When the pre-flight identifies one of the following domains, remap the tier requirements accordingly before starting Step 4.
+
+| Domain | Requirement that moves to Tier 1 | Legal / compliance anchor |
+|---|---|---|
+| Healthcare / Medical | Accessibility (req #17) plus Audit log (req #16) | ADA Title III plus HIPAA §164.312(b) require PHI access logs from day one |
+| US Government / Public Sector | Accessibility (req #17) | Section 508 is a federal procurement gate |
+| EU Public Sector | Accessibility (req #17) | EN 301 549 and EAA 2025 obligations |
+| Education / LMS | Accessibility (req #17) | DOJ and OCR lawsuits routinely target inaccessible LMS features |
+| Financial / Fintech | Audit log (req #16) | SOX, PCI-DSS, MiCA record-keeping |
+| Legal / Law Firm | Audit log (req #16) | Client confidentiality plus malpractice evidentiary trail |
+| HR / Payroll | Audit log (req #16) | SOC 2 plus wage-and-hour disputes |
+| Gaming with minors | Audit log (req #16) | COPPA and GDPR-K |
+| Cybersecurity / SOC | Audit log (req #16) | Forensic integrity is the product |
+
+**How this changes the build.** When Tier 1 is declared complete, the remapped items must be satisfied, not deferred. Accessibility at Tier 1 means: keyboard-reachable shell, visible focus styles, semantic HTML, and an axe pass on the landing plus first CRUD page. Audit log at Tier 1 means: the append-only table exists, every mutation writes to it, and an admin can view it, even if pretty filtering waits for Tier 3.
+
+**Architecture note requirement.** State the remap explicitly: "Regulated domain: [name]. Tier 1 also includes [requirements]." Without the explicit statement, the remap doesn't bind and the agent will default back to the unrestricted tier ladder.
+
+**Seed-data compliance.** In these regulated domains, do not seed with real-shaped sensitive data. Use synthetic fixtures that are realistic in structure (name formats, ID formats, temporal distributions) but carry no personally identifying content. For healthcare specifically, never seed with real MRNs, real claim numbers, or realistic DOBs paired with realistic names. Synthetic tooling: Faker (general), synthea (healthcare), generatedata.com (bulk).
 
 ## Top gotchas by frequency
 

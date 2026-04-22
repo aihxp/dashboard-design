@@ -1,5 +1,42 @@
 # Changelog
 
+## v1.3.0 (2026-04-22)
+
+Incident-aligned release. Closes the dominant AI-coding complaint gaps surfaced by industry research (METR 2025, Veracode 2025, Socket/slopsquatting, Stack Overflow 2025, and 2025 incidents at Moltbook, Lovable, Base44, Replit). Trims SKILL.md, extracts naming conventions to a new reference, adds a repo-ready companion handoff, and introduces session-state handoff plus ADRs for cross-session continuity.
+
+### Added
+
+- **Threat model bullet in Step 2 architecture note.** Three required answers: attacker gain, highest-blast-radius mutation, trust boundaries. Compliance blast radius for regulated domains.
+- **Slopsquatting defense in Step 4.** Pre-install verification of every unfamiliar dependency (publisher, registry presence, download count). Hollow check now scans `package.json`, `requirements.txt`, and `Gemfile` for ghost names; any `GHOST:` hit is always high-severity.
+- **ADR-per-slice in Step 5.** Three-line decision record in `.production-ready/adr/NNN-slug.md` for any non-obvious choice a future maintainer would have to reverse-engineer.
+- **Session state and handoff section with `.production-ready/STATE.md` template.** Updated at every tier boundary and context compaction; read first on resume.
+- **Graduated contract tests in Step 7 and Tier 4.** Any public API signature, server action, or exported type that crosses slice boundaries gets a schema-level contract test. Mandatory the moment a second slice consumes the signature.
+- **Tier remap for regulated domains** (`domain-considerations.md`). Healthcare, government, education, finance, legal, HR, gaming with minors, and cybersecurity remap specific Tier 3 items to Tier 1 legal obligations. Includes seed-data compliance guardrails.
+- **Vibe coding vs. vibe engineering framing in README.** Cites real 2025 incidents (Moltbook, Lovable CVE-2025-48757, Base44, Replit production-DB wipe, Veracode 45%, Socket 20% slopsquatting, METR 19% slowdown, Stack Overflow 66% "almost right"). Adopts Willison's vibe-engineering framing.
+- **"What this skill prevents" incident table in README.** Every prevention maps to a documented incident or research finding.
+- **Repo-ready companion skill pairing.** Explicit handoff section in SKILL.md for repo hygiene (README, LICENSE, CI, release automation). Harness-aware instructions for skill-invocation tools.
+- **`naming.md` reference file.** Cross-layer naming conventions extracted from SKILL.md. Tables for code, navigation, casing boundary rule, and anti-patterns.
+- **Frontmatter metadata.** `version`, `updated`, `changelog`, `compatible_with`, `pairs_with` for machine-readable version legibility and STATE.md cross-check.
+- **"When this skill does NOT apply" routing section.** Explicit scope fence against single-component requests, repo hygiene, marketing sites, and greenfield scaffolding.
+- **Cross-stack hollow check.** Python, Ruby, PHP, and universal markers added to the grep protocol (was JS/TS only).
+- **Tier 1 proof test now verifies design-token application.** "Inspect one button and verify its color traces to `--color-primary`, not a library default."
+
+### Changed
+
+- **SKILL.md trimmed from 643 to approximately 360 lines.** Visual identity framework moved into `ui-design-patterns.md`. Naming conventions moved into `naming.md`. "How to interpret a vague request" table moved into `domain-considerations.md`.
+- **Visual identity decision framework now single-sourced** in `ui-design-patterns.md` (archetype table, 5 decisions, token block, anti-patterns) immediately above the existing 10 token sets.
+- **Documentation rewritten without em dashes** across SKILL.md, README.md, `naming.md`, and the new sections of `ui-design-patterns.md` and `domain-considerations.md`.
+- **GitHub repo description** updated to mention the repo-ready pairing.
+- **Reference file count** updated from 36 to 37.
+
+### Added to have-nots
+
+- Installing a package without confirming it exists on the registry with a real publisher (slopsquatting protection).
+- A non-obvious architectural decision made with no corresponding ADR in `.production-ready/adr/`.
+- Running a destructive command (`rm -rf`, `DROP TABLE`, `git push --force`, `prisma migrate reset`) without an explicit confirmation step and a known backup.
+
+---
+
 ## v1.2.0 — 2026-04-12
 
 ### Added
