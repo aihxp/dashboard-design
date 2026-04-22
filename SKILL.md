@@ -1,7 +1,7 @@
 ---
 name: production-ready
 description: "Build production-grade, end-to-end connected apps across any stack: dashboards, admin panels, internal tools, SaaS back-offices, analytics consoles, ops centers. Triggers on 'dashboard,' 'admin panel,' 'internal tool,' 'back office,' 'control panel,' 'analytics view,' or any multi-page interface with auth, navigation, and CRUD over domain data. Enforces vertical-slice discipline and a no-scaffold-no-placeholder rule: every feature ships wired end-to-end to a real backend, not stubbed with TODO, fake JSON, or 'hook this up later.' Pairs with repo-ready for repo hygiene. Not for single components, marketing sites, or pure repo scaffolding. Full trigger list in README."
-version: 1.4.0
+version: 2.1.0
 updated: 2026-04-22
 changelog: CHANGELOG.md
 compatible_with:
@@ -335,7 +335,7 @@ Maintain `.production-ready/STATE.md` as the map. Update it at every tier bounda
 # Production-Ready State
 
 ## Skill version
-Built under production-ready 1.3.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
+Built under production-ready 2.1.0. If the agent loads a newer version on resume, re-run the hollow check and re-read the changed sections before continuing.
 
 ## Current tier
 Working toward Tier [N]. Last completed tier: [N-1]. Declared at [ISO date].

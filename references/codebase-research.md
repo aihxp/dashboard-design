@@ -486,7 +486,7 @@ The fix-it list is the todo. Each item maps to a tier and has enough context to 
 
 The user inherited something. Sources: an off-the-shelf admin template (Retool export, Appsmith, Tooljet, shadcn admin kit, Mantine admin starter, Nuxt UI dashboard template), a previous AI agent's half-built work, or a cross-framework port (Vue to React, PHP to Rails, WordPress back-office to a custom dashboard). The existing code is not a contract. It's scaffolding measured against the tier requirements.
 
-The failure this mode prevents: adopting hollow patterns because they are already there. Template kits ship with default shadcn styling, stub auth, and mock data — all of which violate the skill's tier requirements. A migration that preserves the template wholesale inherits every one of those hollows.
+The failure this mode prevents: adopting hollow patterns because they are already there. Template kits ship with default shadcn styling, stub auth, and mock data, all of which violate the skill's tier requirements. A migration that preserves the template wholesale inherits every one of those hollows.
 
 **Process:**
 
@@ -522,13 +522,13 @@ The failure this mode prevents: adopting hollow patterns because they are alread
 ### Disposition inventory
 
 **Keep ([N] items):**
-- [path] — [why it meets the tier bar]
+- [path]: [why it meets the tier bar]
 
 **Rewrite ([N] items):**
-- [path] — [current shape / required shape] — [tier it blocks]
+- [path]: [current shape / required shape] (tier blocked: [tier])
 
 **Discard ([N] items):**
-- [path] — [reason]
+- [path]: [reason]
 
 ### Migration plan
 Phase 1 (Tier 1 foundation): rewrite [auth, data layer, shell] items, keep [X, Y]. Discard before starting: [list].

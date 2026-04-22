@@ -1,47 +1,54 @@
 # Changelog
 
-## v1.4.0 (2026-04-22)
+## v2.1.0 (2026-04-22)
 
-Quality-polish release. Adds per-step acceptance tests, a fourth project-state mode for migrations, canonical-scope headers on overlapping references, and a focused trigger surface. Frontmatter description trimmed; long trigger list moved to README. No breaking changes.
+Incident-aligned rollup. Closes the dominant AI-coding complaint gaps surfaced by industry research (METR 2025, Veracode 2025, Socket slopsquatting, Stack Overflow 2025, and the 2025 incidents at Moltbook, Lovable, Base44, Replit) and adds the operational discipline for multi-session, multi-slice, multi-domain work. No breaking changes; existing workflows continue to work and inherit stricter gates.
 
-### Added
+This release consolidates all work since v2.0.0.
 
-- **Per-step acceptance tests in SKILL.md.** Every workflow step now ends with a one-line "Passes when" gate that makes step completion auditable.
-- **Mode D: Migration** in `codebase-research.md` and SKILL.md Step 0. Detects off-the-shelf templates (Retool, Appsmith, shadcn admin kit), prior-agent work, and cross-framework ports. Produces a keep/rewrite/discard disposition inventory and a phased migration plan. Prevents the "preserve hollow patterns because they're already there" failure mode.
-- **Canonical-scope headers on 11 overlapping reference files.** Each file now states its owned scope and cross-references related files. Kills the split-brain between `auth-and-rbac.md` and `login-and-auth-pages.md`, `security-deep-dive.md` and `performance-and-security.md`, `data-layer.md` and `api-and-integrations.md`, `information-architecture.md` and `headers-and-navigation.md`, and others.
-- **"When Production Ready should trigger" section in README.** Full trigger surface moved out of frontmatter: positive triggers, implied triggers, mode triggers, negative triggers, and the repo-ready pairing rule. Agents read the concise frontmatter first, then the detailed list when needed.
-
-### Changed
-
-- **Frontmatter description trimmed** from ~1,100 to ~620 characters. Retains core trigger signal ("dashboard," "admin panel," "internal tool"), enforcement rule, and pairing. Full trigger list now lives in README.
-- **"Rules for working with existing codebases"** in `codebase-research.md` now applies to Modes B, C, and D (was B and C only), with a Mode D caveat: rules govern only "keep" items; "rewrite" and "discard" items are re-decided per the migration plan.
-
-## v1.3.0 (2026-04-22)
-
-Incident-aligned release. Closes the dominant AI-coding complaint gaps surfaced by industry research (METR 2025, Veracode 2025, Socket/slopsquatting, Stack Overflow 2025, and 2025 incidents at Moltbook, Lovable, Base44, Replit). Trims SKILL.md, extracts naming conventions to a new reference, adds a repo-ready companion handoff, and introduces session-state handoff plus ADRs for cross-session continuity.
-
-### Added
+### Defense-in-depth additions
 
 - **Threat model bullet in Step 2 architecture note.** Three required answers: attacker gain, highest-blast-radius mutation, trust boundaries. Compliance blast radius for regulated domains.
 - **Slopsquatting defense in Step 4.** Pre-install verification of every unfamiliar dependency (publisher, registry presence, download count). Hollow check now scans `package.json`, `requirements.txt`, and `Gemfile` for ghost names; any `GHOST:` hit is always high-severity.
-- **ADR-per-slice in Step 5.** Three-line decision record in `.production-ready/adr/NNN-slug.md` for any non-obvious choice a future maintainer would have to reverse-engineer.
-- **Session state and handoff section with `.production-ready/STATE.md` template.** Updated at every tier boundary and context compaction; read first on resume.
-- **Graduated contract tests in Step 7 and Tier 4.** Any public API signature, server action, or exported type that crosses slice boundaries gets a schema-level contract test. Mandatory the moment a second slice consumes the signature.
-- **Tier remap for regulated domains** (`domain-considerations.md`). Healthcare, government, education, finance, legal, HR, gaming with minors, and cybersecurity remap specific Tier 3 items to Tier 1 legal obligations. Includes seed-data compliance guardrails.
-- **Vibe coding vs. vibe engineering framing in README.** Cites real 2025 incidents (Moltbook, Lovable CVE-2025-48757, Base44, Replit production-DB wipe, Veracode 45%, Socket 20% slopsquatting, METR 19% slowdown, Stack Overflow 66% "almost right"). Adopts Willison's vibe-engineering framing.
-- **"What this skill prevents" incident table in README.** Every prevention maps to a documented incident or research finding.
-- **Repo-ready companion skill pairing.** Explicit handoff section in SKILL.md for repo hygiene (README, LICENSE, CI, release automation). Harness-aware instructions for skill-invocation tools.
-- **`naming.md` reference file.** Cross-layer naming conventions extracted from SKILL.md. Tables for code, navigation, casing boundary rule, and anti-patterns.
-- **Frontmatter metadata.** `version`, `updated`, `changelog`, `compatible_with`, `pairs_with` for machine-readable version legibility and STATE.md cross-check.
-- **"When this skill does NOT apply" routing section.** Explicit scope fence against single-component requests, repo hygiene, marketing sites, and greenfield scaffolding.
 - **Cross-stack hollow check.** Python, Ruby, PHP, and universal markers added to the grep protocol (was JS/TS only).
 - **Tier 1 proof test now verifies design-token application.** "Inspect one button and verify its color traces to `--color-primary`, not a library default."
 
+### Handoff and continuity additions
+
+- **ADR-per-slice in Step 5.** Three-line decision record in `.production-ready/adr/NNN-slug.md` for any non-obvious choice a future maintainer would have to reverse-engineer.
+- **Session state and handoff section with `.production-ready/STATE.md` template.** Updated at every tier boundary and context compaction; read first on resume. Template now records the skill version the project was built under.
+- **Frontmatter metadata.** `version`, `updated`, `changelog`, `compatible_with`, `pairs_with` for machine-readable version legibility and STATE.md cross-check.
+- **Repo-ready companion skill pairing.** Explicit handoff section in SKILL.md for repo hygiene (README, LICENSE, CI, release automation). Harness-aware instructions for skill-invocation tools.
+
+### Workflow auditability additions
+
+- **Per-step acceptance tests in SKILL.md.** Every workflow step (0 through 9) ends with a one-line "Passes when" gate that makes step completion auditable.
+- **Mode D: Migration** in `codebase-research.md` and SKILL.md Step 0. Detects off-the-shelf templates (Retool, Appsmith, shadcn admin kit), prior-agent work, and cross-framework ports. Produces a keep/rewrite/discard disposition inventory and a phased migration plan. Prevents the "preserve hollow patterns because they're already there" failure mode.
+- **Graduated contract tests in Step 7 and Tier 4.** Any public API signature, server action, or exported type that crosses slice boundaries gets a schema-level contract test. Mandatory the moment a second slice consumes the signature.
+
+### Domain and compliance additions
+
+- **Tier remap for regulated domains** (`domain-considerations.md`). Healthcare, government, education, finance, legal, HR, gaming with minors, and cybersecurity remap specific Tier 3 items to Tier 1 legal obligations. Includes seed-data compliance guardrails.
+
+### Structural additions
+
+- **`naming.md` reference file.** Cross-layer naming conventions extracted from SKILL.md. Tables for code, navigation, casing boundary rule, and anti-patterns.
+- **Canonical-scope headers on 11 overlapping reference files.** Each file now states its owned scope and cross-references related files. Kills the split-brain between `auth-and-rbac.md` and `login-and-auth-pages.md`, `security-deep-dive.md` and `performance-and-security.md`, `data-layer.md` and `api-and-integrations.md`, `information-architecture.md` and `headers-and-navigation.md`, and others.
+- **"When this skill does NOT apply" routing section in SKILL.md.** Explicit scope fence against single-component requests, repo hygiene, marketing sites, and greenfield scaffolding.
+- **"When Production Ready should trigger" section in README.** Full trigger surface moved out of frontmatter: positive triggers, implied triggers, mode triggers, negative triggers, and the repo-ready pairing rule.
+
+### Positioning additions
+
+- **Vibe coding vs. vibe engineering framing in README.** Cites real 2025 incidents (Moltbook, Lovable CVE-2025-48757, Base44, Replit production-DB wipe, Veracode 45%, Socket 20% slopsquatting, METR 19% slowdown, Stack Overflow 66% "almost right"). Adopts Willison's vibe-engineering framing.
+- **"What this skill prevents" incident table in README.** Every prevention maps to a documented incident or research finding.
+
 ### Changed
 
-- **SKILL.md trimmed from 643 to approximately 360 lines.** Visual identity framework moved into `ui-design-patterns.md`. Naming conventions moved into `naming.md`. "How to interpret a vague request" table moved into `domain-considerations.md`.
+- **SKILL.md trimmed from 643 to approximately 400 lines.** Visual identity framework moved into `ui-design-patterns.md`. Naming conventions moved into `naming.md`. "How to interpret a vague request" table moved into `domain-considerations.md`.
 - **Visual identity decision framework now single-sourced** in `ui-design-patterns.md` (archetype table, 5 decisions, token block, anti-patterns) immediately above the existing 10 token sets.
-- **Documentation rewritten without em dashes** across SKILL.md, README.md, `naming.md`, and the new sections of `ui-design-patterns.md` and `domain-considerations.md`.
+- **Frontmatter description trimmed** from approximately 1,100 to approximately 620 characters. Retains core trigger signal, enforcement rule, and repo-ready pairing. Full trigger list now lives in README.
+- **"Rules for working with existing codebases"** in `codebase-research.md` now applies to Modes B, C, and D (was B and C only), with a Mode D caveat: rules govern only "keep" items; "rewrite" and "discard" items are re-decided per the migration plan.
+- **Documentation rewritten without em dashes** across SKILL.md, README.md, CHANGELOG.md, `naming.md`, and the new sections of `ui-design-patterns.md`, `domain-considerations.md`, and `codebase-research.md`.
 - **GitHub repo description** updated to mention the repo-ready pairing.
 - **Reference file count** updated from 36 to 37.
 
@@ -50,6 +57,11 @@ Incident-aligned release. Closes the dominant AI-coding complaint gaps surfaced 
 - Installing a package without confirming it exists on the registry with a real publisher (slopsquatting protection).
 - A non-obvious architectural decision made with no corresponding ADR in `.production-ready/adr/`.
 - Running a destructive command (`rm -rf`, `DROP TABLE`, `git push --force`, `prisma migrate reset`) without an explicit confirmation step and a known backup.
+
+### Migration notes
+
+- Projects built under v2.0.0 will pass v2.1.0 unchanged for anything already completed, but new slices under v2.1.0 will be held to the stricter gates (threat model in architecture note, ADR when non-obvious, contract tests at cross-slice boundaries, STATE.md maintained across sessions). Recommended path: record the current tier in `.production-ready/STATE.md`, then proceed under the new rules for subsequent slices.
+- The regulated-domain tier remap applies prospectively. If an existing project is in a regulated domain and has not yet shipped the remapped Tier 1 items (accessibility or audit log), treat those as gaps to close before the next tier boundary rather than as a v2.0.0 breakage.
 
 ---
 
