@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.5.5 (2026-04-23)
+
+Documentation-only patch. Reflects the arrival of launch-ready v1.0.0 (https://github.com/aihxp/launch-ready) as a live sibling in the ready-suite. This release completes the shipping tier: deploy-ready ships it, observe-ready keeps it healthy, launch-ready tells the world. No behavioral changes to production-ready itself.
+
+### Changed
+
+- **SUITE.md known-good versions table** updated: launch-ready now shows version 1.0.0 and the live repo URL instead of "Not yet released." stack-ready bumped to 1.1.4, deploy-ready to 1.0.3, and observe-ready to 1.0.2 alongside this release for the same byte-identical sync.
+- **SKILL.md frontmatter version** bumped to 2.5.5. No content change beyond the version tag.
+
+### Why a patch, not a minor
+
+Same rationale as prior x.y.z patches: the skill's behavior, frontmatter contract, and reference library are unchanged. Only the cross-sibling SUITE.md is touched to track a new sibling's release. Per the suite versioning discipline, patch-level is the honest bucket for documentary-only sibling-ship tracking.
+
 ## v2.5.4 (2026-04-23)
 
 Documentation-only patch. Reflects the arrival of repo-ready v1.6.0 as a live sibling in the ready-suite with its suite-membership retrofit (frontmatter interop fields, SUITE.md, Unicode cleanup). No behavioral changes to the skill.
