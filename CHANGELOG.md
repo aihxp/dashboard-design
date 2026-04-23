@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.5.8 (2026-04-23)
+
+Documentation-only patch. Reflects the arrival of `roadmap-ready` v1.0.0 (https://github.com/aihxp/roadmap-ready) as a live sibling in the ready-suite. This release completes the nine-skill suite: `prd-ready` (what), `architecture-ready` (how), `roadmap-ready` (when), `stack-ready` (with what tools), `repo-ready` (the repo), `production-ready` (the app), `deploy-ready` (ship it), `observe-ready` (keep it healthy), `launch-ready` (tell the world). No behavioral changes to this skill.
+
+### Changed
+
+- **`SUITE.md`** updated to list `roadmap-ready` at 1.0.0 alongside the coordinated one-patch bump across every live sibling. Copy remains byte-identical across every live sibling.
+- **SKILL.md frontmatter version** bumped to 2.5.8. No content change beyond the version tag.
+
+### Why a patch, not a minor
+
+The skill's behavior, frontmatter contract, and reference library are unchanged. Only the cross-sibling `SUITE.md` is touched to track a new sibling's release. Per the suite versioning discipline, patch-level is the honest bucket for documentary-only sibling-ship tracking.
+
 ## v2.5.7 (2026-04-23)
 
 Documentation-only patch. Reflects the arrival of `architecture-ready` v1.0.0 (https://github.com/aihxp/architecture-ready) as a live sibling in the ready-suite. architecture-ready is a new upstream planning-tier sibling; production-ready's Step 2 architecture note and threat model now pre-fill from `.architecture-ready/HANDOFF.md`. No behavioral changes to the skill.
