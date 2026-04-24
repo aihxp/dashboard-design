@@ -239,7 +239,7 @@ Implicitly satisfied by harden-ready's dogfood pattern. harden-ready v1.0.0 ship
 
 - **10/10 skills** have a committed Mirror Box dogfood artifact.
 - **`aihxp/mirror-box` v1.0.0** exists as the canonical reference implementation.
-- **Executional arc** walks end-to-end: PRD → ARCH → ROADMAP → STACK DECISION → HYGIENE → SLICES → (mirror-box v1.0.0) → CUTOVER → OBSERVABILITY → N-A (launch) + FINDINGS (harden).
+- **Executional arc** walks end-to-end: PRD -> ARCH -> ROADMAP -> STACK DECISION -> HYGIENE -> SLICES -> (mirror-box v1.0.0) -> CUTOVER -> OBSERVABILITY -> N-A (launch) + FINDINGS (harden).
 - **No skill-contract changes.** The convention "version bumps track skill-contract changes, not documentation additions" held. Zero new tags, zero new releases, zero SUITE.md churn from this closure.
 
 The gap is closed. The suite is now demonstrably composable end-to-end on a single real project.
